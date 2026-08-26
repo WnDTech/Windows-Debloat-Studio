@@ -8,7 +8,7 @@ ship with Windows.
 **[Download](https://github.com/WnDTech/Windows-Debloat-Studio/releases/tag/v1.0.0)** &middot;
 **[Website](https://windowsdebloat.wndtech.tips)**
 
-355 options across 15 categories. Every option has its own explanation, a risk
+355 options across 16 categories. Every option has its own explanation, a risk
 label, the live state read from your machine, and three choices: **Enable**,
 **Disable**, **Revert**. Nothing is selected when the app opens, and nothing is
 applied until you press *Review & apply* and confirm.
@@ -362,13 +362,14 @@ always an explicit list.
 | Background Services | 44 | SysMain, Search, Spooler, Xbox, Delivery Optimization, Bluetooth, discovery, WinRM, SNMP, smart card, legacy protocols |
 | Scheduled Tasks | 22 | Compatibility Appraiser, CEIP, error reporting, Office, Xbox, vendor updaters, update orchestrator, diagnostics |
 | Windows Update & Store | 15 | Deferrals, driver updates, restart behaviour, active hours, reserved storage |
-| Performance & Gaming | 24 | Game DVR, HAGS, power plan, Nagle, core parking, VBS, CPU mitigations |
+| Performance & Gaming | 22 | Game DVR, HAGS, power plan, Nagle, core parking, VBS, CPU mitigations |
 | Security & Defender | 25 | SMBv1, LLMNR, PowerShell 2.0, SmartScreen, UAC, LSA protection, ASR rules, RDP, TLS |
 | Network & Sharing | 16 | DoH, Teredo, discovery, SMB server, hotspot, WPAD, IPv6 |
 | Microsoft Edge | 16 | New tab feed, sidebar, sync, startup boost, background mode, tracking prevention, IE mode |
 | Windows Features | 25 | Optional features and on-demand capabilities via DISM |
 | OneDrive & Cloud Sync | 8 | Known-folder redirection, Files On-Demand, uninstall — in the order that avoids losing files |
-| Advanced & Housekeeping | 15 | Disk cleanup, component store, boot menu, crash dumps, start-up entries |
+| Advanced & Housekeeping | 6 | Component store, boot menu, crash dumps, start-up entries |
+| Cleanup & Disk Space | 11 | Temporary files, old updates, caches, event logs, hibernation — permanently deletes data that Revert cannot undo |
 
 The **OneDrive** category is deliberately ordered. Windows silently redirects
 Desktop, Documents and Pictures into OneDrive during setup, which is why removing

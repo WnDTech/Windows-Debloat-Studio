@@ -250,6 +250,9 @@ function Select-Category {
     }
 
     Update-Filter
+
+    $cleanupBtn = Get-El 'BtnCleanupTool'
+    $cleanupBtn.Visibility = if ($Key -eq 'cleanup') { 'Visible' } else { 'Collapsed' }
 }
 
 # --------------------------------------------------------------- filtering
@@ -1769,11 +1772,16 @@ function Register-Handlers {
     (Get-El 'BtnHelp').Add_Click({ (Get-El 'OvHelp').Visibility = 'Visible' })
     (Get-El 'BtnHelpClose').Add_Click({ (Get-El 'OvHelp').Visibility = 'Collapsed' })
 
+    # cleanup overlay
+    (Get-El 'BtnCleanupTool').Add_Click({ Show-CleanupOverlay })
+    (Get-El 'BtnCleanupCancel').Add_Click({ (Get-El 'OvCleanup').Visibility = 'Collapsed' })
+    (Get-El 'BtnCleanupApply').Add_Click({ Invoke-CleanupApply })
+
     # --- keyboard
     $win.Add_PreviewKeyDown({
             param($s, $e)
             if ($e.Key -eq 'Escape') {
-                foreach ($n in @('OvLicense', 'OvHelp', 'OvSave', 'OvConfirm')) {
+                foreach ($n in @('OvLicense', 'OvHelp', 'OvSave', 'OvConfirm', 'OvCleanup')) {
                     $o = Get-El $n
                     if ($o.Visibility -eq 'Visible') { $o.Visibility = 'Collapsed'; $e.Handled = $true; return }
                 }
@@ -1786,6 +1794,191 @@ function Register-Handlers {
                 $e.Handled = $true
             }
         })
+}
+
+# --------------------------------------------------------------- cleanup overlay
+
+$script:CleanupChecks = @()
+
+function Show-CleanupOverlay {
+    $panel = Get-El 'LstCleanupItems'
+    $panel.Children.Clear()
+    $script:CleanupChecks = @()
+
+    $cleanupCat = $null
+    foreach ($c in $script:Categories) { if ($c.Key -eq 'cleanup') { $cleanupCat = $c; break } }
+    if ($null -eq $cleanupCat) { return }
+
+    foreach ($tw in @($cleanupCat.Tweaks)) {
+        $row = New-Object System.Windows.Controls.Grid
+        $row.Margin = New-Object System.Windows.Thickness(0, 0, 0, 10)
+
+        $colDef1 = New-Object System.Windows.Controls.ColumnDefinition
+        $colDef1.Width = New-Object System.Windows.GridLength(1, [System.Windows.GridUnitType]::Star)
+        $colDef2 = New-Object System.Windows.Controls.ColumnDefinition
+        $colDef2.Width = New-Object System.Windows.GridLength(120)
+        $row.ColumnDefinitions.Add($colDef1)
+        $row.ColumnDefinitions.Add($colDef2)
+
+        $riskColor = switch ($tw.Risk) {
+            'safe'      { '#FF3DD68C' }
+            'moderate'  { '#FFF7B74A' }
+            'aggressive'{ '#FFFF8189' }
+            default     { '#FF768094' }
+        }
+
+        $inner = New-Object System.Windows.Controls.StackPanel
+        $inner.Margin = New-Object System.Windows.Thickness(0, 8, 0, 0)
+
+        $topRow = New-Object System.Windows.Controls.StackPanel
+        $topRow.Orientation = 'Horizontal'
+
+        $chk = New-Object System.Windows.Controls.CheckBox
+        $chk.Style = $win.FindResource('Check')
+        $chk.Content = $tw.Name
+        $chk.FontSize = 14
+        $chk.FontWeight = 'SemiBold'
+        $chk.Foreground = $win.FindResource('Text')
+        $chk.Margin = New-Object System.Windows.Thickness(0, 0, 10, 0)
+
+        $riskChip = New-Object System.Windows.Controls.Border
+        $riskChip.CornerRadius = New-Object System.Windows.CornerRadius(3)
+        $riskChip.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("$riskColor`33")
+        $riskChip.Padding = New-Object System.Windows.Thickness(6, 2, 6, 2)
+        $riskChip.VerticalAlignment = 'Center'
+        $riskTxt = New-Object System.Windows.Controls.TextBlock
+        $riskTxt.Text = $tw.Risk.ToUpper()
+        $riskTxt.FontSize = 10
+        $riskTxt.FontWeight = 'SemiBold'
+        $riskTxt.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString($riskColor)
+        $riskChip.Child = $riskTxt
+
+        $topRow.Children.Add($chk) | Out-Null
+        $topRow.Children.Add($riskChip) | Out-Null
+
+        $impactTxt = New-Object System.Windows.Controls.TextBlock
+        $impactTxt.Text = $tw.Impact
+        $impactTxt.Style = $win.FindResource('Body')
+        $impactTxt.FontSize = 12.5
+        $impactTxt.Foreground = $win.FindResource('TextDim')
+        $impactTxt.Margin = New-Object System.Windows.Thickness(24, 4, 0, 0)
+        $impactTxt.TextWrapping = 'Wrap'
+
+        $warnTxt = New-Object System.Windows.Controls.TextBlock
+        $warnTxt.Text = "This action permanently deletes data and cannot be undone."
+        $warnTxt.FontSize = 11
+        $warnTxt.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#FFFF8189')
+        $warnTxt.Margin = New-Object System.Windows.Thickness(24, 3, 0, 0)
+
+        $inner.Children.Add($topRow) | Out-Null
+        $inner.Children.Add($impactTxt) | Out-Null
+        if ($tw.Risk -ne 'safe') { $inner.Children.Add($warnTxt) | Out-Null }
+
+        [System.Windows.Controls.Grid]::SetColumn($inner, 0)
+        $row.Children.Add($inner) | Out-Null
+
+        $stateTxt = New-Object System.Windows.Controls.TextBlock
+        $stateTxt.Text = $tw.CurrentState
+        $stateTxt.FontSize = 12
+        $stateTxt.Foreground = $win.FindResource('TextDim')
+        $stateTxt.VerticalAlignment = 'Center'
+        $stateTxt.HorizontalAlignment = 'Right'
+        $stateTxt.Margin = New-Object System.Windows.Thickness(0, 8, 0, 0)
+        [System.Windows.Controls.Grid]::SetColumn($stateTxt, 1)
+        $row.Children.Add($stateTxt) | Out-Null
+
+        $panel.Children.Add($row) | Out-Null
+        $script:CleanupChecks += @{ Chk = $chk; Tweak = $tw }
+    }
+
+    foreach ($item in $script:CleanupChecks) {
+        $item.Chk.Add_Checked({ Update-CleanupTotal })
+        $item.Chk.Add_Unchecked({ Update-CleanupTotal })
+    }
+
+    (Get-El 'TxtCleanupTotal').Text = 'No items selected'
+    (Get-El 'TxtCleanupDetail').Text = ''
+    (Get-El 'BtnCleanupApply').IsEnabled = $false
+    (Get-El 'OvCleanup').Visibility = 'Visible'
+}
+
+function Update-CleanupTotal {
+    $sel = @($script:CleanupChecks | Where-Object { $_.Chk.IsChecked -eq $true })
+    $n = $sel.Count
+    $total = @($script:CleanupChecks | Where-Object { $_.Chk.IsChecked -eq $true -and $_.Tweak.Risk -ne 'safe' }).Count
+    if ($n -eq 0) {
+        (Get-El 'TxtCleanupTotal').Text = 'No items selected'
+        (Get-El 'TxtCleanupDetail').Text = ''
+        (Get-El 'BtnCleanupApply').IsEnabled = $false
+    } else {
+        $riskWord = if ($total -gt 0) { "$total irreversible" } else { "all safe" }
+        (Get-El 'TxtCleanupTotal').Text = "$n item$(if ($n -gt 1) {'s'}) selected - $riskWord"
+        (Get-El 'TxtCleanupDetail').Text = 'Each option runs immediately. There is no undo.'
+        (Get-El 'BtnCleanupApply').IsEnabled = $true
+    }
+}
+
+function Invoke-CleanupApply {
+    $sel = @($script:CleanupChecks | Where-Object { $_.Chk.IsChecked -eq $true })
+    if ($sel.Count -eq 0) { return }
+
+    $hasModerate = @($sel | Where-Object { $_.Tweak.Risk -ne 'safe' }).Count -gt 0
+    if ($hasModerate) {
+        $result = [System.Windows.MessageBox]::Show(
+            "Some of the selected items permanently delete data that cannot be recovered.`n`nAre you sure you want to continue?",
+            "Confirm irreversible cleanup",
+            'YesNo', 'Warning')
+        if ($result -ne 'Yes') { return }
+    }
+
+    (Get-El 'OvCleanup').Visibility = 'Collapsed'
+
+    $staged = @()
+    foreach ($item in $sel) {
+        $tw = $item.Tweak
+        foreach ($a in @($tw.Actions)) {
+            if ($a.kind -eq 'command') {
+                $staged += @{ Tweak = $tw; Action = $a; Direction = 'Disable' }
+            } elseif ($a.kind -eq 'reg') {
+                $staged += @{ Tweak = $tw; Action = $a; Direction = 'Disable' }
+            }
+        }
+    }
+
+    if ($staged.Count -eq 0) { return }
+
+    Open-BusyPanel 'Cleaning up...' "Running $($staged.Count) action$(if ($staged.Count -gt 1) {'s'})..."
+    $ok = 0; $fail = 0
+    foreach ($s in $staged) {
+        $tw = $s.Tweak
+        $a = $s.Action
+        $script:Shell.BusyDetail = $tw.Name
+        Add-UiLog $tw.Name 'head'
+        Sync-Ui
+
+        try {
+            if ($a.kind -eq 'command') {
+                $res = & ([scriptblock]::Create($a.disable))
+                Add-UiLog "$res" 'ok'
+            } elseif ($a.kind -eq 'reg') {
+                $full = Convert-HiveToPath $a.hive $a.path
+                Set-RegValue $full $a.name $a.disable $a.type
+                Add-UiLog "Set $($a.name) = $($a.disable)" 'ok'
+            }
+            $ok++
+        } catch {
+            Add-UiLog "Failed: $($_.Exception.Message)" 'warn'
+            $fail++
+        }
+    }
+
+    $script:Shell.Progress = 100
+    $detail = "$ok completed"
+    if ($fail -gt 0) { $detail += ", $fail failed" }
+    Close-BusyPanel $detail
+    (Get-El 'OvBusy').Visibility = 'Collapsed'
+    Update-TweakStates $script:AllTweaks $null
+    Build-Overview
 }
 
 # --------------------------------------------------------------- entry

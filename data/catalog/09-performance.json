@@ -226,37 +226,6 @@
       ]
     },
     {
-      "id": "perf.hibernate",
-      "name": "Hibernation and Fast Startup",
-      "risk": "moderate",
-      "tags": [
-        "perf",
-        "core"
-      ],
-      "restart": true,
-      "impact": "The hiberfil.sys file, which is several gigabytes, plus hybrid shutdown.",
-      "explain": "Hibernation writes memory to disk so the machine can resume from a full power-off. The same file backs Fast Startup, which makes shutdown a partial hibernate. Fast Startup is a common cause of oddities: drivers and kernel state are not truly reset, so a shutdown does not fix problems that a restart does, and it can corrupt a dual-boot Linux install's view of the Windows filesystem. Turning hibernation off frees the file and makes shutdown a real shutdown, at the cost of losing hibernate and slightly slower cold boots.",
-      "enableMeans": "Turns hibernation and Fast Startup back on and recreates hiberfil.sys.",
-      "disableMeans": "Turns hibernation off, deletes hiberfil.sys and disables Fast Startup.",
-      "actions": [
-        {
-          "kind": "command",
-          "probe": "$v = (Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power' -Name HibernateEnabled -ErrorAction SilentlyContinue).HibernateEnabled; if ($v -eq 1) { 'Enabled' } elseif ($null -eq $v) { 'Unknown' } else { 'Disabled' }",
-          "enable": "powercfg /hibernate on",
-          "disable": "powercfg /hibernate off"
-        },
-        {
-          "kind": "reg",
-          "hive": "HKLM",
-          "path": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power",
-          "name": "HiberbootEnabled",
-          "type": "DWord",
-          "enable": 1,
-          "disable": 0
-        }
-      ]
-    },
-    {
       "id": "perf.lastaccess",
       "name": "NTFS last access timestamp updates",
       "risk": "safe",
@@ -477,47 +446,6 @@
           "name": "LongPathsEnabled",
           "type": "DWord",
           "enable": 1,
-          "disable": 0
-        }
-      ]
-    },
-    {
-      "id": "perf.storagesense",
-      "name": "Storage Sense automatic cleanup",
-      "risk": "safe",
-      "tags": [
-        "perf"
-      ],
-      "impact": "Automatically deletes temporary files and empties the Recycle Bin after 30 days.",
-      "explain": "Storage Sense frees space by removing temporary files, old downloads and Recycle Bin contents on a schedule. The Downloads folder cleanup catches people out because it deletes files you deliberately kept. Enabling it here turns on cleanup of temporary files and the Recycle Bin but deliberately leaves your Downloads folder alone.",
-      "enableMeans": "Turns Storage Sense on for temporary files and the Recycle Bin, leaving Downloads untouched.",
-      "disableMeans": "Turns Storage Sense off so nothing is deleted automatically.",
-      "actions": [
-        {
-          "kind": "reg",
-          "hive": "HKCU",
-          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
-          "name": "01",
-          "type": "DWord",
-          "enable": 1,
-          "disable": 0
-        },
-        {
-          "kind": "reg",
-          "hive": "HKCU",
-          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
-          "name": "08",
-          "type": "DWord",
-          "enable": 1,
-          "disable": 0
-        },
-        {
-          "kind": "reg",
-          "hive": "HKCU",
-          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
-          "name": "32",
-          "type": "DWord",
-          "enable": 30,
           "disable": 0
         }
       ]
