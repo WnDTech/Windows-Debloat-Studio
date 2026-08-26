@@ -4,6 +4,10 @@ A Windows 11 desktop app for reviewing, applying and **reversing** the telemetry
 advertising, preinstalled apps, services, scheduled tasks and shell behaviour that
 ship with Windows.
 
+**[User guide](https://windowsdebloat.wndtech.tips/guide.html)** &middot;
+**[Download](https://github.com/WnDTech/Windows-Debloat-Studio/releases/tag/v1.0.0)** &middot;
+**[Website](https://windowsdebloat.wndtech.tips)**
+
 355 options across 15 categories. Every option has its own explanation, a risk
 label, the live state read from your machine, and three choices: **Enable**,
 **Disable**, **Revert**. Nothing is selected when the app opens, and nothing is
@@ -298,21 +302,24 @@ Revert on the options it covers and leaves everything else untouched.** It never
 applies anything on its own — you then walk the categories, change your mind on
 anything you disagree with, and only then press *Review & apply*.
 
-Eleven presets ship with the app:
+Fourteen presets ship with the app:
 
 | Preset | Risk | What it is for |
 |---|---|---|
 | **Privacy Essentials** | Safe | Data collection and advertising surfaces off, nothing else touched. Start here. |
-| **Recommended Desktop** | Moderate | The full sensible pass for a personal desktop. |
 | **Windows 10 Feel** | Safe | Interface only — classic context menu, left taskbar, file extensions, This PC. |
-| **Quiet Machine** | Safe | Every prompt, banner, tip and nag removed. Everything stays functional. |
+| **Put Everything Back** | Safe | Stages Revert on all 355 options — the reviewable alternative to the Undo button. |
+| **Recommended Desktop** | Moderate | The full sensible pass for a personal desktop. |
 | **Gaming Rig** | Moderate | Latency and frame-pacing work for a desktop. Keeps the Xbox sign-in broker and anti-cheat requirements intact. |
 | **Laptop & Battery** | Safe | Privacy pass with the power-hungry tweaks deliberately left out. |
 | **Security Hardening** | Moderate | Mostly uses **Enable**. Closes legacy protocols, turns on protections Windows leaves off. |
 | **Developer Workstation** | Moderate | Long paths, dev mode, Sandbox, WSL on; keeps Terminal, Store and WebView2. |
 | **Shared or Family PC** | Safe | Marketing and remote-access tools gone, every protection left on. |
+| **Quiet Machine** | Safe | Every prompt, banner, tip and nag removed. Everything stays functional. |
 | **Maximum Debloat** | Aggressive | Everything safe and moderate. Carries a warning listing what stops working. |
-| **Put Everything Back** | Safe | Stages Revert on all 355 options — the reviewable alternative to the Undo button. |
+| **Corporate Build** | Technician | Locked-down corporate desktop. Telemetry off, consumer features off, Defender and update ON. |
+| **Kiosk & Shared Terminal** | Technician | Aggressive lockdown for shared machines. All preinstalled apps removed, personalisation closed. |
+| **Client Hand-off** | Technician | Prepares a machine before giving it to a client. Clean slate, no leftover settings. |
 
 ### Sharing presets
 
@@ -751,7 +758,5 @@ being honest about that is the point.
 
 | Where | What |
 |---|---|
-| `src\Modules\Core.ps1` | `$script:SourceUrl` — the public repository, linked from the licence panel |
-| `data\licensing.json` | `organizationId` and the `checkout` links from the Polar dashboard |
-| `.github\workflows\build.yml` | the SignPath signing step, once the project is approved |
+| `.github\workflows\build.yml` | the Certum signing step, once the certificate is obtained |
 | `tools\Build-Exe.ps1` | `Invoke-SignExe`, if signing locally rather than in CI |
