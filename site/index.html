@@ -122,10 +122,15 @@
     display: inline-flex; align-items: center; gap: .6rem; font-family: Archivo, sans-serif;
     font-weight: 700; letter-spacing: -.02em; font-size: 1rem; color: var(--ink); text-decoration: none;
   }
-  .mark i { width: 1.3rem; height: 1.3rem; border-radius: .36rem; background: var(--accent); position: relative; flex: none; }
+  /* The logo takes fixed colours, not theme tokens. Built from var(--accent)
+     and var(--accent-ink) it inverted between light and dark - a dark-blue
+     square with a white bracket on one, a light-blue square with a near-black
+     bracket on the other - so it stopped reading as the same mark. These are
+     the values in assets/app.ico and in the app's own title bar. */
+  .mark i { width: 1.3rem; height: 1.3rem; border-radius: .36rem; background: #4c8dff; position: relative; flex: none; }
   .mark i::after {
     content: ""; position: absolute; inset: .34rem .28rem;
-    border-left: 2px solid var(--accent-ink); border-bottom: 2px solid var(--accent-ink);
+    border-left: 2px solid #fff; border-bottom: 2px solid #fff;
   }
   .masthead nav { margin-left: auto; display: flex; align-items: center; gap: 1.4rem; }
   .masthead nav a:not(.btn) { color: var(--ink-2); text-decoration: none; font-size: .92rem; }
@@ -762,7 +767,7 @@
       <div class="dl reveal">
         <div class="dl-main">
           <p class="dl-name">WindowsDebloatStudio.exe</p>
-          <p class="dl-meta">213&nbsp;KB &middot; Windows 11 &middot; version 1.0.0</p>
+          <p class="dl-meta">220&nbsp;KB &middot; Windows 11 &middot; version 1.0.0</p>
         </div>
         <a class="btn btn-primary" href="#checkout">Download</a>
       </div>
@@ -780,12 +785,12 @@
         warning will not happen.</p>
         <p style="margin-top:.7rem">Verify it in PowerShell before running it:</p>
         <pre class="mono dl-hash"><code>Get-FileHash .\WindowsDebloatStudio.exe -Algorithm SHA256</code></pre>
-        <p class="dl-sha"><span>SHA-256</span><code>7df1397b7b22630e8174ffea7fc43e7fb40df129329f552bc176890bf761b571</code></p>
+        <p class="dl-sha"><span>SHA-256</span><code>313a53c3eedd16900f8a2c83449246182ebd0fb490e1190f3790e106ffc5e4ad</code></p>
       </div>
 
       <div class="feature" style="align-items:start;margin-top:2.4rem">
         <div class="prose">
-          <span><strong>It is</strong> one file, about 213&nbsp;KB. No installer,
+          <span><strong>It is</strong> one file, about 220&nbsp;KB. No installer,
           no service, no account, no network calls of its own. It unpacks itself
           into a temporary folder, runs, and deletes that folder when you close
           it &mdash; using the PowerShell and .NET already on Windows 11. The only

@@ -449,9 +449,17 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="15,0,0,0" VerticalAlignment="Center">
-                    <Border Width="22" Height="22" CornerRadius="6" Background="{StaticResource AccentGrad}">
-                        <TextBlock Text="&#xE9D9;" FontFamily="{StaticResource IconFont}" FontSize="11"
-                                   Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    <!--
+                        The app mark, drawn rather than set as a glyph so it is
+                        the same shape as assets\app.ico and the website's logo:
+                        a solid square with a corner bracket open to the top
+                        right. Deliberately one fixed blue in all three places -
+                        a logo that changes colour with the theme stops reading
+                        as the same logo.
+                    -->
+                    <Border Width="22" Height="22" CornerRadius="6" Background="#FF4C8DFF">
+                        <Border Width="10" Height="10" BorderThickness="1.8,0,0,1.8" BorderBrush="White"
+                                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,1,0" />
                     </Border>
                     <TextBlock Text="Windows Debloat Studio" FontSize="12.5" FontWeight="SemiBold"
                                Foreground="{StaticResource Text}" Margin="10,0,0,0" VerticalAlignment="Center" />

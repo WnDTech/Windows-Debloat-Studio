@@ -98,6 +98,39 @@ function Remove-DeadInteropCopies {
     }
 }
 
+# The window is owned by the powershell.exe process that hosts it, so without
+# this the taskbar, Alt-Tab and the window's own thumbnail all show PowerShell's
+# icon - regardless of the icon on the exe the user actually double-clicked,
+# because that exe is only the parent process.
+#
+# The .ico carries seven sizes; the frame closest to 32px is picked rather than
+# handing WPF the 256px one, which Windows would then downscale to 16px and turn
+# to mush in the title bar.
+function Set-WindowIcon {
+    param([Parameter(Mandatory)]$Window)
+
+    $path = Join-Path $script:Paths.Root 'assets\app.ico'
+    if (-not (Test-Path -LiteralPath $path)) {
+        Write-AppLog "no app icon at $path, the window will show the host icon" 'warn'
+        return
+    }
+    try {
+        $dec = New-Object Windows.Media.Imaging.IconBitmapDecoder(
+            (New-Object Uri((Resolve-Path -LiteralPath $path).Path)),
+            [Windows.Media.Imaging.BitmapCreateOptions]::PreservePixelFormat,
+            [Windows.Media.Imaging.BitmapCacheOption]::OnLoad)
+
+        $best = $null
+        foreach ($f in $dec.Frames) {
+            if ($null -eq $best) { $best = $f; continue }
+            if ([Math]::Abs($f.PixelWidth - 32) -lt [Math]::Abs($best.PixelWidth - 32)) { $best = $f }
+        }
+        if ($best) { $Window.Icon = $best }
+    } catch {
+        Write-AppLog "could not load the app icon: $($_.Exception.Message)" 'warn'
+    }
+}
+
 function Import-XamlFile {
     param([Parameter(Mandatory)][string]$Path)
     $text = [IO.File]::ReadAllText($Path, [Text.Encoding]::UTF8)
@@ -1675,6 +1708,7 @@ function Start-DebloatUi {
 
     $win = Import-XamlFile (Join-Path $script:Paths.Gui 'MainWindow.xaml')
     $script:Ui.Win = $win
+    Set-WindowIcon $win
 
     $script:Shell = New-Object Debloat.ShellVM
     $script:Shell.AdminText = if (Test-IsAdmin) { 'Administrator' } else { 'NOT elevated' }

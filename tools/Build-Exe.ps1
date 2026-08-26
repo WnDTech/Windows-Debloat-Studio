@@ -124,6 +124,18 @@ $quad = $version
 while (($quad -split '\.').Count -lt 4) { $quad += '.0' }
 Say "app version $version  (file version $quad)" 'Green'
 
+# The icon is generated rather than committed, and it is needed twice over:
+# as the exe's Win32 resource and as a file inside the payload, so the window
+# can set its own taskbar icon. Build it before the payload is assembled or a
+# clean checkout fails with "these payload files are missing".
+# ---------------------------------------------------------------- icon
+if (-not $NoIcon) {
+    Head 'icon'
+    & (Join-Path $Tools 'New-AppIcon.ps1')
+}
+$icon = Join-Path $Root 'assets\app.ico'
+if (-not (Test-Path -LiteralPath $icon)) { throw "The icon is missing: $icon" }
+
 # ---------------------------------------------------------------- payload list
 Head 'payload'
 
@@ -144,6 +156,10 @@ $include = @(
     'src\Interop\Interop.cs'
     'data\licensing.json'
     'data\presets.json'
+    # The window loads this at runtime for its taskbar and Alt-Tab icon. The
+    # exe's own Win32 icon resource cannot serve: the window belongs to the
+    # powershell.exe child process, which would otherwise show PowerShell's icon.
+    'assets\app.ico'
 )
 foreach ($f in (Get-ChildItem (Join-Path $Root 'data\catalog') -Filter '*.json' | Sort-Object Name)) {
     $include += ('data\catalog\' + $f.Name)
@@ -214,14 +230,6 @@ using System.Reflection;
 [assembly: AssemblyFileVersion("$quad")]
 [assembly: AssemblyInformationalVersion("$version")]
 "@ | Set-Content -LiteralPath $versionCs -Encoding UTF8
-
-# ---------------------------------------------------------------- icon
-if (-not $NoIcon) {
-    Head 'icon'
-    & (Join-Path $Tools 'New-AppIcon.ps1')
-}
-$icon = Join-Path $Root 'assets\app.ico'
-if (-not (Test-Path -LiteralPath $icon)) { throw "The icon is missing: $icon" }
 
 # ---------------------------------------------------------------- compile
 Head 'compile'

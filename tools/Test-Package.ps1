@@ -117,12 +117,21 @@ Check 'all fifteen catalogue files are there' (@($files.Keys | Where-Object { $_
     ("found " + @($files.Keys | Where-Object { $_ -like 'data\catalog\*' }).Count)
 
 # The negative checks: nothing that belongs only on a development machine.
-foreach ($unwanted in @('tools\', 'site\', 'logs\', 'presets\', 'dist\', 'assets\', 'src\Bootstrap\', '.git')) {
+foreach ($unwanted in @('tools\', 'site\', 'logs\', 'presets\', 'dist\', 'src\Bootstrap\', '.git')) {
     $hit = @($files.Keys | Where-Object { $_ -like ($unwanted + '*') })
     Check "no $unwanted in the download" ($hit.Count -eq 0) ($hit -join ', ')
 }
 $compiled = @($files.Keys | Where-Object { $_ -like '*.dll' -or $_ -like '*.exe' })
 Check 'no compiled binaries are shipped inside the payload' ($compiled.Count -eq 0) ($compiled -join ', ')
+
+# The icon is the one thing from assets\ that belongs in here. The window is
+# owned by the powershell.exe child process, so without this file it cannot set
+# its own icon and the taskbar silently falls back to showing PowerShell's -
+# which looks like nothing is wrong until someone notices.
+Check 'the app icon is included, so the taskbar shows the app and not PowerShell' `
+    ($files.Contains('assets\app.ico'))
+$otherAssets = @($files.Keys | Where-Object { $_ -like 'assets\*' -and $_ -ne 'assets\app.ico' })
+Check 'nothing else from assets is shipped' ($otherAssets.Count -eq 0) ($otherAssets -join ', ')
 
 # ---------------------------------------------------------------- leakage
 Head 'D) nothing from this machine leaks out'

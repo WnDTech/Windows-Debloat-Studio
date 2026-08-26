@@ -71,6 +71,31 @@ function New-Mark {
         # The corner bracket: left and bottom strokes, open to the top right.
         # It reads as a baseline being swept clean, and as an L for "left as
         # you found it". Same geometry as the .mark i::after rule on the site.
+        #
+        # Below about 32px that geometry stops working. A stroke of size*0.075
+        # lands between pixels, so antialiasing smears a 1.2px line across two
+        # rows and the mark turns to mush at the size the taskbar and title bar
+        # actually use. The small sizes therefore get a bigger bracket, a stroke
+        # snapped to a whole number of pixels, and no antialiasing on the lines -
+        # drawn on the half-pixel so a 1px or 2px stroke covers exact columns.
+        if ($Size -le 32) {
+            $stroke = if ($Size -le 16) { 2.0 } elseif ($Size -le 24) { 2.0 } else { 3.0 }
+            $inset = [Math]::Round($Size * 0.28)
+            $x0 = [Math]::Floor($inset) + ($stroke / 2)
+            $y1 = $Size - [Math]::Floor($inset) - ($stroke / 2)
+            $x1 = $Size - [Math]::Floor($inset)
+            $y0 = [Math]::Floor($inset)
+
+            $g.SmoothingMode = 'None'
+            $pen = New-Object Drawing.Pen($Ink, $stroke)
+            $pen.StartCap = 'Square'; $pen.EndCap = 'Square'
+            $g.DrawLine($pen, $x0, $y0, $x0, $y1)     # the upright
+            $g.DrawLine($pen, $x0, $y1, $x1, $y1)     # the foot
+            $pen.Dispose()
+            $path.Dispose()
+            return $bmp
+        }
+
         $inX = $pad + ($side * 0.26)
         $inTop = $pad + ($side * 0.24)
         $inBot = $pad + ($side * 0.74)
