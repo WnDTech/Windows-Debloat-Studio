@@ -1,13 +1,26 @@
 <#
     New-AppIcon.ps1
     ---------------
-    Draws assets\app.ico: the same mark the window and the website use, a
-    rounded square in the app's accent blue with a white corner bracket.
+    Draws assets\app.ico: the app mark, in every size Windows asks for.
 
-    Written by hand rather than exported from a design tool so the icon is
-    reproducible from source, and so the build needs nothing installed.
-    ICO files are a directory of images; Windows Vista onwards reads PNG
-    entries at every size, which keeps the large sizes small.
+    The mark is four window panes with one taken away. It says the one thing
+    this app does - Windows, with the excess removed - and the asymmetry is what
+    makes it recognisable at 16 pixels, where a symmetrical 2x2 grid would just
+    read as the generic "all apps" button.
+
+    Two things were tried and rejected, both by rendering them and looking:
+
+      A corner bracket. It was an accident of two CSS borders that happened to
+      look like a letter L, and there is no L in Windows Debloat Studio. When
+      the first person to see it asked what the L meant, that settled it.
+
+      A ghost pane in the empty slot, to say the removed thing can come back.
+      Lovely at 128px. At 16 and 24 the ghost sits too close in value to read as
+      absent, so the mark collapsed into a plain 2x2 grid - losing the idea at
+      exactly the sizes that matter most.
+
+    Drawn from code rather than exported from a design tool, so the icon is
+    reproducible from source and the build needs nothing installed.
 #>
 # Windows Debloat Studio - review, apply and reverse what Windows 11 ships with.
 # Copyright (C) 2026 WndTech
@@ -36,79 +49,75 @@ if (-not $OutFile) {
     $OutFile = Join-Path (Split-Path -Parent $toolsDir) 'assets\app.ico'
 }
 
-$Accent = [Drawing.Color]::FromArgb(0xFF, 0x4C, 0x8D, 0xFF)   # C.Accent in Theme.xaml
+# Deep indigo, one hue from light to dark. Deliberately not the app's accent
+# blue: that is the same blue as every other utility in the tray, which was
+# most of why the old icon did not stand out. Deliberately not a two-hue
+# gradient either - purple-into-blue is the look that reads as generated.
+$TileTop = [Drawing.Color]::FromArgb(0xFF, 0x63, 0x5B, 0xFF)
+$TileBottom = [Drawing.Color]::FromArgb(0xFF, 0x43, 0x38, 0xCA)
 $Ink = [Drawing.Color]::White
+
+# Proportions, as fractions of the icon's side. Shared with the XAML title bar
+# and the website's CSS so all three are the same mark.
+$TilePad = 0.045     # inset of the tile, so the rounded corners are not clipped
+$TileRadius = 0.235  # corner radius
+$Cell = 0.235        # one pane
+$Gap = 0.070         # between panes
+
 $Sizes = @(256, 128, 64, 48, 32, 24, 16)
 
 function New-Mark {
     param([int]$Size)
 
-    $bmp = New-Object Drawing.Bitmap($Size, $Size, [Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $bmp = New-Object Drawing.Bitmap([int]$Size, [int]$Size, [Drawing.Imaging.PixelFormat]::Format32bppArgb)
     $g = [Drawing.Graphics]::FromImage($bmp)
     try {
         $g.SmoothingMode = 'AntiAlias'
-        $g.InterpolationMode = 'HighQualityBicubic'
         $g.Clear([Drawing.Color]::Transparent)
 
-        # A rounded square, inset slightly so the corners are not clipped.
-        $pad = [double]$Size * 0.055
+        # ---- the tile
+        $pad = [double]$Size * $TilePad
         $side = [double]$Size - (2 * $pad)
-        $r = [double]$Size * 0.22          # matches border-radius .36rem on 1.3rem
+        $d = ([double]$Size * $TileRadius) * 2
 
         $path = New-Object Drawing.Drawing2D.GraphicsPath
-        $d = $r * 2
-        $x = $pad; $y = $pad; $w = $side; $h = $side
-        $path.AddArc($x, $y, $d, $d, 180, 90)
-        $path.AddArc($x + $w - $d, $y, $d, $d, 270, 90)
-        $path.AddArc($x + $w - $d, $y + $h - $d, $d, $d, 0, 90)
-        $path.AddArc($x, $y + $h - $d, $d, $d, 90, 90)
+        $path.AddArc($pad, $pad, $d, $d, 180, 90)
+        $path.AddArc($pad + $side - $d, $pad, $d, $d, 270, 90)
+        $path.AddArc($pad + $side - $d, $pad + $side - $d, $d, $d, 0, 90)
+        $path.AddArc($pad, $pad + $side - $d, $d, $d, 90, 90)
         $path.CloseFigure()
 
-        $fill = New-Object Drawing.SolidBrush($Accent)
-        $g.FillPath($fill, $path)
-        $fill.Dispose()
+        $rect = New-Object Drawing.RectangleF([single]$pad, [single]$pad, [single]$side, [single]$side)
+        $brush = New-Object Drawing.Drawing2D.LinearGradientBrush($rect, $TileTop, $TileBottom, 90.0)
+        $g.FillPath($brush, $path)
+        $brush.Dispose(); $path.Dispose()
 
-        # The corner bracket: left and bottom strokes, open to the top right.
-        # It reads as a baseline being swept clean, and as an L for "left as
-        # you found it". Same geometry as the .mark i::after rule on the site.
-        #
-        # Below about 32px that geometry stops working. A stroke of size*0.075
-        # lands between pixels, so antialiasing smears a 1.2px line across two
-        # rows and the mark turns to mush at the size the taskbar and title bar
-        # actually use. The small sizes therefore get a bigger bracket, a stroke
-        # snapped to a whole number of pixels, and no antialiasing on the lines -
-        # drawn on the half-pixel so a 1px or 2px stroke covers exact columns.
-        if ($Size -le 32) {
-            $stroke = if ($Size -le 16) { 2.0 } elseif ($Size -le 24) { 2.0 } else { 3.0 }
-            $inset = [Math]::Round($Size * 0.28)
-            $x0 = [Math]::Floor($inset) + ($stroke / 2)
-            $y1 = $Size - [Math]::Floor($inset) - ($stroke / 2)
-            $x1 = $Size - [Math]::Floor($inset)
-            $y0 = [Math]::Floor($inset)
+        # ---- the panes: top-left, top-right, bottom-left. Bottom-right is the
+        #      one that was removed, and its absence is the whole mark.
+        $cell = [double]$Size * $Cell
+        $gap = [double]$Size * $Gap
+        $block = (2 * $cell) + $gap
+        $ox = ($Size - $block) / 2
+        $oy = ($Size - $block) / 2
 
-            $g.SmoothingMode = 'None'
-            $pen = New-Object Drawing.Pen($Ink, $stroke)
-            $pen.StartCap = 'Square'; $pen.EndCap = 'Square'
-            $g.DrawLine($pen, $x0, $y0, $x0, $y1)     # the upright
-            $g.DrawLine($pen, $x0, $y1, $x1, $y1)     # the foot
-            $pen.Dispose()
-            $path.Dispose()
-            return $bmp
+        # Under about 32px a fractional edge gets smeared across two pixel
+        # columns and the panes lose their crispness, so those sizes are snapped
+        # to whole pixels and drawn with antialiasing off.
+        $small = ($Size -le 32)
+        $g.SmoothingMode = if ($small) { 'None' } else { 'AntiAlias' }
+
+        $solid = New-Object Drawing.SolidBrush($Ink)
+        foreach ($p in @(@(0, 0), @(1, 0), @(0, 1))) {
+            $x = $ox + ($p[0] * ($cell + $gap))
+            $y = $oy + ($p[1] * ($cell + $gap))
+            if ($small) {
+                $w = [int][Math]::Max(3, [Math]::Round($cell))
+                $g.FillRectangle($solid, [int][Math]::Round($x), [int][Math]::Round($y), $w, $w)
+            } else {
+                $g.FillRectangle($solid, [single]$x, [single]$y, [single]$cell, [single]$cell)
+            }
         }
-
-        $inX = $pad + ($side * 0.26)
-        $inTop = $pad + ($side * 0.24)
-        $inBot = $pad + ($side * 0.74)
-        $inRight = $pad + ($side * 0.76)
-
-        $stroke = [Math]::Max(1.0, [double]$Size * 0.075)
-        $pen = New-Object Drawing.Pen($Ink, $stroke)
-        $pen.StartCap = 'Square'; $pen.EndCap = 'Square'
-        $g.DrawLine($pen, $inX, $inTop, $inX, $inBot)
-        $g.DrawLine($pen, $inX, $inBot, $inRight, $inBot)
-        $pen.Dispose()
-
-        $path.Dispose()
+        $solid.Dispose()
     } finally { $g.Dispose() }
     return $bmp
 }
@@ -119,14 +128,13 @@ if (-not (Test-Path -LiteralPath $dir)) { New-Item -ItemType Directory -Path $di
 
 # Encodes one image the way the ICO format's original entry type wants it: a
 # BITMAPINFOHEADER whose height is doubled to cover the colour bitmap and the
-# mask that follows it, then 32bpp BGRA rows stored bottom-up, then a 1bpp
-# mask. The mask is left all-zero because the alpha channel already carries
+# mask that follows it, then 32bpp BGRA rows stored bottom-up, then a 1bpp mask.
+# The mask is left all-zero because the alpha channel already carries
 # transparency, but the format still requires the bytes to be there.
 #
-# This matters for compatibility. PNG-compressed entries are smaller and the
-# Windows shell reads them, but plenty of consumers do not - System.Drawing
-# among them - so anything at or below 64px is written as a plain DIB and only
-# the large sizes are PNG.
+# PNG-compressed entries are smaller and the Windows shell reads them, but
+# plenty of consumers do not - System.Drawing among them - so anything at or
+# below 64px is written as a plain DIB and only the large sizes are PNG.
 function ConvertTo-IcoDib {
     param([Drawing.Bitmap]$Bitmap)
 
@@ -170,7 +178,7 @@ function ConvertTo-IcoDib {
     return , $bytes
 }
 
-$pngs = @()
+$frames = @()
 foreach ($s in $Sizes) {
     $bmp = New-Mark -Size $s
     if ($s -le 64) {
@@ -181,7 +189,7 @@ foreach ($s in $Sizes) {
         $bytes = $ms.ToArray()
         $ms.Dispose()
     }
-    $pngs += , @{ Size = $s; Bytes = $bytes }
+    $frames += , @{ Size = $s; Bytes = $bytes }
     $bmp.Dispose()
 }
 
@@ -189,26 +197,26 @@ $out = New-Object IO.MemoryStream
 $w = New-Object IO.BinaryWriter($out)
 
 # ICONDIR: reserved, type 1 (icon), image count
-$w.Write([uint16]0); $w.Write([uint16]1); $w.Write([uint16]$pngs.Count)
+$w.Write([uint16]0); $w.Write([uint16]1); $w.Write([uint16]$frames.Count)
 
 # Directory entries come first, so every image offset is known up front.
-$offset = 6 + (16 * $pngs.Count)
-foreach ($p in $pngs) {
-    $dim = if ($p.Size -ge 256) { 0 } else { $p.Size }   # 0 means 256 in this format
+$offset = 6 + (16 * $frames.Count)
+foreach ($f in $frames) {
+    $dim = if ($f.Size -ge 256) { 0 } else { $f.Size }   # 0 means 256 in this format
     $w.Write([byte]$dim); $w.Write([byte]$dim)
     $w.Write([byte]0)                 # palette count, 0 for truecolour
     $w.Write([byte]0)                 # reserved
     $w.Write([uint16]1)               # colour planes
     $w.Write([uint16]32)              # bits per pixel
-    $w.Write([uint32]([byte[]]$p.Bytes).Length)
+    $w.Write([uint32]([byte[]]$f.Bytes).Length)
     $w.Write([uint32]$offset)
-    $offset += $p.Bytes.Length
+    $offset += ([byte[]]$f.Bytes).Length
 }
-foreach ($p in $pngs) { $w.Write([byte[]]$p.Bytes) }
+foreach ($f in $frames) { $w.Write([byte[]]$f.Bytes) }
 
 $w.Flush()
 [IO.File]::WriteAllBytes($OutFile, $out.ToArray())
 $w.Dispose(); $out.Dispose()
 
 $kb = [Math]::Round((Get-Item $OutFile).Length / 1KB, 1)
-Write-Host ("  wrote {0}  ({1} sizes, {2} KB)" -f $OutFile, $pngs.Count, $kb) -ForegroundColor Green
+Write-Host ("  wrote {0}  ({1} sizes, {2} KB)" -f $OutFile, $frames.Count, $kb) -ForegroundColor Green

@@ -450,16 +450,35 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="15,0,0,0" VerticalAlignment="Center">
                     <!--
-                        The app mark, drawn rather than set as a glyph so it is
-                        the same shape as assets\app.ico and the website's logo:
-                        a solid square with a corner bracket open to the top
-                        right. Deliberately one fixed blue in all three places -
-                        a logo that changes colour with the theme stops reading
-                        as the same logo.
+                        The app mark: four window panes with one taken away.
+                        Same shape and same proportions as assets\app.ico and
+                        the website's logo, drawn here rather than set as a
+                        glyph so all three stay identical. Fixed colours, not
+                        theme brushes - a logo that changes colour with the
+                        theme stops reading as the same logo.
                     -->
-                    <Border Width="22" Height="22" CornerRadius="6" Background="#FF4C8DFF">
-                        <Border Width="10" Height="10" BorderThickness="1.8,0,0,1.8" BorderBrush="White"
-                                HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-1,1,0" />
+                    <Border Width="22" Height="22" CornerRadius="5">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#FF635BFF" Offset="0" />
+                                <GradientStop Color="#FF4338CA" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Grid Width="11.7" Height="11.7" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="1.54" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="1.54" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <Rectangle Grid.Row="0" Grid.Column="0" Fill="White" />
+                            <Rectangle Grid.Row="0" Grid.Column="2" Fill="White" />
+                            <Rectangle Grid.Row="2" Grid.Column="0" Fill="White" />
+                        </Grid>
                     </Border>
                     <TextBlock Text="Windows Debloat Studio" FontSize="12.5" FontWeight="SemiBold"
                                Foreground="{StaticResource Text}" Margin="10,0,0,0" VerticalAlignment="Center" />

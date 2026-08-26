@@ -122,15 +122,26 @@
     display: inline-flex; align-items: center; gap: .6rem; font-family: Archivo, sans-serif;
     font-weight: 700; letter-spacing: -.02em; font-size: 1rem; color: var(--ink); text-decoration: none;
   }
-  /* The logo takes fixed colours, not theme tokens. Built from var(--accent)
-     and var(--accent-ink) it inverted between light and dark - a dark-blue
-     square with a white bracket on one, a light-blue square with a near-black
-     bracket on the other - so it stopped reading as the same mark. These are
-     the values in assets/app.ico and in the app's own title bar. */
-  .mark i { width: 1.3rem; height: 1.3rem; border-radius: .36rem; background: #4c8dff; position: relative; flex: none; }
+  /* The app mark: four window panes with one taken away. Same proportions as
+     assets/app.ico and the app's own title bar - a tile of 1.32rem, panes of
+     23.5% with a 7% gap - so all three are recognisably one logo.
+
+     Three panes from one element: the pseudo-element draws the top-left pane
+     and two box-shadows offset copies of it to the right and below. The fourth
+     slot is left empty, and that absence is the whole mark.
+
+     Fixed colours, not theme tokens. Built from var(--accent) and
+     var(--accent-ink) the old mark inverted between light and dark - a
+     dark-blue square with a white bracket on one, a light-blue square with a
+     near-black bracket on the other - so it stopped reading as the same logo. */
+  .mark i {
+    width: 1.32rem; height: 1.32rem; border-radius: .31rem; position: relative; flex: none;
+    background: linear-gradient(#635bff, #4338ca);
+  }
   .mark i::after {
-    content: ""; position: absolute; inset: .34rem .28rem;
-    border-left: 2px solid #fff; border-bottom: 2px solid #fff;
+    content: ""; position: absolute; left: .304rem; top: .304rem;
+    width: .31rem; height: .31rem; background: #fff;
+    box-shadow: .402rem 0 0 #fff, 0 .402rem 0 #fff;
   }
   .masthead nav { margin-left: auto; display: flex; align-items: center; gap: 1.4rem; }
   .masthead nav a:not(.btn) { color: var(--ink-2); text-decoration: none; font-size: .92rem; }
@@ -767,7 +778,7 @@
       <div class="dl reveal">
         <div class="dl-main">
           <p class="dl-name">WindowsDebloatStudio.exe</p>
-          <p class="dl-meta">222&nbsp;KB &middot; Windows 11 &middot; version 1.0.0</p>
+          <p class="dl-meta">230&nbsp;KB &middot; Windows 11 &middot; version 1.0.0</p>
         </div>
         <a class="btn btn-primary" href="#checkout">Download</a>
       </div>
@@ -785,12 +796,12 @@
         warning will not happen.</p>
         <p style="margin-top:.7rem">Verify it in PowerShell before running it:</p>
         <pre class="mono dl-hash"><code>Get-FileHash .\WindowsDebloatStudio.exe -Algorithm SHA256</code></pre>
-        <p class="dl-sha"><span>SHA-256</span><code>2e82dca49612b236f270a7e53551da7495c684d46cf430c114b266195f4087b3</code></p>
+        <p class="dl-sha"><span>SHA-256</span><code>02b023e51887cf08d35c5c48876cc15834241f15c061ca086e0c05f455bf726d</code></p>
       </div>
 
       <div class="feature" style="align-items:start;margin-top:2.4rem">
         <div class="prose">
-          <span><strong>It is</strong> one file, about 222&nbsp;KB. No installer,
+          <span><strong>It is</strong> one file, about 230&nbsp;KB. No installer,
           no service, no account, no network calls of its own. It unpacks itself
           into a temporary folder, runs, and deletes that folder when you close
           it &mdash; using the PowerShell and .NET already on Windows 11. The only
