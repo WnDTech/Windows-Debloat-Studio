@@ -1107,8 +1107,8 @@
                                             Style="{StaticResource BtnGhost}" Padding="14,9" Margin="9,0,0,0"
                                             Content="Buy Pro&#8230;" />
                                     <Button x:Name="BtnLicBuyTech" AutomationProperties.Name="Buy Technician"
-                                            Style="{StaticResource BtnQuiet}" Margin="6,0,0,0"
-                                            Content="Technician&#8230;" />
+                                            Style="{StaticResource BtnGhost}" Padding="14,9" Margin="9,0,0,0"
+                                            Content="Buy Technician&#8230;" />
                                 </StackPanel>
                             </StackPanel>
 
