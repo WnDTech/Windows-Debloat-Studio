@@ -86,6 +86,17 @@
   .masthead nav { margin-left: auto; display: flex; align-items: center; gap: 1.4rem; }
   .masthead nav a { color: var(--ink-2); text-decoration: none; font-size: .92rem; }
   .masthead nav a:hover { color: var(--ink); }
+  @media (max-width: 700px) { .masthead nav a.hide-sm { display: none; } }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    font-family: "IBM Plex Sans", sans-serif; font-weight: 600; font-size: .95rem;
+    padding: .68rem 1.1rem; border-radius: .5rem; border: 1px solid transparent;
+    text-decoration: none; cursor: pointer;
+    transition: transform .12s ease, background .12s ease;
+  }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { transform: translateY(-1px); }
+  .btn-sm { padding: .48rem .82rem; font-size: .87rem; }
 
   /* card */
   .card {
@@ -148,9 +159,12 @@
   <div class="wrap">
     <a class="mark" href="index.html"><i></i> Windows Debloat Studio</a>
     <nav>
-      <a href="index.html#try">Try it</a>
+      <a class="hide-sm" href="index.html#try">Try it</a>
+      <a class="hide-sm" href="index.html#dryrun">Dry run</a>
+      <a class="hide-sm" href="index.html#inside">Inside</a>
+      <a href="guide.html" style="color:var(--ink)">Guide</a>
       <a href="index.html#pricing">Pricing</a>
-      <a href="index.html#honest">Download</a>
+      <a class="btn btn-primary btn-sm" href="index.html#pricing">Get it</a>
     </nav>
   </div>
 </header>
