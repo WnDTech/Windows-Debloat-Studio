@@ -413,30 +413,6 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="CleanupTemplate">
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected, Mode=TwoWay}" Margin="0,0,12,0"
-                          VerticalAlignment="Center" />
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" Foreground="{StaticResource Text}" />
-                    <TextBlock Text="{Binding Impact}" Style="{StaticResource Body}" FontSize="12.5"
-                               Foreground="{StaticResource TextDim}" TextWrapping="Wrap" Margin="0,4,0,0" />
-                    <TextBlock Text="{Binding Warning}" FontSize="11" Foreground="#FFFF8189"
-                               TextWrapping="Wrap" Margin="0,3,0,0" />
-                </StackPanel>
-                <Border Grid.Column="2" CornerRadius="3" Padding="6,2" VerticalAlignment="Center"
-                        Background="{Binding RiskBrush}">
-                    <TextBlock Text="{Binding RiskLabel}" FontSize="10" FontWeight="SemiBold"
-                               Foreground="{Binding RiskFg}" />
-                </Border>
-            </Grid>
-        </DataTemplate>
-
         <!-- plain, non-highlighting list container -->
         <Style x:Key="PlainItem" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="0" />
@@ -818,15 +794,6 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="2" Orientation="Horizontal">
-                        <Button x:Name="BtnCleanupTool" AutomationProperties.Name="Open the cleanup tool" Style="{StaticResource BtnDanger}" Margin="0,0,6,0"
-                                Padding="13,9" FontSize="12.5" Visibility="Collapsed"
-                                ToolTip="Permanently delete files: old updates, temp files, caches, the previous Windows installation">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xE74D;" FontFamily="{StaticResource IconFont}" FontSize="12"
-                                           VerticalAlignment="Center" Margin="0,0,8,0" />
-                                <TextBlock Text="Cleanup tool" />
-                            </StackPanel>
-                        </Button>
                         <Button x:Name="BtnClearAll" AutomationProperties.Name="Clear all selections" Style="{StaticResource BtnQuiet}" Content="Clear all selections"
                                 Margin="0,0,6,0" />
                         <Button x:Name="BtnSavePreset" AutomationProperties.Name="Save the current selection as a preset" Style="{StaticResource BtnGhost}" Margin="0,0,6,0"
@@ -1182,68 +1149,6 @@
                                     HorizontalAlignment="Right" Margin="0,20,0,0" />
                         </StackPanel>
                     </ScrollViewer>
-                </Border>
-            </Grid>
-
-            <!-- cleanup -->
-            <Grid x:Name="OvCleanup" Grid.RowSpan="3" Background="#CC05070B" Visibility="Collapsed">
-                <Border MaxWidth="920" MaxHeight="780" Margin="34" CornerRadius="13"
-                        Background="{StaticResource Surface}" BorderThickness="1"
-                        BorderBrush="{StaticResource BorderStrong}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <StackPanel Grid.Row="0" Margin="28,24,28,0">
-                            <TextBlock Text="Cleanup &amp; Disk Space" Style="{StaticResource H1}" FontSize="22" />
-                            <TextBlock Text="Select what to clean. Every option here permanently deletes data that Revert cannot bring back."
-                                       Style="{StaticResource Body}" Margin="0,8,0,0" />
-                        </StackPanel>
-
-                        <Border Grid.Row="1" Margin="28,16,28,0" CornerRadius="9"
-                                Background="#FF2A1A1C" BorderThickness="1" BorderBrush="#FF5A2E33"
-                                Padding="15,12">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#xE7BA;" FontFamily="{StaticResource IconFont}" FontSize="14"
-                                           Foreground="{StaticResource Red}" VerticalAlignment="Top"
-                                           Margin="0,1,12,0" />
-                                <TextBlock Style="{StaticResource Body}" FontSize="12.5"
-                                           Foreground="#FFFFB3B8"
-                                           Text="These actions destroy data permanently. Unlike every other option in this app, Revert cannot undo them because the files are gone. Read each warning before you confirm." />
-                            </StackPanel>
-                        </Border>
-
-                        <ScrollViewer Grid.Row="2" Style="{StaticResource CleanScroll}" Margin="28,18,20,0">
-                            <ItemsControl x:Name="LstCleanupItems" AutomationProperties.Name="Cleanup options" />
-                        </ScrollViewer>
-
-                        <Border Grid.Row="3" Background="#FF0C1017" CornerRadius="0,0,12,12" Padding="28,16"
-                                BorderThickness="0,1,0,0" BorderBrush="{StaticResource Border}" Margin="0,18,0,0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                    <TextBlock x:Name="TxtCleanupTotal" Style="{StaticResource Body}" FontSize="14" FontWeight="SemiBold"
-                                               Text="No items selected" />
-                                    <TextBlock x:Name="TxtCleanupDetail" Style="{StaticResource Caption}" Margin="0,4,0,0" />
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                    <Button x:Name="BtnCleanupCancel" AutomationProperties.Name="Go back" Style="{StaticResource BtnGhost}"
-                                            Content="Go back" Margin="0,0,9,0" Height="42" />
-                                    <Button x:Name="BtnCleanupApply" AutomationProperties.Name="Clean up selected items now" Style="{StaticResource BtnDanger}"
-                                            Padding="22,10" Content="Clean up now" IsEnabled="False" />
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-                    </Grid>
                 </Border>
             </Grid>
 

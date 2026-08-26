@@ -250,9 +250,6 @@ function Select-Category {
     }
 
     Update-Filter
-
-    $cleanupBtn = Get-El 'BtnCleanupTool'
-    $cleanupBtn.Visibility = if ($Key -eq 'cleanup') { 'Visible' } else { 'Collapsed' }
 }
 
 # --------------------------------------------------------------- filtering
@@ -993,7 +990,7 @@ function Show-ConfirmSheet {
     if ($staged.Count -eq 0) { return }
 
     $rows = New-Object Collections.ObjectModel.ObservableCollection[object]
-    $agg = 0; $restart = 0; $explorer = 0; $noJournal = 0
+    $agg = 0; $restart = 0; $explorer = $noJournal = 0; $irrev = 0
 
     foreach ($vm in ($staged | Sort-Object CategoryName, Name)) {
         $def = Get-TweakDef $vm.Id
@@ -1009,6 +1006,7 @@ function Show-ConfirmSheet {
         if ($vm.Risk -eq 'aggressive') { $agg++ }
         if ($vm.RequiresRestart) { $restart++ }
         if ($def.Explorer) { $explorer++ }
+        if ($vm.Category -eq 'cleanup') { $irrev++ }
 
         $r = New-Object Debloat.ChangeVM
         $r.Name = $vm.Name
@@ -1030,9 +1028,11 @@ function Show-ConfirmSheet {
         '. The previous state of each one is recorded first, so all of this can be undone afterwards.')
 
     $warn = Get-El 'ConfirmWarn'
-    if ($agg -gt 0) {
-        (Get-El 'TxtConfirmWarn').Text =
-        "$agg of these options are marked Aggressive. Those can break Windows Update, remove security protections, or delete something that cannot be restored. Go back and read the explanation on each one if you have not already."
+    if ($agg -gt 0 -or $irrev -gt 0) {
+        $parts = @()
+        if ($irrev -gt 0) { $parts += "$irrev of these options permanently delete files — temporary files, old updates, caches, or the previous Windows installation. Unlike every other option in this app, Revert cannot undo them because the data is gone." }
+        if ($agg -gt 0) { $parts += "$agg of these options are marked Aggressive. Those can break Windows Update, remove security protections, or delete something that cannot be restored." }
+        (Get-El 'TxtConfirmWarn').Text = [string]::Join(' ', $parts)
         $warn.Visibility = 'Visible'
     } else {
         $warn.Visibility = 'Collapsed'
@@ -1772,16 +1772,11 @@ function Register-Handlers {
     (Get-El 'BtnHelp').Add_Click({ (Get-El 'OvHelp').Visibility = 'Visible' })
     (Get-El 'BtnHelpClose').Add_Click({ (Get-El 'OvHelp').Visibility = 'Collapsed' })
 
-    # cleanup overlay
-    (Get-El 'BtnCleanupTool').Add_Click({ Show-CleanupOverlay })
-    (Get-El 'BtnCleanupCancel').Add_Click({ (Get-El 'OvCleanup').Visibility = 'Collapsed' })
-    (Get-El 'BtnCleanupApply').Add_Click({ Invoke-CleanupApply })
-
     # --- keyboard
     $win.Add_PreviewKeyDown({
             param($s, $e)
             if ($e.Key -eq 'Escape') {
-                foreach ($n in @('OvLicense', 'OvHelp', 'OvSave', 'OvConfirm', 'OvCleanup')) {
+                foreach ($n in @('OvLicense', 'OvHelp', 'OvSave', 'OvConfirm')) {
                     $o = Get-El $n
                     if ($o.Visibility -eq 'Visible') { $o.Visibility = 'Collapsed'; $e.Handled = $true; return }
                 }
@@ -1794,126 +1789,6 @@ function Register-Handlers {
                 $e.Handled = $true
             }
         })
-}
-
-# --------------------------------------------------------------- cleanup overlay
-
-$script:CleanupChecks = @()
-
-function Show-CleanupOverlay {
-    $script:CleanupChecks = @()
-    $cleanupCat = $null
-    foreach ($c in $script:Categories) { if ($c.Key -eq 'cleanup') { $cleanupCat = $c; break } }
-    if ($null -eq $cleanupCat) { return }
-
-    $items = New-Object Collections.ObjectModel.ObservableCollection[object]
-    foreach ($tw in @($cleanupCat.Tweaks)) {
-        $riskColor = switch ($tw.Risk) {
-            'safe'      { '#FF16281D' }
-            'moderate'  { '#FF282010' }
-            'aggressive'{ '#FF2A1416' }
-            default     { '#FF1A1E28' }
-        }
-        $riskFg = switch ($tw.Risk) {
-            'safe'      { '#FF3DD68C' }
-            'moderate'  { '#FFF7B74A' }
-            'aggressive'{ '#FFFF8189' }
-            default     { '#FF768094' }
-        }
-        $warning = if ($tw.Risk -ne 'safe') { "This action permanently deletes data and cannot be undone." } else { '' }
-        $obj = [pscustomobject]@{
-            IsSelected = $false
-            Name = $tw.Name
-            Impact = $tw.Impact
-            Warning = $warning
-            RiskLabel = $tw.Risk.ToUpper()
-            RiskBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString($riskColor)
-            RiskFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString($riskFg)
-            Tweak = $tw
-        }
-        $items.Add($obj)
-        $script:CleanupChecks += $obj
-    }
-
-    (Get-El 'LstCleanupItems').ItemsSource = $items
-    (Get-El 'TxtCleanupTotal').Text = 'No items selected'
-    (Get-El 'TxtCleanupDetail').Text = ''
-    (Get-El 'BtnCleanupApply').IsEnabled = $false
-    (Get-El 'OvCleanup').Visibility = 'Visible'
-}
-
-function Update-CleanupTotal {
-    $sel = @($script:CleanupChecks | Where-Object { $_.IsSelected -eq $true })
-    $n = $sel.Count
-    $irrev = @($sel | Where-Object { $_.Tweak.Risk -ne 'safe' }).Count
-    if ($n -eq 0) {
-        (Get-El 'TxtCleanupTotal').Text = 'No items selected'
-        (Get-El 'TxtCleanupDetail').Text = ''
-        (Get-El 'BtnCleanupApply').IsEnabled = $false
-    } else {
-        $riskWord = if ($irrev -gt 0) { "$irrev irreversible" } else { 'all safe' }
-        (Get-El 'TxtCleanupTotal').Text = "$n item$(if ($n -gt 1) {'s'}) selected - $riskWord"
-        (Get-El 'TxtCleanupDetail').Text = 'Each option runs immediately. There is no undo.'
-        (Get-El 'BtnCleanupApply').IsEnabled = $true
-    }
-}
-
-function Invoke-CleanupApply {
-    $sel = @($script:CleanupChecks | Where-Object { $_.IsSelected -eq $true })
-    if ($sel.Count -eq 0) { return }
-
-    $hasModerate = @($sel | Where-Object { $_.Tweak.Risk -ne 'safe' }).Count -gt 0
-    if ($hasModerate) {
-        $result = [System.Windows.MessageBox]::Show(
-            "Some of the selected items permanently delete data that cannot be recovered.`n`nAre you sure you want to continue?",
-            "Confirm irreversible cleanup",
-            'YesNo', 'Warning')
-        if ($result -ne 'Yes') { return }
-    }
-
-    (Get-El 'OvCleanup').Visibility = 'Collapsed'
-
-    $staged = @()
-    foreach ($item in $sel) {
-        foreach ($a in @($item.Tweak.Actions)) {
-            $staged += @{ Tweak = $item.Tweak; Action = $a }
-        }
-    }
-
-    if ($staged.Count -eq 0) { return }
-
-    Open-BusyPanel 'Cleaning up...' "Running $($staged.Count) action$(if ($staged.Count -gt 1) {'s'})..."
-    $ok = 0; $fail = 0
-    foreach ($s in $staged) {
-        $tw = $s.Tweak
-        $a = $s.Action
-        $script:Shell.BusyDetail = $tw.Name
-        Add-UiLog $tw.Name 'head'
-        Sync-Ui
-
-        try {
-            if ($a.kind -eq 'command') {
-                $res = & ([scriptblock]::Create($a.disable))
-                Add-UiLog "$res" 'ok'
-            } elseif ($a.kind -eq 'reg') {
-                $full = Convert-HiveToPath $a.hive $a.path
-                Set-RegValue $full $a.name $a.disable $a.type
-                Add-UiLog "Set $($a.name) = $($a.disable)" 'ok'
-            }
-            $ok++
-        } catch {
-            Add-UiLog "Failed: $($_.Exception.Message)" 'warn'
-            $fail++
-        }
-    }
-
-    $script:Shell.Progress = 100
-    $detail = "$ok completed"
-    if ($fail -gt 0) { $detail += ", $fail failed" }
-    Close-BusyPanel $detail
-    (Get-El 'OvBusy').Visibility = 'Collapsed'
-    Update-TweakStates $script:AllTweaks $null
-    Build-Overview
 }
 
 # --------------------------------------------------------------- entry
