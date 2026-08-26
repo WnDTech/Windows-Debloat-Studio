@@ -533,6 +533,10 @@ function Get-ActionState {
                 $cur = Get-RegValue $full $Action.name
                 if (Test-RegValueMatch $cur $Action.disable $Action.type) { return 'Disabled' }
                 if (Test-RegValueMatch $cur $Action.enable  $Action.type) { return 'Enabled' }
+                # Group-Policy keys are absent by default; Windows runs in the
+                # unrestricted state. Every Policies-path entry in the catalogue
+                # is a restriction, so absent means the default (enabled).
+                if (-not $cur.KeyExists -and $Action.path -match 'Policies') { return 'Enabled' }
                 return 'Unknown'
             }
 
