@@ -1801,101 +1801,35 @@ function Register-Handlers {
 $script:CleanupChecks = @()
 
 function Show-CleanupOverlay {
-    $panel = Get-El 'LstCleanupItems'
-    $panel.Children.Clear()
     $script:CleanupChecks = @()
-
     $cleanupCat = $null
     foreach ($c in $script:Categories) { if ($c.Key -eq 'cleanup') { $cleanupCat = $c; break } }
     if ($null -eq $cleanupCat) { return }
 
+    $items = New-Object Collections.ObjectModel.ObservableCollection[object]
     foreach ($tw in @($cleanupCat.Tweaks)) {
-        $row = New-Object System.Windows.Controls.Grid
-        $row.Margin = New-Object System.Windows.Thickness(0, 0, 0, 10)
-
-        $colDef1 = New-Object System.Windows.Controls.ColumnDefinition
-        $colDef1.Width = New-Object System.Windows.GridLength(1, [System.Windows.GridUnitType]::Star)
-        $colDef2 = New-Object System.Windows.Controls.ColumnDefinition
-        $colDef2.Width = New-Object System.Windows.GridLength(120)
-        $row.ColumnDefinitions.Add($colDef1)
-        $row.ColumnDefinitions.Add($colDef2)
-
         $riskColor = switch ($tw.Risk) {
-            'safe'      { '#FF3DD68C' }
-            'moderate'  { '#FFF7B74A' }
-            'aggressive'{ '#FFFF8189' }
-            default     { '#FF768094' }
+            'safe'      { '#33DD68C' }
+            'moderate'  { '#33F7B74A' }
+            'aggressive'{ '#33FF8189' }
+            default     { '#33768094' }
         }
-
-        $inner = New-Object System.Windows.Controls.StackPanel
-        $inner.Margin = New-Object System.Windows.Thickness(0, 8, 0, 0)
-
-        $topRow = New-Object System.Windows.Controls.StackPanel
-        $topRow.Orientation = 'Horizontal'
-
-        $chk = New-Object System.Windows.Controls.CheckBox
-        $chk.Style = $win.FindResource('Check')
-        $chk.Content = $tw.Name
-        $chk.FontSize = 14
-        $chk.FontWeight = 'SemiBold'
-        $chk.Foreground = $win.FindResource('Text')
-        $chk.Margin = New-Object System.Windows.Thickness(0, 0, 10, 0)
-
-        $riskChip = New-Object System.Windows.Controls.Border
-        $riskChip.CornerRadius = New-Object System.Windows.CornerRadius(3)
-        $riskChip.Background = [System.Windows.Media.BrushConverter]::new().ConvertFromString("$riskColor`33")
-        $riskChip.Padding = New-Object System.Windows.Thickness(6, 2, 6, 2)
-        $riskChip.VerticalAlignment = 'Center'
-        $riskTxt = New-Object System.Windows.Controls.TextBlock
-        $riskTxt.Text = $tw.Risk.ToUpper()
-        $riskTxt.FontSize = 10
-        $riskTxt.FontWeight = 'SemiBold'
-        $riskTxt.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString($riskColor)
-        $riskChip.Child = $riskTxt
-
-        $topRow.Children.Add($chk) | Out-Null
-        $topRow.Children.Add($riskChip) | Out-Null
-
-        $impactTxt = New-Object System.Windows.Controls.TextBlock
-        $impactTxt.Text = $tw.Impact
-        $impactTxt.Style = $win.FindResource('Body')
-        $impactTxt.FontSize = 12.5
-        $impactTxt.Foreground = $win.FindResource('TextDim')
-        $impactTxt.Margin = New-Object System.Windows.Thickness(24, 4, 0, 0)
-        $impactTxt.TextWrapping = 'Wrap'
-
-        $warnTxt = New-Object System.Windows.Controls.TextBlock
-        $warnTxt.Text = "This action permanently deletes data and cannot be undone."
-        $warnTxt.FontSize = 11
-        $warnTxt.Foreground = [System.Windows.Media.BrushConverter]::new().ConvertFromString('#FFFF8189')
-        $warnTxt.Margin = New-Object System.Windows.Thickness(24, 3, 0, 0)
-
-        $inner.Children.Add($topRow) | Out-Null
-        $inner.Children.Add($impactTxt) | Out-Null
-        if ($tw.Risk -ne 'safe') { $inner.Children.Add($warnTxt) | Out-Null }
-
-        [System.Windows.Controls.Grid]::SetColumn($inner, 0)
-        $row.Children.Add($inner) | Out-Null
-
-        $stateTxt = New-Object System.Windows.Controls.TextBlock
-        $stateTxt.Text = $tw.CurrentState
-        $stateTxt.FontSize = 12
-        $stateTxt.Foreground = $win.FindResource('TextDim')
-        $stateTxt.VerticalAlignment = 'Center'
-        $stateTxt.HorizontalAlignment = 'Right'
-        $stateTxt.Margin = New-Object System.Windows.Thickness(0, 8, 0, 0)
-        [System.Windows.Controls.Grid]::SetColumn($stateTxt, 1)
-        $row.Children.Add($stateTxt) | Out-Null
-
-        $panel.Children.Add($row) | Out-Null
-        $script:CleanupChecks += @{ Chk = $chk; Tweak = $tw }
+        $warning = if ($tw.Risk -ne 'safe') { "This action permanently deletes data and cannot be undone." } else { '' }
+        $obj = [pscustomobject]@{
+            IsSelected = $false
+            Name = $tw.Name
+            Impact = $tw.Impact
+            Warning = $warning
+            RiskLabel = $tw.Risk.ToUpper()
+            RiskBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString($riskColor)
+            RiskFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString(($tw.Risk))
+            Tweak = $tw
+        }
+        $items.Add($obj)
+        $script:CleanupChecks += $obj
     }
 
-    foreach ($item in $script:CleanupChecks) {
-        $item.Chk.Add_Checked({ Update-CleanupTotal })
-        $item.Chk.Add_Unchecked({ Update-CleanupTotal })
-    }
-
+    (Get-El 'LstCleanupItems').ItemsSource = $items
     (Get-El 'TxtCleanupTotal').Text = 'No items selected'
     (Get-El 'TxtCleanupDetail').Text = ''
     (Get-El 'BtnCleanupApply').IsEnabled = $false
@@ -1903,15 +1837,15 @@ function Show-CleanupOverlay {
 }
 
 function Update-CleanupTotal {
-    $sel = @($script:CleanupChecks | Where-Object { $_.Chk.IsChecked -eq $true })
+    $sel = @($script:CleanupChecks | Where-Object { $_.IsSelected -eq $true })
     $n = $sel.Count
-    $total = @($script:CleanupChecks | Where-Object { $_.Chk.IsChecked -eq $true -and $_.Tweak.Risk -ne 'safe' }).Count
+    $irrev = @($sel | Where-Object { $_.Tweak.Risk -ne 'safe' }).Count
     if ($n -eq 0) {
         (Get-El 'TxtCleanupTotal').Text = 'No items selected'
         (Get-El 'TxtCleanupDetail').Text = ''
         (Get-El 'BtnCleanupApply').IsEnabled = $false
     } else {
-        $riskWord = if ($total -gt 0) { "$total irreversible" } else { "all safe" }
+        $riskWord = if ($irrev -gt 0) { "$irrev irreversible" } else { 'all safe' }
         (Get-El 'TxtCleanupTotal').Text = "$n item$(if ($n -gt 1) {'s'}) selected - $riskWord"
         (Get-El 'TxtCleanupDetail').Text = 'Each option runs immediately. There is no undo.'
         (Get-El 'BtnCleanupApply').IsEnabled = $true
@@ -1919,7 +1853,7 @@ function Update-CleanupTotal {
 }
 
 function Invoke-CleanupApply {
-    $sel = @($script:CleanupChecks | Where-Object { $_.Chk.IsChecked -eq $true })
+    $sel = @($script:CleanupChecks | Where-Object { $_.IsSelected -eq $true })
     if ($sel.Count -eq 0) { return }
 
     $hasModerate = @($sel | Where-Object { $_.Tweak.Risk -ne 'safe' }).Count -gt 0
@@ -1935,13 +1869,8 @@ function Invoke-CleanupApply {
 
     $staged = @()
     foreach ($item in $sel) {
-        $tw = $item.Tweak
-        foreach ($a in @($tw.Actions)) {
-            if ($a.kind -eq 'command') {
-                $staged += @{ Tweak = $tw; Action = $a; Direction = 'Disable' }
-            } elseif ($a.kind -eq 'reg') {
-                $staged += @{ Tweak = $tw; Action = $a; Direction = 'Disable' }
-            }
+        foreach ($a in @($item.Tweak.Actions)) {
+            $staged += @{ Tweak = $item.Tweak; Action = $a }
         }
     }
 
