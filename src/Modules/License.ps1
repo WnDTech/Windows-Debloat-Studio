@@ -195,10 +195,15 @@ function Register-License {
     $label = Get-MachineLabel
     $act = Invoke-PolarCall -Action 'activate' -Body @{ key = $key; label = $label }
     $activationId = $null
-    $lk = $null
+    $benefitId = $null
+    $limitActivations = $null
+    $expiresUtc = $null
     if ($act.Ok) {
         $activationId = "$($act.Data.id)"
         $lk = $act.Data.license_key
+        $benefitId = "$($lk.benefit_id)"
+        $limitActivations = $lk.limit_activations
+        $expiresUtc = if ($lk.expires_at) { "$($lk.expires_at)" } else { $null }
     } else {
         Write-AppLog "license activate returned $($act.Kind); falling back to validate" 'info'
         $val = Invoke-PolarCall -Action 'validate' -Body @{ key = $key }
@@ -206,10 +211,12 @@ function Register-License {
             Write-AppLog "license activate and validate both failed: $($act.Kind) $($act.Message)" 'warn'
             return [pscustomobject]@{ Ok = $false; Message = $act.Message }
         }
-        $lk = $val.Data.license_key
+        $d = $val.Data
+        $benefitId = "$($d.benefit_id)"
+        $limitActivations = $d.limit_activations
+        $expiresUtc = if ($d.expires_at) { "$($d.expires_at)" } else { $null }
     }
 
-    $benefitId = "$($lk.benefit_id)"
     $tier = Resolve-LicenseTier $benefitId
     if ($null -eq $tier) {
         return [pscustomobject]@{ Ok = $false
@@ -224,8 +231,8 @@ function Register-License {
         tierName         = "$($tier.name)"
         benefitId        = $benefitId
         label            = $label
-        limitActivations = $lk.limit_activations
-        expiresUtc       = if ($lk.expires_at) { "$($lk.expires_at)" } else { $null }
+        limitActivations = $limitActivations
+        expiresUtc       = $expiresUtc
         activatedUtc     = (Get-Date).ToUniversalTime().ToString('o')
         lastValidatedUtc = (Get-Date).ToUniversalTime().ToString('o')
         lastResult       = 'valid'
