@@ -1030,8 +1030,12 @@ function Show-ConfirmSheet {
     $warn = Get-El 'ConfirmWarn'
     if ($agg -gt 0 -or $irrev -gt 0) {
         $parts = @()
-        if ($irrev -gt 0) { $parts += "$irrev of these options permanently delete files — temporary files, old updates, caches, or the previous Windows installation. Unlike every other option in this app, Revert cannot undo them because the data is gone." }
-        if ($agg -gt 0) { $parts += "$agg of these options are marked Aggressive. Those can break Windows Update, remove security protections, or delete something that cannot be restored." }
+        if ($irrev -gt 0) {
+            $parts += "$irrev of these options permanently delete files - temporary files, old updates, caches, or the previous Windows installation. Unlike every other option in this app, Revert cannot undo them because the data is gone."
+        }
+        if ($agg -gt 0) {
+            $parts += "$agg of these options are marked Aggressive. Those can break Windows Update, remove security protections, or delete something that cannot be restored."
+        }
         (Get-El 'TxtConfirmWarn').Text = [string]::Join(' ', $parts)
         $warn.Visibility = 'Visible'
     } else {
