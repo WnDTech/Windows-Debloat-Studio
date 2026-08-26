@@ -1,0 +1,561 @@
+{
+  "category": {
+    "key": "edge",
+    "name": "Microsoft Edge",
+    "glyph": "",
+    "order": 115,
+    "blurb": "Edge has its own policy tree, separate from Windows, and it is the only browser you cannot remove without breaking parts of the operating system. Everything here is set through the same managed policies an organisation would use, so Edge stays fully working as a browser while the surfaces you did not ask for go away. If Edge is not your default browser, these still matter: Widgets, some Settings pages and several desktop apps render through Edge components."
+  },
+  "tweaks": [
+    {
+      "id": "edge.startupboost",
+      "name": "Startup boost",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "perf",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Keeps Edge processes running from sign-in so the browser window opens faster.",
+      "explain": "Startup boost launches a set of Edge processes at sign-in and keeps them resident whether or not you ever open the browser. It genuinely does make the first window appear faster, at the cost of a few hundred megabytes of memory and a slower sign-in. On a machine where Edge is not the browser you use, it is pure overhead.",
+      "enableMeans": "Edge preloads at sign-in so its first window opens faster.",
+      "disableMeans": "Edge only starts when you open it, freeing the memory its background processes held.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "StartupBoostEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.backgroundmode",
+      "name": "Keep running in the background after closing",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "perf",
+        "core"
+      ],
+      "impact": "Whether Edge stays resident after you close its last window.",
+      "explain": "Edge can keep a background process alive after the last window closes, so extensions and push notifications keep working. It is why Edge sometimes appears in Task Manager when no window is open. Turning it off means closing Edge actually closes Edge. Website push notifications stop arriving while the browser is shut.",
+      "enableMeans": "Edge keeps a background process running after you close it.",
+      "disableMeans": "Closing the last Edge window exits Edge completely.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "BackgroundModeEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.sync",
+      "name": "Sync of favourites, passwords and history",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "cloud",
+        "privacy"
+      ],
+      "impact": "Uploads your browsing data to your Microsoft account so it follows you between devices.",
+      "explain": "Edge sync covers favourites, passwords, addresses, payment details, history, open tabs, extensions and settings. Convenient across several machines, and it means all of that lives in Microsoft's cloud. Disabling sync by policy also greys out the toggles so nothing turns it back on later. Data already synced stays in your account until you clear it from account.microsoft.com.",
+      "enableMeans": "Edge sync is available again and you control it from Edge settings.",
+      "disableMeans": "Blocks Edge sync entirely by policy.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "SyncDisabled",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "SyncTypesListDisabled",
+          "type": "MultiString",
+          "enable": "@delete",
+          "disable": "passwords"
+        }
+      ]
+    },
+    {
+      "id": "edge.passwordmanager",
+      "name": "Built-in password manager",
+      "risk": "moderate",
+      "tags": [
+        "edge",
+        "security"
+      ],
+      "impact": "Whether Edge offers to save and fill your passwords.",
+      "explain": "Edge's password manager is reasonable, but if you use a dedicated manager such as Bitwarden or 1Password, having two competing autofill prompts is a nuisance and a source of mistakes. Disabling it stops Edge saving new passwords and stops it filling forms. Passwords already saved are not deleted; they remain in your profile and in sync if that is on, and you should export or delete them deliberately before relying on this.",
+      "enableMeans": "Edge offers to save passwords and fills them in for you.",
+      "disableMeans": "Turns off Edge's password saving and filling. Existing saved passwords are not deleted.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "PasswordManagerEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.autofill",
+      "name": "Autofill for addresses and payment cards",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "privacy",
+        "security"
+      ],
+      "impact": "Whether Edge stores and fills your postal address and card details.",
+      "explain": "Separate from the password manager. Card details saved here can be filled into any site that asks, which is convenient and occasionally too convenient. Disabling both means you type them when you need them. Nothing already stored is deleted.",
+      "enableMeans": "Edge saves and fills addresses and payment cards.",
+      "disableMeans": "Stops Edge storing or filling address and card details.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "AutofillAddressEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "AutofillCreditCardEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "PaymentMethodQueryEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.newtabcontent",
+      "name": "MSN content on the new tab page",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "ads",
+        "core"
+      ],
+      "impact": "The news feed, sponsored stories and promoted tiles that fill a new tab.",
+      "explain": "Edge's new tab page loads an MSN feed with advertising, which means opening a tab makes network requests and shows content nobody asked for. These policies remove the feed, the promotional quick links and the background image, leaving a plain page with a search box. It is the single biggest quality-of-life change in this category.",
+      "enableMeans": "The new tab page shows the MSN feed and promoted content again.",
+      "disableMeans": "Strips the new tab page back to a search box with no feed and no sponsored tiles.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "NewTabPageContentEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "NewTabPageQuickLinksEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "NewTabPageAllowedBackgroundTypes",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 3
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "NewTabPageHideDefaultTopSites",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "edge.searchsuggestions",
+      "name": "Search and site suggestions while typing",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "privacy",
+        "core"
+      ],
+      "impact": "Sends what you type in the address bar to Bing before you press Enter.",
+      "explain": "Address bar suggestions mean every keystroke in the address bar is sent to the search provider, including the beginnings of URLs you never actually visit. Turning it off means suggestions come only from your own history and favourites, and nothing leaves the machine until you commit to a search.",
+      "enableMeans": "Edge sends address bar keystrokes for live suggestions.",
+      "disableMeans": "Suggestions come from local history only; nothing is sent as you type.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "SearchSuggestEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.trackingprevention",
+      "name": "Tracking prevention level",
+      "risk": "moderate",
+      "tags": [
+        "edge",
+        "privacy"
+      ],
+      "impact": "How aggressively Edge blocks third-party trackers.",
+      "explain": "Edge has three levels: Basic, Balanced and Strict. Balanced is the default. Strict blocks the majority of third-party trackers and ad networks, which is a real privacy improvement and does occasionally break embedded video players, single sign-on flows and comment widgets. Note the direction: Enable here means Strict, because that is the protective choice.",
+      "enableMeans": "Sets tracking prevention to Strict, blocking most third-party trackers.",
+      "disableMeans": "Returns tracking prevention to Balanced, the Edge default.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "TrackingPrevention",
+          "type": "DWord",
+          "enable": 3,
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "BlockThirdPartyCookies",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.sleepingtabs",
+      "name": "Sleeping tabs",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "perf"
+      ],
+      "impact": "Puts background tabs to sleep to save memory and CPU.",
+      "explain": "Sleeping tabs frees the resources of tabs you have not looked at for a while, and wakes them when you return. It is one of the few Edge features that is a straightforward win, which is why the direction here is worth reading: Enable turns it on. The only cost is that a woken tab takes a moment, and a few sites lose their scroll position or a live connection.",
+      "enableMeans": "Background tabs sleep after a period of inactivity to free memory.",
+      "disableMeans": "All tabs stay fully loaded and resident.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "SleepingTabsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "SleepingTabsTimeout",
+          "type": "DWord",
+          "enable": 300,
+          "disable": "@delete"
+        }
+      ]
+    },
+    {
+      "id": "edge.collections",
+      "name": "Collections, Drop and the follow features",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "core"
+      ],
+      "impact": "The Collections pane, the Drop file-sharing feature and site following.",
+      "explain": "Three side features that each add a toolbar button and a background component. Collections is a scrapbook, Drop sends files to your own devices through OneDrive, and Follow tracks price changes and creators. Removing them declutters the toolbar and removes their sync traffic.",
+      "enableMeans": "Collections, Drop and Follow are available in Edge.",
+      "disableMeans": "Removes Collections, Drop and the follow features and their toolbar buttons.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "EdgeCollectionsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "EdgeDropEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "EdgeFollowEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.crashreports",
+      "name": "Crash and usage reporting",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "telemetry",
+        "core"
+      ],
+      "impact": "Sends Edge crash dumps and feature usage data to Microsoft.",
+      "explain": "Separate from the Windows diagnostic pipeline and from the Edge metrics policy in the Privacy category. This covers the crash reporter and the user feedback surfaces. Edge keeps working identically; you simply stop contributing crash data.",
+      "enableMeans": "Edge sends crash reports and allows feedback submission.",
+      "disableMeans": "Stops the Edge crash reporter and the in-browser feedback surfaces.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "UserFeedbackAllowed",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "SendSiteInfoToImproveServices",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "DiagnosticData",
+          "type": "DWord",
+          "enable": 2,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.updater.tasks",
+      "name": "Edge automatic updater",
+      "risk": "aggressive",
+      "tags": [
+        "edge",
+        "update",
+        "security"
+      ],
+      "restart": true,
+      "impact": "The service and scheduled tasks that keep Edge patched.",
+      "explain": "Edge is a browser, which makes it one of the most exposed pieces of software on the machine, and browser exploits are delivered by simply visiting a page. Disabling its updater means you are responsible for updating it, and an unpatched Edge is a genuine risk even if you never open it, because its components render Widgets and parts of Windows. This is here for completeness. If your objection is the background processes rather than the patching, use the startup boost and background mode options instead.",
+      "enableMeans": "Re-enables the Edge update service and its scheduled tasks.",
+      "disableMeans": "Stops Edge updating itself. Edge will fall behind on security patches until you update it by hand.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "edgeupdate",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "edgeupdatem",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "task",
+          "tasks": [
+            "\\MicrosoftEdgeUpdateTaskMachineCore",
+            "\\MicrosoftEdgeUpdateTaskMachineUA"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "edge.importprompt",
+      "name": "Browser data import prompts",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "ads"
+      ],
+      "impact": "The repeated offers to import your favourites and passwords from another browser.",
+      "explain": "Edge periodically offers to bring your data over from Chrome or Firefox, and on some builds it has done so without a clear prompt. These policies switch the automatic import and the recurring offer off, so Edge only imports when you explicitly ask it to from settings.",
+      "enableMeans": "Edge may offer, and automatically perform, browser data import.",
+      "disableMeans": "Blocks automatic import and the recurring import prompts.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "AutoImportAtFirstRun",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 4
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "ImportBrowserSettings",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.pdf",
+      "name": "Edge as the default PDF reader",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "core"
+      ],
+      "impact": "Whether PDFs open in Edge rather than in a dedicated reader.",
+      "explain": "Edge registers itself for PDFs and, on some builds, re-registers after updates even when you have set another default. Setting the policy makes Edge always hand PDFs to the system default instead of opening them itself, which is the reliable way to make another reader stick.",
+      "enableMeans": "Edge opens PDF files itself.",
+      "disableMeans": "Edge always downloads PDFs and hands them to your chosen reader.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "AlwaysOpenPdfExternally",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "edge.sidebarapps",
+      "name": "Sidebar app icons and Bing discover",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "ads",
+        "ai"
+      ],
+      "impact": "The vertical strip of app icons down the right-hand edge of the browser.",
+      "explain": "The sidebar hosts Bing chat, shopping, games, Outlook and a rotating set of promoted apps, and it takes up screen width permanently. This removes the sidebar and the discover surface. It overlaps with the Copilot option in the AI category, which handles the assistant specifically; this one clears the whole strip.",
+      "enableMeans": "The Edge sidebar and its app icons return.",
+      "disableMeans": "Removes the sidebar entirely, along with the discover and games surfaces.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "StandaloneHubsSidebarEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "EdgeEntraCopilotPageContext",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "GamesMenuEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "edge.iemode",
+      "name": "Internet Explorer mode",
+      "risk": "safe",
+      "tags": [
+        "edge",
+        "legacy",
+        "security"
+      ],
+      "impact": "Lets Edge render a page with the old Internet Explorer engine.",
+      "explain": "IE mode exists so that ancient intranet applications keep working. It renders with MSHTML, which is far less safe than the modern engine, and a page loaded in IE mode is a considerably larger attack surface. If you have no legacy business application that needs it, blocking IE mode closes that door. Do not disable this on a work machine without checking with whoever runs your intranet.",
+      "enableMeans": "Pages may be rendered in Internet Explorer mode.",
+      "disableMeans": "Blocks IE mode so everything renders with the modern engine.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "InternetExplorerIntegrationLevel",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "InternetExplorerModeToolbarButtonEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    }
+  ]
+}

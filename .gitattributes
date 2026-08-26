@@ -1,0 +1,22 @@
+# Line endings are pinned rather than left to each machine's autocrlf setting.
+#
+# The build embeds these files into the exe byte for byte, and publishes a
+# SHA-256 for people to verify against. If one machine checked out CRLF and
+# another LF, the same commit would produce two different payloads and two
+# different checksums - which would make the published hash meaningless and
+# break reproducible builds in CI.
+* text=auto eol=lf
+
+# Generated and binary assets are never line-ending converted.
+*.ico binary
+*.png binary
+*.exe binary
+*.dll binary
+
+# Keep the licence verbatim as published by the FSF.
+LICENSE -text -diff
+
+# GitHub language stats: the site is one big generated page with embedded
+# screenshots, and the catalogue is data, not source.
+site/index.html linguist-generated=true
+data/** linguist-language=JSON linguist-detectable=false

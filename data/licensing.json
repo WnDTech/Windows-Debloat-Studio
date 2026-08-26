@@ -1,0 +1,49 @@
+{
+  "_comment": [
+    "Licensing configuration. Two values must be filled in before selling:",
+    "  organizationId  - Polar dashboard > Settings > General > Organization ID.",
+    "                    This is not a secret; the validate/activate endpoints are",
+    "                    public and it identifies which organisation a key belongs to.",
+    "  checkout        - the Polar checkout link for each product.",
+    "Then map each product's License Keys benefit id onto a tier below, so the app",
+    "can tell a Pro key from a Technician key. Benefit ids appear in the Polar",
+    "dashboard under the benefit, and in the validate response as 'benefit_id'.",
+    "If benefitIds is left empty, any valid key for the organisation grants Pro."
+  ],
+
+  "provider": "polar",
+  "organizationId": "",
+  "apiBase": "https://api.polar.sh",
+
+  "checkout": {
+    "pro": "",
+    "technician": "",
+    "portal": "https://polar.sh/purchases"
+  },
+
+  "tiers": [
+    {
+      "id": "pro",
+      "name": "Pro",
+      "benefitIds": [],
+      "features": ["presets.advanced", "presets.save", "allusers", "winget"]
+    },
+    {
+      "id": "technician",
+      "name": "Technician",
+      "benefitIds": [],
+      "features": ["presets.advanced", "presets.save", "allusers", "winget"]
+    }
+  ],
+
+  "features": {
+    "presets.advanced": "The eight advanced curated presets",
+    "presets.save": "Saving, exporting and importing your own presets",
+    "allusers": "Applying per-user options to every account on the PC",
+    "winget": "Reinstalling removed Store apps through winget"
+  },
+
+  "revalidateAfterDays": 14,
+  "offlineGraceDays": 60,
+  "requestTimeoutSeconds": 8
+}

@@ -1,0 +1,1359 @@
+{
+  "category": {
+    "key": "apps",
+    "name": "Preinstalled Apps",
+    "glyph": "",
+    "order": 40,
+    "blurb": "The Store apps Windows 11 installs whether you asked for them or not. Disabling one here removes it for your account and deprovisions it, so accounts created later do not get it either. Anything removed can be reinstalled from the Microsoft Store; where the payload is still on disk, Revert and Enable put it back without a download. Options are marked Unknown if the app was never present on this PC."
+  },
+  "tweaks": [
+    {
+      "id": "app.bing.news",
+      "name": "Microsoft News",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "bing",
+        "core"
+      ],
+      "impact": "The MSN news reader app, which also backs some Widgets content.",
+      "explain": "Microsoft News is an MSN front end with its own advertising. It is separate from the Widgets board, though both draw on MSN. Removing the app does not remove the Widgets feed; use the Widgets option in the Ads category for that.",
+      "enableMeans": "Reinstalls the News app if its files are still on disk, otherwise points you at the Store.",
+      "disableMeans": "Removes Microsoft News for this account and deprovisions it for new accounts.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.BingNews"
+          ],
+          "store": {
+            "Microsoft.BingNews": {
+              "id": "9WZDNCRFHVFW",
+              "expect": "Microsoft News"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.bing.weather",
+      "name": "MSN Weather",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "bing",
+        "core"
+      ],
+      "impact": "The Weather app and the weather data source for the taskbar and lock screen.",
+      "explain": "The Weather app provides the taskbar weather button's detail view. If you remove the app but leave Widgets enabled, clicking the weather button opens a web page instead. Most people who remove one remove both.",
+      "enableMeans": "Reinstalls the Weather app if its files are still on disk.",
+      "disableMeans": "Removes MSN Weather for this account and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.BingWeather"
+          ],
+          "store": {
+            "Microsoft.BingWeather": {
+              "id": "9WZDNCRFJ3Q2",
+              "expect": "MSN Weather"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.bing.search",
+      "name": "Bing Search component",
+      "risk": "moderate",
+      "tags": [
+        "bloat",
+        "bing",
+        "search"
+      ],
+      "impact": "The Store package that provides web results inside Windows Search.",
+      "explain": "This package is what actually renders Bing results in the Start search panel. Removing it is a harder version of disabling web search: the panel simply has nowhere to send the query. Local search over apps, settings and files is unaffected. On some builds Windows re-provisions this package with a feature update.",
+      "enableMeans": "Restores the Bing search integration package.",
+      "disableMeans": "Removes the Bing search component so search cannot reach the web at all.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.BingSearch"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.copilot",
+      "name": "Copilot app",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "ai",
+        "copilot",
+        "core"
+      ],
+      "impact": "The standalone Copilot Store app that newer builds install alongside the taskbar entry.",
+      "explain": "Recent Windows 11 builds ship Copilot as a normal Store app rather than an Edge panel. Removing the package is the complete version of disabling Copilot; pair it with the Copilot policy option in the AI category so a Windows update does not quietly bring it back.",
+      "enableMeans": "Restores the Copilot app if its files remain, otherwise install it from the Store.",
+      "disableMeans": "Removes the Copilot app and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Copilot",
+            "Microsoft.Windows.Ai.Copilot.Provider",
+            "Microsoft.Copilot.Native"
+          ],
+          "store": {
+            "Microsoft.Copilot": {
+              "id": "9NHT9RB2F4HD",
+              "expect": "Microsoft Copilot"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.clipchamp",
+      "name": "Clipchamp video editor",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "Microsoft's video editor, which requires an account and pushes a paid tier.",
+      "explain": "Clipchamp is installed on new Windows 11 systems and is the replacement for the old Movies & TV editing features. It is a web app in a wrapper, needs sign-in for most functions, and watermarks or gates output behind a subscription. Straightforward to remove if you have any other editor.",
+      "enableMeans": "Restores Clipchamp if its files remain on disk.",
+      "disableMeans": "Removes Clipchamp for this account and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Clipchamp.Clipchamp"
+          ],
+          "store": {
+            "Clipchamp.Clipchamp": {
+              "id": "9P1J8S7CCWWT",
+              "expect": "Clipchamp"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.teams",
+      "name": "Microsoft Teams (personal) and Chat",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The consumer Teams client and the Chat button that used to sit in the taskbar.",
+      "explain": "The consumer Teams app is separate from the work or school Teams your employer might deploy. Removing this package does not touch a Teams installation that came from Microsoft 365. It does remove the taskbar Chat entry point and the background process that keeps it warm.",
+      "enableMeans": "Restores the consumer Teams package if it is still on disk.",
+      "disableMeans": "Removes consumer Teams and the Chat integration, and deprovisions them.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "MicrosoftTeams",
+            "MSTeams"
+          ],
+          "store": {
+            "MSTeams": {
+              "id": "9MSPC6MP8FM4",
+              "expect": "Microsoft Teams"
+            }
+          }
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Chat",
+          "name": "ChatIcon",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 3
+        }
+      ]
+    },
+    {
+      "id": "app.xbox.suite",
+      "name": "Xbox apps and Game Pass",
+      "risk": "moderate",
+      "tags": [
+        "bloat",
+        "gaming",
+        "xbox"
+      ],
+      "impact": "The Xbox console companion, Game Pass storefront, Xbox identity provider and Game Bar overlay.",
+      "explain": "This bundle covers the Xbox app, the Game Pass storefront, the gaming overlay and the speech-to-text overlay. The identity provider is deliberately left out of this option because some non-Microsoft games use it for sign-in and removing it breaks them. If you never play PC games from the Microsoft ecosystem, all of this can go. Steam, Epic, GOG and standalone games are unaffected.",
+      "enableMeans": "Restores the Xbox app family from local payload where possible.",
+      "disableMeans": "Removes the Xbox app, Game Pass, the gaming overlay and the speech overlay.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.GamingApp",
+            "Microsoft.XboxApp",
+            "Microsoft.XboxGameOverlay",
+            "Microsoft.XboxGamingOverlay",
+            "Microsoft.XboxSpeechToTextOverlay",
+            "Microsoft.Xbox.TCUI"
+          ],
+          "store": {
+            "Microsoft.GamingApp": {
+              "id": "9MV0B5HZVK9Z",
+              "expect": "Xbox"
+            },
+            "Microsoft.XboxGamingOverlay": {
+              "id": "9NZKPSTSNW4P",
+              "expect": "Xbox Game Bar"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.xbox.identity",
+      "name": "Xbox Identity Provider",
+      "risk": "aggressive",
+      "tags": [
+        "bloat",
+        "gaming",
+        "xbox"
+      ],
+      "impact": "The sign-in broker that lets games authenticate against an Xbox or Microsoft account.",
+      "explain": "This is the one Xbox component that non-Microsoft software actually depends on. Several third-party PC games, including some sold on Steam, use it to sign you in for cloud saves and achievements. Removing it will break those sign-ins with an unhelpful error. Only remove it if you are certain you play nothing that needs an Xbox Live login.",
+      "enableMeans": "Restores the Xbox Identity Provider so games can sign in again.",
+      "disableMeans": "Removes the Xbox sign-in broker. Games that rely on Xbox Live sign-in will stop authenticating.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.XboxIdentityProvider"
+          ],
+          "store": {
+            "Microsoft.XboxIdentityProvider": {
+              "id": "9WZDNCRD1HKW",
+              "expect": "Xbox Identity Provider"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.solitaire",
+      "name": "Microsoft Solitaire Collection",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The card game collection, which shows video adverts unless you pay.",
+      "explain": "Solitaire ships preinstalled and is ad-supported with a premium subscription upsell. It also runs a background process for its daily challenges. Nothing else depends on it.",
+      "enableMeans": "Restores Solitaire if its files remain on disk.",
+      "disableMeans": "Removes Microsoft Solitaire Collection and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.MicrosoftSolitaireCollection"
+          ],
+          "store": {
+            "Microsoft.MicrosoftSolitaireCollection": {
+              "id": "9WZDNCRFHWD2",
+              "expect": "Microsoft Solitaire Collection"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.officehub",
+      "name": "Microsoft 365 hub and Office shortcut app",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "office",
+        "core"
+      ],
+      "impact": "The 'Microsoft 365' or 'Office' tile that is really an advertisement for a subscription.",
+      "explain": "This package is a launcher and upsell surface, not Office itself. If you have a real Office or Microsoft 365 installation, removing this does not affect Word, Excel or Outlook. If you do not, it is pure advertising with a background updater.",
+      "enableMeans": "Restores the Microsoft 365 hub app.",
+      "disableMeans": "Removes the Microsoft 365 hub and its Office shortcut entries.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.MicrosoftOfficeHub",
+            "Microsoft.Office.OneNote"
+          ],
+          "store": {
+            "Microsoft.Office.OneNote": {
+              "id": "9WZDNCRFHVJL",
+              "expect": "OneNote"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.outlook.new",
+      "name": "New Outlook for Windows",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "office",
+        "core"
+      ],
+      "impact": "The web-based Outlook that Microsoft is using to replace Mail and Calendar.",
+      "explain": "New Outlook is a progressive web app that syncs your mail through Microsoft's servers even for third-party accounts such as Gmail, which is a meaningful privacy consideration. It is installed automatically and pinned. Removing it is safe; classic Outlook from a Microsoft 365 installation is a completely separate program and is untouched.",
+      "enableMeans": "Restores the new Outlook app.",
+      "disableMeans": "Removes new Outlook for Windows and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.OutlookForWindows"
+          ],
+          "store": {
+            "Microsoft.OutlookForWindows": {
+              "id": "9NRX63209R7B",
+              "expect": "Outlook for Windows"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.mailcalendar",
+      "name": "Mail and Calendar (classic)",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "office"
+      ],
+      "impact": "The older built-in Mail and Calendar app, now retired by Microsoft.",
+      "explain": "Mail and Calendar reached end of support and no longer connects to most services. On upgraded installs the package often lingers. Removing it frees the Start tile and stops a dead app being offered as the default mail handler.",
+      "enableMeans": "Restores the classic Mail and Calendar package if still present.",
+      "disableMeans": "Removes Mail and Calendar and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "microsoft.windowscommunicationsapps"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.phonelink",
+      "name": "Phone Link",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The app that mirrors an Android or iPhone's messages, calls and photos onto the PC.",
+      "explain": "Phone Link is genuinely useful if you pair a phone and useless otherwise. It runs a background process and a startup task even when no phone is paired. Removing it also removes the cross-device resume prompts.",
+      "enableMeans": "Restores Phone Link.",
+      "disableMeans": "Removes Phone Link and its background components.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.YourPhone",
+            "MicrosoftWindows.CrossDevice"
+          ],
+          "store": {
+            "Microsoft.YourPhone": {
+              "id": "9NMPJ99VJBWV",
+              "expect": "Phone Link"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.getstarted",
+      "name": "Tips and Get Started",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "ads",
+        "core"
+      ],
+      "impact": "The tutorial app that opens itself after updates.",
+      "explain": "The Tips app, sometimes shown as Get Started, is a walkthrough that Windows launches on its own after feature updates. It has no ongoing purpose once you know your way around.",
+      "enableMeans": "Restores the Tips app.",
+      "disableMeans": "Removes Tips and Get Started and deprovisions them.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Getstarted",
+            "MicrosoftWindows.Client.Tips"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.gethelp",
+      "name": "Get Help",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "Microsoft's support chat and troubleshooting front end.",
+      "explain": "Get Help hosts the guided troubleshooters and a support chat. Some Settings links point at it, and a few built-in troubleshooters launch through it, so removing it turns those links into dead ends. Everything it does is also available on the web.",
+      "enableMeans": "Restores the Get Help app.",
+      "disableMeans": "Removes Get Help. Some Settings troubleshooter links will stop working.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.GetHelp"
+          ],
+          "store": {
+            "Microsoft.GetHelp": {
+              "id": "9PKDZBMV1H3T",
+              "expect": "Get Help"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.feedbackhub",
+      "name": "Feedback Hub",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "telemetry",
+        "core"
+      ],
+      "impact": "The app for filing bug reports and suggestions with Microsoft.",
+      "explain": "Feedback Hub is the destination for the feedback prompts. If you have switched those off, the app has no purpose unless you actively file bugs. Insider builds do use it, so leave it if you are on the Insider programme.",
+      "enableMeans": "Restores Feedback Hub.",
+      "disableMeans": "Removes Feedback Hub and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsFeedbackHub"
+          ],
+          "store": {
+            "Microsoft.WindowsFeedbackHub": {
+              "id": "9NBLGGH4R32N",
+              "expect": "Feedback Hub"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.maps",
+      "name": "Windows Maps",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The offline-capable maps app and its background map data downloader.",
+      "explain": "Windows Maps is retired and no longer receives data updates in most regions. It still ships a background service and scheduled tasks that check for map updates. Removing the app leaves those tasks harmless; the Scheduled Tasks category can clear them too.",
+      "enableMeans": "Restores Windows Maps.",
+      "disableMeans": "Removes Windows Maps and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsMaps"
+          ],
+          "store": {
+            "Microsoft.WindowsMaps": {
+              "id": "9WZDNCRDTBVB",
+              "expect": "Windows Maps"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.people",
+      "name": "People",
+      "risk": "safe",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The contacts app that aggregated addresses from Mail and Skype.",
+      "explain": "People was designed as a hub for the old Mail and Skype apps, both of which are gone or retired. It is now a nearly empty app that still registers a contacts provider.",
+      "enableMeans": "Restores the People app.",
+      "disableMeans": "Removes People and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.People"
+          ],
+          "store": {
+            "Microsoft.People": {
+              "id": "9NBLGGH10PG8",
+              "expect": "Microsoft People"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.skype",
+      "name": "Skype",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The Skype app and its background sign-in components.",
+      "explain": "Skype has been retired in favour of Teams but the preinstalled package still appears on many systems, and it keeps a startup entry and background process. Removing it is safe; if you actually use Skype, install the desktop version from skype.com instead of the Store stub.",
+      "enableMeans": "Restores the Skype package.",
+      "disableMeans": "Removes Skype and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.SkypeApp"
+          ],
+          "store": {
+            "Microsoft.SkypeApp": {
+              "id": "9WZDNCRFJ364",
+              "expect": "Skype"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.todo",
+      "name": "Microsoft To Do",
+      "risk": "safe",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The task list app that syncs with your Microsoft account.",
+      "explain": "To Do is a competent task manager that requires a Microsoft account to be useful. If you use another to-do system it is pure clutter with a startup entry.",
+      "enableMeans": "Restores Microsoft To Do.",
+      "disableMeans": "Removes Microsoft To Do and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Todos"
+          ],
+          "store": {
+            "Microsoft.Todos": {
+              "id": "9NBLGGH5R558",
+              "expect": "Microsoft To Do"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.stickynotes",
+      "name": "Sticky Notes",
+      "risk": "safe",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "Desktop sticky notes with optional cloud sync.",
+      "explain": "Sticky Notes keeps its notes in a local database and can sync them through your Microsoft account. Removing the app deletes the app, not the note database, so reinstalling it later recovers your notes. Some people rely on it heavily; check before removing.",
+      "enableMeans": "Restores Sticky Notes.",
+      "disableMeans": "Removes Sticky Notes. Existing notes stay on disk in your profile.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.MicrosoftStickyNotes"
+          ],
+          "store": {
+            "Microsoft.MicrosoftStickyNotes": {
+              "id": "9NBLGGH4QGHW",
+              "expect": "Microsoft Sticky Notes"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.soundrecorder",
+      "name": "Sound Recorder",
+      "risk": "safe",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The simple voice recording app.",
+      "explain": "Sound Recorder is small and self-contained. It is the default handler for a couple of audio scenarios, so removing it means Windows has no built-in recorder. Genuinely useful to some people; remove only if you have an alternative.",
+      "enableMeans": "Restores Sound Recorder.",
+      "disableMeans": "Removes Sound Recorder and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsSoundRecorder"
+          ],
+          "store": {
+            "Microsoft.WindowsSoundRecorder": {
+              "id": "9WZDNCRFHWKN",
+              "expect": "Sound Recorder"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.moviestv",
+      "name": "Films & TV",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The Microsoft video store and player, formerly Movies & TV.",
+      "explain": "Films & TV is a storefront for buying video plus a basic player. It registers itself as the default handler for common video formats, which is why some people remove it in favour of VLC or MPC. Removing it means video files have no default player until you set one.",
+      "enableMeans": "Restores the Films & TV app.",
+      "disableMeans": "Removes Films & TV and deprovisions it. Set another default video player afterwards.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.ZuneVideo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.zunemusic",
+      "name": "Media Player (Groove)",
+      "risk": "safe",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The modern Media Player app, descended from Groove Music.",
+      "explain": "This is the Windows 11 Media Player, which replaced both Groove and the old Windows Media Player for most formats. It is the default handler for audio files. Remove it only if you have another audio player, or you will lose double-click playback for music.",
+      "enableMeans": "Restores the Media Player app.",
+      "disableMeans": "Removes Media Player and deprovisions it. Set another default audio player afterwards.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.ZuneMusic",
+            "Microsoft.WindowsMediaPlayer"
+          ],
+          "store": {
+            "Microsoft.ZuneMusic": {
+              "id": "9WZDNCRFJ3PT",
+              "expect": "Windows Media Player"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.photos",
+      "name": "Photos",
+      "risk": "moderate",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The default image viewer, which also handles thumbnails in some dialogs.",
+      "explain": "Photos is the default handler for every common image format. It is also heavier than it looks, with OneDrive integration, an AI search index and a background process. Removing it leaves you with no built-in image viewer at all, since the classic Windows Photo Viewer is not registered by default on Windows 11. Only remove it if you are installing something like IrfanView or Nomacs.",
+      "enableMeans": "Restores the Photos app.",
+      "disableMeans": "Removes Photos. Install another image viewer or you will have no default for pictures.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Windows.Photos"
+          ],
+          "store": {
+            "Microsoft.Windows.Photos": {
+              "id": "9WZDNCRFJBH4",
+              "expect": "Microsoft Photos"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.camera",
+      "name": "Camera",
+      "risk": "safe",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The built-in camera and webcam capture app.",
+      "explain": "The Camera app is the default for the camera capture contract, used by some apps that ask you to take a picture. On a desktop with no webcam it does nothing. On a laptop it is the quickest way to check the camera works.",
+      "enableMeans": "Restores the Camera app.",
+      "disableMeans": "Removes the Camera app and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsCamera"
+          ],
+          "store": {
+            "Microsoft.WindowsCamera": {
+              "id": "9WZDNCRFJBBG",
+              "expect": "Windows Camera"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.paint",
+      "name": "Paint",
+      "risk": "moderate",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The Paint app, including its newer layers and AI features.",
+      "explain": "Paint is now a Store app rather than a system component. Plenty of people use it constantly for quick crops and annotations, so this is a deliberate choice rather than an obvious removal. If you only object to the AI additions, use the AI category to disable those and keep Paint.",
+      "enableMeans": "Restores Paint.",
+      "disableMeans": "Removes the Paint app and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Paint",
+            "Microsoft.MSPaint"
+          ],
+          "store": {
+            "Microsoft.Paint": {
+              "id": "9PCFS5B6T72H",
+              "expect": "Paint"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.snippingtool",
+      "name": "Snipping Tool",
+      "risk": "moderate",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "Screen capture, screen recording and the Print Screen key handler.",
+      "explain": "Snipping Tool owns the Win+Shift+S shortcut and, on current builds, the Print Screen key. Removing it means those shortcuts do nothing until you install a replacement such as ShareX or Flameshot. It is one of the genuinely good built-in apps.",
+      "enableMeans": "Restores Snipping Tool and its keyboard shortcuts.",
+      "disableMeans": "Removes Snipping Tool. Win+Shift+S and Print Screen will stop capturing.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.ScreenSketch"
+          ],
+          "store": {
+            "Microsoft.ScreenSketch": {
+              "id": "9MZ95KL8MR0L",
+              "expect": "Snipping Tool"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.calculator",
+      "name": "Calculator",
+      "risk": "moderate",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The Windows calculator, including unit and currency conversion.",
+      "explain": "Calculator is small, useful and has a currency converter that fetches rates online. Listed here for completeness because it is technically a removable Store app, not because removing it is usually a good idea.",
+      "enableMeans": "Restores Calculator.",
+      "disableMeans": "Removes the Calculator app and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsCalculator"
+          ],
+          "store": {
+            "Microsoft.WindowsCalculator": {
+              "id": "9WZDNCRFHVN5",
+              "expect": "Windows Calculator"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.notepad",
+      "name": "Notepad",
+      "risk": "moderate",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "The Store version of Notepad that replaced the system one.",
+      "explain": "Notepad is now updated through the Store and has tabs, autosave and AI rewrite. Removing the package leaves no default handler for .txt files. If your objection is the AI features, disable those from the AI category and keep the app.",
+      "enableMeans": "Restores Notepad.",
+      "disableMeans": "Removes the Notepad app. Text files will have no default editor until you set one.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsNotepad"
+          ],
+          "store": {
+            "Microsoft.WindowsNotepad": {
+              "id": "9MSMLRH6LZF3",
+              "expect": "Windows Notepad"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.terminal",
+      "name": "Windows Terminal",
+      "risk": "moderate",
+      "tags": [
+        "bloat",
+        "dev"
+      ],
+      "impact": "The default host for Command Prompt and PowerShell windows.",
+      "explain": "Terminal is the default console host on Windows 11. Removing it makes console applications fall back to the legacy conhost window, which still works but loses tabs, panes and proper Unicode. Listed for completeness; almost nobody should remove this.",
+      "enableMeans": "Restores Windows Terminal as the console host.",
+      "disableMeans": "Removes Windows Terminal. Consoles fall back to the legacy window.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsTerminal"
+          ],
+          "store": {
+            "Microsoft.WindowsTerminal": {
+              "id": "9N0DX20HK701",
+              "expect": "Windows Terminal"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.devhome",
+      "name": "Dev Home",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "dev",
+        "core"
+      ],
+      "impact": "A developer dashboard app that Windows installs on machines that never asked for it.",
+      "explain": "Dev Home is a widget-based dashboard for GitHub, dev drives and machine configuration. It is installed automatically on many systems including non-developer ones, and it registers background widget providers. Removing it is safe even for developers, who generally use it rarely.",
+      "enableMeans": "Restores Dev Home.",
+      "disableMeans": "Removes Dev Home and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Windows.DevHome"
+          ],
+          "store": {
+            "Microsoft.Windows.DevHome": {
+              "id": "9N8G7TSCL18R",
+              "expect": "Dev Home"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.widgets.package",
+      "name": "Widgets platform packages",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "widgets",
+        "ads",
+        "core"
+      ],
+      "impact": "The Web Experience Pack that provides the Widgets board itself.",
+      "explain": "The Widgets board is delivered by the Windows Web Experience Pack. Removing the package is the complete version of disabling Widgets: the board and its background WebView host disappear rather than just being hidden. Some builds re-provision it during feature updates, so keep the Widgets policy option set as well.",
+      "enableMeans": "Restores the Web Experience Pack so the Widgets board can run.",
+      "disableMeans": "Removes the Widgets platform packages entirely.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "MicrosoftWindows.Client.WebExperience",
+            "Microsoft.WidgetsPlatformRuntime"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.quickassist",
+      "name": "Quick Assist",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "remote",
+        "core"
+      ],
+      "impact": "Microsoft's built-in remote assistance tool.",
+      "explain": "Quick Assist lets someone remote into your PC after you share a code. It is a favourite of tech support scammers precisely because it is preinstalled and looks official. Unless you actually use it to help family members, removing it closes a social-engineering avenue.",
+      "enableMeans": "Restores Quick Assist.",
+      "disableMeans": "Removes Quick Assist and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "MicrosoftCorporationII.QuickAssist"
+          ],
+          "store": {
+            "MicrosoftCorporationII.QuickAssist": {
+              "id": "9P7BP5VNWKX5",
+              "expect": "Quick Assist"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.familysafety",
+      "name": "Microsoft Family",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The parental controls and screen time app.",
+      "explain": "Microsoft Family Safety manages child accounts, screen time and content filters. On a single-user machine with no child accounts it does nothing but run a background task. Do not remove it if you use family controls on this PC.",
+      "enableMeans": "Restores the Family app.",
+      "disableMeans": "Removes Microsoft Family and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "MicrosoftCorporationII.MicrosoftFamily"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.mixedreality",
+      "name": "Mixed Reality Portal and 3D apps",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The retired Windows Mixed Reality portal, 3D Viewer and Print 3D.",
+      "explain": "Windows Mixed Reality was removed from Windows entirely, and Paint 3D, 3D Viewer and Print 3D are all retired. Any of these packages that survive on your system are dead weight. This is one of the safest removals in the whole catalogue.",
+      "enableMeans": "Restores whichever of these packages still exist locally.",
+      "disableMeans": "Removes the Mixed Reality portal, 3D Viewer, Print 3D and Paint 3D.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.MixedReality.Portal",
+            "Microsoft.Microsoft3DViewer",
+            "Microsoft.Print3D",
+            "Microsoft.MSPaint"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.onenote",
+      "name": "OneNote for Windows 10",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "office"
+      ],
+      "impact": "The Store version of OneNote, which Microsoft retired in favour of the desktop app.",
+      "explain": "OneNote for Windows 10 is end of life. If you use OneNote, the desktop version from Microsoft 365 is the supported one and is a separate installation. Removing the Store package does not touch your notebooks, which live in OneDrive.",
+      "enableMeans": "Restores the Store OneNote package.",
+      "disableMeans": "Removes OneNote for Windows 10 and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Office.OneNote"
+          ],
+          "store": {
+            "Microsoft.Office.OneNote": {
+              "id": "9WZDNCRFHVJL",
+              "expect": "OneNote"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.powerautomate",
+      "name": "Power Automate desktop",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The desktop flow automation tool, preinstalled on many systems.",
+      "explain": "Power Automate desktop records and replays UI automation. It installs a service and a scheduled task even if you never open it, and most of its useful features require a paid Power Platform licence. Safe to remove unless you build flows.",
+      "enableMeans": "Restores Power Automate desktop.",
+      "disableMeans": "Removes Power Automate desktop and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.PowerAutomateDesktop"
+          ],
+          "store": {
+            "Microsoft.PowerAutomateDesktop": {
+              "id": "9NFTCH6J7FHV",
+              "expect": "Power Automate"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.journal",
+      "name": "Windows Journal, Alarms and legacy odds and ends",
+      "risk": "safe",
+      "tags": [
+        "bloat"
+      ],
+      "impact": "Alarms & Clock, Voice Recorder's predecessor, Wallet and other retired stubs.",
+      "explain": "A grab bag of packages that Microsoft has stopped developing but that still appear on upgraded installs: Alarms & Clock, the old Wallet, Messaging, OneConnect and the Windows Reading List. None of them have a working service behind them any more.",
+      "enableMeans": "Restores whichever of these legacy packages still exist locally.",
+      "disableMeans": "Removes the retired legacy app stubs.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsAlarms",
+            "Microsoft.Wallet",
+            "Microsoft.Messaging",
+            "Microsoft.OneConnect",
+            "Microsoft.WindowsReadingList",
+            "Microsoft.CommsPhone",
+            "Microsoft.ConnectivityStore",
+            "Microsoft.BingFinance",
+            "Microsoft.BingSports",
+            "Microsoft.BingTranslator",
+            "Microsoft.BingFoodAndDrink",
+            "Microsoft.BingHealthAndFitness",
+            "Microsoft.BingTravel"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.oem.bundled",
+      "name": "Common OEM and third-party bundled apps",
+      "risk": "moderate",
+      "tags": [
+        "bloat",
+        "oem"
+      ],
+      "impact": "Store apps that PC manufacturers preinstall: Spotify, TikTok, Instagram, LinkedIn, Disney+, Netflix, Candy Crush and similar.",
+      "explain": "New machines arrive with sponsored Store apps that have nothing to do with Windows. This option covers the ones that appear most often. Because the list is fixed, an app your manufacturer bundled that is not listed here will need removing by hand from Settings. Anything not present on your PC is simply skipped.",
+      "enableMeans": "Attempts to restore whichever of these were previously installed.",
+      "disableMeans": "Removes the common sponsored third-party apps and deprovisions them.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "SpotifyAB.SpotifyMusic",
+            "BytedancePte.Ltd.TikTok",
+            "Facebook.InstagramBeta",
+            "Facebook.Facebook",
+            "7EE7776C.LinkedInforWindows",
+            "Disney.37853FC22B2CE",
+            "4DF9E0F8.Netflix",
+            "king.com.CandyCrushSaga",
+            "king.com.CandyCrushSodaSaga",
+            "king.com.FarmHeroesSaga",
+            "Clipchamp.Clipchamp",
+            "AmazonVideo.PrimeVideo",
+            "PandoraMediaInc.29680B314EFC2",
+            "AdobeSystemsIncorporated.AdobeExpress",
+            "5A894077.McAfeeSecurity",
+            "Microsoft.SkypeApp"
+          ],
+          "store": {
+            "SpotifyAB.SpotifyMusic": {
+              "id": "9NCBCSZSJRSB",
+              "expect": "Spotify"
+            },
+            "Clipchamp.Clipchamp": {
+              "id": "9P1J8S7CCWWT",
+              "expect": "Clipchamp"
+            },
+            "Microsoft.SkypeApp": {
+              "id": "9WZDNCRFJ364",
+              "expect": "Skype"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.store",
+      "name": "Microsoft Store",
+      "risk": "aggressive",
+      "tags": [
+        "bloat",
+        "store"
+      ],
+      "impact": "The Store app itself, which is also how every other Store app gets updated.",
+      "explain": "Removing the Store means no Store app can be installed or updated, including the ones Windows depends on such as the Snipping Tool, Terminal, Photos and Notepad. It also breaks winget's msstore source. Reinstalling the Store afterwards is genuinely awkward and sometimes needs a repair install of Windows. Almost nobody should do this; it is here because the catalogue aims to be complete.",
+      "enableMeans": "Attempts to restore the Store from local payload, which frequently fails once removed.",
+      "disableMeans": "Removes the Microsoft Store. App installation and updates will stop working and this is hard to undo.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.WindowsStore"
+          ],
+          "store": {
+            "Microsoft.WindowsStore": {
+              "id": "9WZDNCRFJBMP",
+              "expect": "Microsoft Store"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "app.edge.webview",
+      "name": "Edge WebView2 runtime",
+      "risk": "aggressive",
+      "tags": [
+        "bloat",
+        "edge"
+      ],
+      "impact": "The embedded browser engine that many desktop apps and parts of Windows render with.",
+      "explain": "WebView2 is not Edge the browser; it is the rendering engine that Widgets, parts of Settings, Teams, and a great many third-party desktop applications use to draw their interface. Removing it breaks all of them, often with a blank window and no error. This is listed only for completeness. Leave it alone unless you know exactly which apps on your machine use it.",
+      "enableMeans": "Restores the WebView2 runtime.",
+      "disableMeans": "Removes WebView2. Any app that embeds a browser view, including parts of Windows, will break.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Win32WebViewHost"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.cortana.pkg",
+      "name": "Cortana app package",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "ai",
+        "search",
+        "core"
+      ],
+      "impact": "The retired Cortana assistant, still shipped as a Store app on many systems.",
+      "explain": "Cortana as an app has been discontinued and no longer signs in or answers anything, but the package survives on upgraded installs and still registers a background task and a startup entry. The AI category has the policy that blocks Cortana; this removes the app itself.",
+      "enableMeans": "Restores the Cortana package if its files are still on disk.",
+      "disableMeans": "Removes the Cortana app package and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.549981C3F5F10"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.whiteboard",
+      "name": "Microsoft Whiteboard",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "A collaborative drawing canvas that needs a work or school account.",
+      "explain": "Whiteboard is aimed at Teams meetings on a pen-enabled device and requires a Microsoft 365 account to save anything. On a personal machine it is a large app that cannot do much. Removing it does not affect Teams itself.",
+      "enableMeans": "Restores Microsoft Whiteboard.",
+      "disableMeans": "Removes Microsoft Whiteboard and deprovisions it.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.Whiteboard"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.gamingservices",
+      "name": "Gaming Services",
+      "risk": "moderate",
+      "tags": [
+        "bloat",
+        "gaming",
+        "xbox"
+      ],
+      "impact": "The install and licensing layer that Game Pass titles run through.",
+      "explain": "Gaming Services is what actually installs and licences Game Pass games, separate from the Xbox app itself. If you play anything from Game Pass, removing this breaks it and the error you get is unhelpful. If you never touch the Microsoft gaming stack it is an idle pair of services and a driver. Steam, Epic, GOG and standalone games do not use it.",
+      "enableMeans": "Restores Gaming Services so Game Pass titles can install and license.",
+      "disableMeans": "Removes Gaming Services. Game Pass games will fail to install or launch.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.GamingServices"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.storepurchase",
+      "name": "Store Purchase App",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "store"
+      ],
+      "impact": "The checkout component the Microsoft Store uses to take payment.",
+      "explain": "A small helper package that handles purchase flows for the Store. Browsing and installing free apps is unaffected; buying a paid app or making an in-app purchase needs it. Removing it is safe on a machine where nothing is ever bought from the Store.",
+      "enableMeans": "Restores the Store purchase component.",
+      "disableMeans": "Removes the Store purchase component. Paid Store purchases will stop working.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.StorePurchaseApp"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.codecs.optional",
+      "name": "Optional media codec extensions",
+      "risk": "moderate",
+      "tags": [
+        "bloat",
+        "core"
+      ],
+      "impact": "The HEIF, WebP, VP9, AV1 and RAW image and video extensions.",
+      "explain": "These extensions let the Photos app and File Explorer thumbnails read newer formats: HEIF is what iPhones produce, WebP is common on the web, VP9 and AV1 are video codecs used by YouTube and streaming, and the RAW extension covers camera files. Removing them saves little space and means those files show as blank icons and will not preview. Only worth doing if you have a viewer that brings its own codecs.",
+      "enableMeans": "Restores the optional codec extensions.",
+      "disableMeans": "Removes the codec extensions. HEIF, WebP, AV1, VP9 and camera RAW files stop previewing.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.HEIFImageExtension",
+            "Microsoft.WebpImageExtension",
+            "Microsoft.VP9VideoExtensions",
+            "Microsoft.AV1VideoExtension",
+            "Microsoft.RawImageExtension",
+            "Microsoft.WebMediaExtensions",
+            "Microsoft.HEVCVideoExtension"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.crossdevice",
+      "name": "Cross Device experience host",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "cloud",
+        "core"
+      ],
+      "impact": "The component behind phone photo suggestions and cross-device resume.",
+      "explain": "CrossDevice is newer than Phone Link and handles the camera roll suggestions that appear in Snipping Tool and Photos, plus the resume prompts between your PC and phone. It runs a background host whether or not a phone is paired.",
+      "enableMeans": "Restores the cross device experience host.",
+      "disableMeans": "Removes the cross device host. Phone photo suggestions and resume prompts stop.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "MicrosoftWindows.CrossDevice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.devtools",
+      "name": "Edge DevTools client package",
+      "risk": "safe",
+      "tags": [
+        "bloat",
+        "edge",
+        "dev"
+      ],
+      "impact": "A separate package hosting the developer tools for Edge WebView surfaces.",
+      "explain": "This package provides F12 developer tools for WebView-hosted content such as Widgets and PWAs. Edge browser DevTools are built into Edge itself and are unaffected. Removing this only matters if you debug Windows WebView surfaces.",
+      "enableMeans": "Restores the Edge DevTools client package.",
+      "disableMeans": "Removes the Edge DevTools client package.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.MicrosoftEdgeDevToolsClient"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.sechealthui",
+      "name": "Windows Security app",
+      "risk": "aggressive",
+      "tags": [
+        "bloat",
+        "security"
+      ],
+      "impact": "The Windows Security dashboard: the interface to Defender, the firewall and account protection.",
+      "explain": "This is the front end, not the protection itself. Removing it does not disable Defender, but it does leave you with no way to see your protection status, manage exclusions, or clear a threat notification without falling back to PowerShell. It is also how you turn Tamper Protection on and off. Almost nobody should remove this; it is listed because the catalogue aims to be complete.",
+      "enableMeans": "Restores the Windows Security app.",
+      "disableMeans": "Removes the Windows Security interface. Defender keeps running but becomes unmanageable except from PowerShell.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.SecHealthUI"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "app.edge.browser",
+      "name": "Microsoft Edge browser",
+      "risk": "aggressive",
+      "tags": [
+        "bloat",
+        "edge"
+      ],
+      "impact": "Edge itself, which parts of Windows render through and which Windows reinstalls.",
+      "explain": "Edge is not a normal Store app: Windows Update treats it as a component, several parts of the shell render through it, and it is reinstalled by feature updates and sometimes by monthly ones. Removal also tends to take WebView2 with it, which breaks any desktop app that embeds a browser view. In the EEA, Edge can be uninstalled through Settings and that is the supported route. Use the Microsoft Edge category to strip its surfaces instead; that achieves most of what people actually want and does not break anything.",
+      "enableMeans": "Cannot reinstall Edge from here. Download it from microsoft.com/edge.",
+      "disableMeans": "Attempts to remove the Edge browser package. Expect Windows to put it back, and expect WebView2-based apps to break in the meantime.",
+      "actions": [
+        {
+          "kind": "appx",
+          "packages": [
+            "Microsoft.MicrosoftEdge.Stable"
+          ]
+        }
+      ]
+    }
+  ]
+}

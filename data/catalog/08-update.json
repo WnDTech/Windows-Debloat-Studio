@@ -1,0 +1,559 @@
+{
+  "category": {
+    "key": "update",
+    "name": "Windows Update & Store",
+    "glyph": "",
+    "order": 80,
+    "blurb": "How and when Windows patches itself, and how the Store behaves. Read the risk labels here carefully: putting updates off is reasonable, blocking security updates entirely is not. Nothing in this category deletes anything, so everything here can be put straight back."
+  },
+  "tweaks": [
+    {
+      "id": "upd.autorestart",
+      "name": "Automatic restart to finish updates",
+      "risk": "safe",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "Whether Windows may reboot on its own to complete an update while you are signed in.",
+      "explain": "Windows will restart outside active hours to finish an update, and can force one when a deadline passes. If you leave long-running work open this is genuinely destructive. These policies stop the automatic restart while you are signed in and disable the deadline-driven forced reboot, so updates install but wait for you to choose the restart.",
+      "enableMeans": "Windows may restart automatically to finish updates.",
+      "disableMeans": "Updates install but wait for you to restart manually.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU",
+          "name": "NoAutoRebootWithLoggedOnUsers",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU",
+          "name": "AlwaysAutoRebootAtScheduledTime",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "SetAutoRestartDeadline",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "upd.defer.quality",
+      "name": "Defer monthly quality updates",
+      "risk": "moderate",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "Holds back the monthly cumulative update for a number of days after release.",
+      "explain": "Patch Tuesday updates occasionally break something, and Microsoft usually fixes it within a week or two. Deferring quality updates by seven days gives the early adopters time to find the problems while still keeping you close to current. This option sets a seven day deferral. Anything longer starts to be a real security exposure.",
+      "enableMeans": "Quality updates install as soon as they are offered, the Windows default.",
+      "disableMeans": "Defers monthly quality updates by seven days.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "DeferQualityUpdates",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "DeferQualityUpdatesPeriodInDays",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 7
+        }
+      ]
+    },
+    {
+      "id": "upd.defer.feature",
+      "name": "Defer feature updates and version upgrades",
+      "risk": "moderate",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "Stops Windows moving you to the next annual version until you say so.",
+      "explain": "Feature updates are effectively an operating system upgrade and they are where the disruptive changes arrive. This option pins the machine to its current Windows 11 version by target release policy and defers new features by a year. You keep receiving monthly security updates for as long as your version is supported, which is the important part. When your version approaches end of support you should clear this.",
+      "enableMeans": "Windows may offer and install the next feature update.",
+      "disableMeans": "Pins the machine to its current Windows version and defers feature updates for 365 days.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "DeferFeatureUpdates",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "DeferFeatureUpdatesPeriodInDays",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 365
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "TargetReleaseVersion",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "upd.driverupdates",
+      "name": "Driver updates through Windows Update",
+      "risk": "moderate",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "Whether Windows Update may replace your graphics, audio and chipset drivers.",
+      "explain": "Windows Update ships generic drivers that sometimes overwrite a newer vendor driver you installed deliberately, which is a common cause of graphics and audio regressions after a patch. Blocking driver updates means you install drivers from the manufacturer yourself. New hardware you plug in may then arrive with no driver until you fetch one, so this is a trade of convenience for control.",
+      "enableMeans": "Windows Update may deliver and install drivers.",
+      "disableMeans": "Excludes drivers from Windows Update. Install drivers from the hardware vendor instead.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "ExcludeWUDriversInQualityUpdate",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\DriverSearching",
+          "name": "SearchOrderConfig",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DriverSearching",
+          "name": "DontSearchWindowsUpdate",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "upd.deliveryopt.mode",
+      "name": "Delivery Optimization peer sharing over the internet",
+      "risk": "safe",
+      "tags": [
+        "update",
+        "network",
+        "core"
+      ],
+      "impact": "Whether your PC uploads update content to strangers on the internet.",
+      "explain": "By default Delivery Optimization shares update data with other PCs on your local network and on the internet. The internet half means your upstream bandwidth is used to distribute Microsoft's updates. This option restricts sharing to your local network only, which keeps the useful part on a multi-PC household while stopping the internet uploads. To turn the whole mechanism off, disable the DoSvc service in Background Services.",
+      "enableMeans": "Peer sharing over both the local network and the internet is allowed.",
+      "disableMeans": "Restricts peer sharing to your local network only, with no internet uploads.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization",
+          "name": "DODownloadMode",
+          "type": "DWord",
+          "enable": 3,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\DeliveryOptimization\\Config",
+          "name": "DODownloadMode",
+          "type": "DWord",
+          "enable": 3,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "upd.notifyonly",
+      "name": "Automatic download and install of updates",
+      "risk": "moderate",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "Whether updates download and install on their own, or wait for you to click.",
+      "explain": "Setting the automatic update option to notify-only means Windows tells you an update is available and does nothing until you agree. That gives you full control over when patching happens, at the cost of relying on yourself to actually do it. This is the setting most likely to leave a machine unpatched for months, so treat it as a commitment rather than a convenience.",
+      "enableMeans": "Windows downloads and installs updates automatically.",
+      "disableMeans": "Windows only notifies you that updates exist; you choose when to install.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU",
+          "name": "NoAutoUpdate",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU",
+          "name": "AUOptions",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 2
+        }
+      ]
+    },
+    {
+      "id": "upd.otherproducts",
+      "name": "Updates for other Microsoft products",
+      "risk": "safe",
+      "tags": [
+        "update",
+        "office"
+      ],
+      "impact": "Whether Windows Update also patches Office, Visual Studio and other Microsoft software.",
+      "explain": "The 'Receive updates for other Microsoft products' toggle lets Windows Update service Office and similar. Turning it off does not stop Office updating, because Office has its own Click-to-Run updater, but it does remove those updates from the Windows Update queue and the restart prompts they cause.",
+      "enableMeans": "Windows Update also delivers updates for other Microsoft products.",
+      "disableMeans": "Restricts Windows Update to Windows itself.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "AllowMUUpdateService",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "upd.optionalfeatures.cfr",
+      "name": "Gradual feature rollout (controlled feature rollout)",
+      "risk": "safe",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "Whether your machine receives features that are being A/B tested before general release.",
+      "explain": "Microsoft enables new features on subsets of machines to test them, which is why two identical PCs on the same build can behave differently. Opting out means you get features only when they ship to everyone, giving a more predictable machine. This is also what stops surprise interface changes appearing overnight.",
+      "enableMeans": "Your PC participates in gradual feature rollouts.",
+      "disableMeans": "Opts out of controlled feature rollouts so features arrive only at general release.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "AllowTemporaryEnterpriseFeatureControl",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\FeatureManagement\\Overrides",
+          "name": "EnableConfigFlighting",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings",
+          "name": "IsContinuousInnovationOptedIn",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "upd.restartnotify",
+      "name": "Restart reminders and update notifications",
+      "risk": "safe",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "The banners, toasts and full-screen prompts telling you to restart.",
+      "explain": "Windows escalates restart reminders from a quiet toast to a full-screen takeover. This option keeps the update behaviour but suppresses the nagging, so you find out about a pending restart when you look at Settings rather than when it interrupts you. Only sensible if you actually check for pending restarts.",
+      "enableMeans": "Update and restart notifications appear as normal.",
+      "disableMeans": "Suppresses update restart reminders and the full-screen prompts.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "SetUpdateNotificationLevel",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "UpdateNotificationLevel",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings",
+          "name": "RestartNotificationsAllowed2",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "upd.activehours",
+      "name": "Active hours protection window",
+      "risk": "safe",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "The hours during which Windows promises not to restart for updates.",
+      "explain": "Windows picks your active hours automatically from usage patterns, which regularly guesses wrong. Setting them explicitly to a wide window, here 6am to 11pm, means an unattended restart can only happen in the small hours. It is a gentler alternative to blocking automatic restarts altogether, because updates still complete on their own overnight.",
+      "enableMeans": "Windows decides your active hours automatically.",
+      "disableMeans": "Pins active hours to 6am until 11pm so restarts only happen overnight.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "SetActiveHours",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "ActiveHoursStart",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 6
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+          "name": "ActiveHoursEnd",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 23
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings",
+          "name": "SmartActiveHoursState",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 2
+        }
+      ]
+    },
+    {
+      "id": "upd.insider",
+      "name": "Windows Insider preview builds",
+      "risk": "safe",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "impact": "Whether this machine can be enrolled in preview builds.",
+      "explain": "Blocking Insider enrolment by policy prevents anyone, including a future you at two in the morning, putting this machine onto a preview channel. It also greys out the Insider page in Settings. If you are currently on an Insider build, leave this alone or updates will stop arriving.",
+      "enableMeans": "Insider enrolment is permitted.",
+      "disableMeans": "Blocks Insider preview enrolment by policy. Do not use this if you are already on a preview build.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\PreviewBuilds",
+          "name": "AllowBuildPreview",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\PreviewBuilds",
+          "name": "EnableConfigFlighting",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "upd.store.autoupdate",
+      "name": "Automatic Store app updates",
+      "risk": "moderate",
+      "tags": [
+        "update",
+        "store",
+        "core"
+      ],
+      "impact": "Whether Store apps update themselves in the background.",
+      "explain": "Store apps update silently, which is generally good for security and occasionally bad when an update regresses an app you depend on. Turning it off means you update from the Store's Library page when you choose. Combine with the Store app update tasks in Scheduled Tasks for a complete stop.",
+      "enableMeans": "Store apps update automatically.",
+      "disableMeans": "Turns off automatic Store app updates. Update manually from the Store Library.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\WindowsStore",
+          "name": "AutoDownload",
+          "type": "DWord",
+          "enable": 4,
+          "disable": 2
+        }
+      ]
+    },
+    {
+      "id": "upd.store.pushtoinstall",
+      "name": "Remote app installation from the Store website",
+      "risk": "safe",
+      "tags": [
+        "update",
+        "store",
+        "core"
+      ],
+      "impact": "Lets you press Install on the Store website and have the app appear on this PC.",
+      "explain": "Push to Install keeps a service ready so an install started on another device or the web lands on this machine. It is a convenience most people never use, and it means an account compromise can put software on your PC remotely.",
+      "enableMeans": "Remote installs from the Store website are accepted.",
+      "disableMeans": "Blocks remote app installation and disables the Push to Install service.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\PushToInstall",
+          "name": "DisablePushToInstall",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "service",
+          "name": "PushToInstall",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "upd.reservedstorage",
+      "name": "Reserved storage for updates",
+      "risk": "moderate",
+      "tags": [
+        "update",
+        "perf"
+      ],
+      "restart": true,
+      "impact": "A ring-fenced few gigabytes on the system drive kept free so updates can always install.",
+      "explain": "Windows reserves roughly seven gigabytes so a feature update never fails for lack of space. Turning it off returns that space to you immediately. The cost is that a future update may fail on a nearly full disk and need manual cleanup first. Worth doing on a small SSD if you keep an eye on free space, a bad idea otherwise.",
+      "enableMeans": "Reserved storage is on and space is held back for updates.",
+      "disableMeans": "Releases the reserved storage. Updates may fail if the disk later fills up.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ReserveManager",
+          "name": "ShippedWithReserves",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ReserveManager",
+          "name": "PassedPolicy",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "upd.wufb.disable",
+      "name": "Windows Update service itself",
+      "risk": "aggressive",
+      "tags": [
+        "update",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Stops Windows receiving any updates at all, including security fixes.",
+      "explain": "This disables the Windows Update service, the Update Orchestrator and the Update Medic service that exists specifically to repair the first two. The machine stops receiving security patches, which within months makes it vulnerable to widely exploited flaws. There are legitimate uses, such as an offline machine driving a piece of laboratory equipment, but on any internet-connected PC this is a bad idea. The Update Medic service is protected by Windows and may refuse to change even from an elevated session.",
+      "enableMeans": "Re-enables the Windows Update services so patching resumes.",
+      "disableMeans": "Disables Windows Update entirely. No security patches will be installed until you revert this.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "wuauserv",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "UsoSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "WaaSMedicSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "BITS",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    }
+  ]
+}

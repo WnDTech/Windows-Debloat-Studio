@@ -1,0 +1,560 @@
+{
+  "category": {
+    "key": "ai",
+    "name": "Copilot, Recall & AI",
+    "glyph": "",
+    "order": 30,
+    "blurb": "The AI features Microsoft added to Windows 11 and keeps expanding: Copilot in the taskbar and in apps, Recall's rolling screenshots of everything you do, AI features inside Paint, Notepad and Photos, and the Click to Do overlay. Several of these are only present on Copilot+ hardware, in which case the options here are written as policy anyway so they stay off if the hardware or feature arrives later."
+  },
+  "tweaks": [
+    {
+      "id": "ai.copilot.windows",
+      "name": "Windows Copilot",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "copilot",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The Copilot assistant panel, its taskbar button and the Win+C shortcut.",
+      "explain": "Copilot in Windows is delivered as an Edge WebView panel plus, on newer builds, a separate Store app. It sits in the taskbar, keeps a background process alive and sends your prompts to Microsoft's service. This option sets both the user and machine policies that turn it off, and removes the taskbar button. If Copilot is installed as an app, remove that too from the Preinstalled Apps category for a complete job.",
+      "enableMeans": "Copilot is allowed again and its taskbar button returns.",
+      "disableMeans": "Sets the Turn off Windows Copilot policies for the current user and the whole machine, and hides the taskbar button.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot",
+          "name": "TurnOffWindowsCopilot",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot",
+          "name": "TurnOffWindowsCopilot",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ShowCopilotButton",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\Shell\\Copilot",
+          "name": "IsCopilotAvailable",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\Shell\\Copilot\\BingChat",
+          "name": "IsUserEligible",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ai.recall",
+      "name": "Windows Recall snapshots",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "recall",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Recall takes a screenshot of your screen every few seconds and indexes the text in it so you can search your past activity.",
+      "explain": "Recall builds a searchable local database of screenshots covering everything you looked at, including messages, banking pages and documents. The store is encrypted and local, and Microsoft made it opt-in after the initial backlash, but the components ship on all Windows 11 builds and are only dormant. This option sets the policy that disables analysis of saved snapshots for both the machine and the user, which is the supported way to keep it off permanently. On non-Copilot+ hardware the feature is not active anyway and the policy is simply insurance.",
+      "enableMeans": "Removes the blocking policy so Recall can be switched on from Settings if your hardware supports it.",
+      "disableMeans": "Sets DisableAIDataAnalysis so Recall cannot save or analyse snapshots, for every user on the PC.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "DisableAIDataAnalysis",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "DisableAIDataAnalysis",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "AllowRecallEnablement",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ai.recall.feature",
+      "name": "Recall as an installed Windows component",
+      "risk": "moderate",
+      "tags": [
+        "ai",
+        "recall"
+      ],
+      "restart": true,
+      "impact": "Removes the Recall optional component from Windows rather than just switching it off by policy.",
+      "explain": "Recall ships as an optional feature package. Disabling the feature uninstalls the component so the binaries are no longer present, which is a stronger guarantee than the policy alone. This takes a minute or two and needs a restart. On builds and editions where the component is absent, this option reports Unknown and does nothing. A future Windows update can reinstall it, so keep the policy option above set as well.",
+      "enableMeans": "Reinstalls the Recall optional component from the local component store.",
+      "disableMeans": "Uninstalls the Recall optional component via DISM.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "Recall"
+        }
+      ]
+    },
+    {
+      "id": "ai.clicktodo",
+      "name": "Click to Do screen actions",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "recall"
+      ],
+      "impact": "The overlay that appears on Win+Click and offers AI actions on whatever is on screen.",
+      "explain": "Click to Do analyses the current screen to offer contextual actions such as summarise, rewrite, erase objects or search. It shares the screen-understanding plumbing with Recall. Turning it off leaves normal text selection and copy behaviour completely unchanged.",
+      "enableMeans": "Click to Do is available again from the Win+Click overlay.",
+      "disableMeans": "Sets the policy that disables Click to Do for the machine and the current user.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "DisableClickToDo",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "DisableClickToDo",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ai.datacollection",
+      "name": "AI feature data collection and improvement",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "telemetry"
+      ],
+      "impact": "Whether interactions with Windows AI features are collected to improve the models.",
+      "explain": "Separate from general diagnostics, the Windows AI stack has its own improvement-data channel covering prompts, generative results and how you accepted or rejected them. These policies switch off text and image improvement data along with the AI data-analysis consent flag.",
+      "enableMeans": "AI interaction data may be collected for model improvement.",
+      "disableMeans": "Blocks the AI improvement data channels by policy.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "AllowTextAndImageDataCollection",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "SetCopilotHardwareKey",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AIDataAnalysis",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ai.paint.generative",
+      "name": "AI features in Paint",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "apps"
+      ],
+      "impact": "Cocreator, Image Creator, generative fill and generative erase inside Paint.",
+      "explain": "Paint gained a set of cloud-backed generative features that consume AI credits and send your canvas to Microsoft's service. The policies here disable them while leaving Paint working as an ordinary drawing program. Useful if Paint is in a shared or managed environment, or if you simply do not want the buttons there.",
+      "enableMeans": "Paint's generative AI features are available again.",
+      "disableMeans": "Disables Cocreator, Image Creator and generative fill or erase in Paint.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Paint",
+          "name": "DisableImageCreator",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Paint",
+          "name": "DisableCocreator",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Paint",
+          "name": "DisableGenerativeFill",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Paint",
+          "name": "DisableGenerativeErase",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ai.notepad.rewrite",
+      "name": "AI features in Notepad",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "apps"
+      ],
+      "impact": "Rewrite, Summarise and the Copilot entry point inside Notepad.",
+      "explain": "Notepad now sends selected text to a cloud model for rewriting and summarising, and shows an AI menu. These policies remove those entry points so Notepad is a plain text editor again. Tabs, autosave and the find-and-replace improvements are unaffected.",
+      "enableMeans": "Notepad's AI menu and Rewrite feature come back.",
+      "disableMeans": "Disables Rewrite, Summarise and the AI features menu in Notepad.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Notepad",
+          "name": "DisableAIFeatures",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Notepad",
+          "name": "RewriteEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ai.photos.generative",
+      "name": "AI features in Photos",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "apps"
+      ],
+      "impact": "Generative erase, background removal and image search by content in the Photos app.",
+      "explain": "Photos gained cloud-backed editing tools and a semantic search that indexes the contents of your pictures. The index is built locally on Copilot+ machines and in the cloud otherwise. This option disables the generative editing entry points and the AI-powered search so Photos behaves like a plain viewer and cropper.",
+      "enableMeans": "Photos offers its AI editing and content search features again.",
+      "disableMeans": "Disables generative editing and AI image search in Photos.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Photos",
+          "name": "DisableAIFeatures",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "DisableImageCreator",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ai.textprediction",
+      "name": "Text prediction while typing",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "core"
+      ],
+      "impact": "Inline word suggestions above the hardware keyboard and in the touch keyboard.",
+      "explain": "Windows offers predictive text as you type in most edit fields, drawn from a model that adapts to your writing. It is the visible half of the inking and typing personalisation feature. Some people find the floating suggestion bar distracting or do not want a learning model watching every field. Disabling it does not affect spell check.",
+      "enableMeans": "Inline text predictions appear while typing again.",
+      "disableMeans": "Switches off text prediction for the hardware and touch keyboards.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Input\\Settings",
+          "name": "EnableHwkbTextPrediction",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Input\\Settings",
+          "name": "InsightsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ai.cortana",
+      "name": "Cortana",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "search",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The old voice assistant, its background process and its search integration.",
+      "explain": "Cortana is deprecated and the app has been retired, but the policy hooks and some background components remain in Windows and are still honoured. Setting AllowCortana to zero also stops the search box trying to reach the Cortana service, which removes a network call from every search. Nothing modern depends on it.",
+      "enableMeans": "Cortana is permitted again where the components still exist.",
+      "disableMeans": "Blocks Cortana, its above-lock behaviour and its search integration by policy.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "AllowCortana",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "AllowCortanaAboveLock",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "CortanaConsent",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "DisableVoiceCommands",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ai.voiceactivation",
+      "name": "Voice activation and wake words",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "sensors"
+      ],
+      "impact": "Whether apps may listen continuously for a wake word, including above the lock screen.",
+      "explain": "Voice activation lets an app keep the microphone open waiting for a trigger phrase. It is the plumbing behind 'Hey Cortana' and is reused by third-party assistants. Disabling it means an app must be in the foreground and explicitly given the microphone. Voice Typing, which you trigger with Win+H, still works.",
+      "enableMeans": "Apps may listen for wake words in the background again.",
+      "disableMeans": "Blocks background voice activation, including above the lock screen.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\VoiceActivation\\UserPreferenceForAllApps",
+          "name": "AgentActivationEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\VoiceActivation\\UserPreferenceForAllApps",
+          "name": "AgentActivationOnLockScreenEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\VoiceActivation\\UserPreferenceForAllApps",
+          "name": "AgentActivationLastUsed",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ai.edge.copilot",
+      "name": "Copilot and AI sidebar in Microsoft Edge",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "edge",
+        "copilot"
+      ],
+      "impact": "The Copilot button, the discover sidebar and AI page summarisation in Edge.",
+      "explain": "Edge's Copilot integration can read the page you are on and send it to Microsoft for summarisation. The Hubs sidebar also hosts shopping and Bing surfaces. These policies remove the sidebar and the Copilot entry point. Edge keeps working as a browser and remains available for the Windows components that need WebView.",
+      "enableMeans": "Edge's Copilot button and sidebar return.",
+      "disableMeans": "Removes the Copilot integration, the Hubs sidebar and AI page context sharing from Edge.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "HubsSidebarEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "CopilotCDPPageContext",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "CopilotPageContext",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "DiscoverPageContextEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "GenAILocalFoundationalModelSettings",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ai.searchcompanion",
+      "name": "AI answers in Windows Search",
+      "risk": "safe",
+      "tags": [
+        "ai",
+        "search"
+      ],
+      "impact": "The generative answers and semantic file search shown in the Start search results.",
+      "explain": "Newer builds add AI-generated answers and natural-language file search to the search panel. Semantic search indexes the contents of your documents to make that possible. This option turns off the AI answer surface and the semantic indexing, leaving keyword search over the normal index.",
+      "enableMeans": "AI answers and semantic search return to Windows Search.",
+      "disableMeans": "Disables generative answers and semantic content indexing in search.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "AllowCloudSearch",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI",
+          "name": "DisableAISearch",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SearchSettings",
+          "name": "IsAIAnswersEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    }
+  ]
+}

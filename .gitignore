@@ -1,0 +1,21 @@
+# Build output. The exe is a release asset, not a source file, and it changes
+# on every compile because csc stamps a fresh module id into it.
+dist/
+
+# Generated from source by tools/New-AppIcon.ps1 during the build.
+assets/app.ico
+
+# State the app writes. It lives outside the tree now, but older checkouts and
+# a run straight from source can still leave these behind.
+bin/
+logs/
+presets/
+
+# Screenshot exports.
+tools/screens/
+
+# Windows and editor noise.
+Thumbs.db
+desktop.ini
+*.user
+.vs/

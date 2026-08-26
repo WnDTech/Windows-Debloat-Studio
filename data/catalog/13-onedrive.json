@@ -1,0 +1,279 @@
+{
+  "category": {
+    "key": "onedrive",
+    "name": "OneDrive & Cloud Sync",
+    "glyph": "",
+    "order": 130,
+    "blurb": "OneDrive is the one piece of bloat that can lose your files if you remove it carelessly, because Windows silently redirects Desktop, Documents and Pictures into it during setup. Work through this category in order: check where your folders actually point, move them back if needed, then remove the client. Every option here explains what happens to your files."
+  },
+  "tweaks": [
+    {
+      "id": "od.folderbackup",
+      "name": "Known folder redirection into OneDrive",
+      "risk": "moderate",
+      "tags": [
+        "onedrive",
+        "cloud",
+        "core"
+      ],
+      "impact": "Whether your Desktop, Documents and Pictures folders live inside OneDrive instead of on your local disk.",
+      "explain": "During setup Windows often turns on 'folder backup', which moves Desktop, Documents and Pictures into OneDrive and leaves the old paths as redirects. This is why removing OneDrive can appear to delete a person's files: the files were never in the local folder to begin with. This option sets the policy that blocks the redirection being turned on, and blocks the prompt that asks. It does not move any folders that are already redirected. Do that yourself from OneDrive settings, or by right-clicking each folder, choosing Properties, then Location, then Restore Default, before you remove the client.",
+      "enableMeans": "Allows OneDrive to redirect your Desktop, Documents and Pictures folders and to prompt you to do so.",
+      "disableMeans": "Blocks new known-folder redirection and the prompt asking for it. Folders already redirected stay where they are.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\OneDrive",
+          "name": "KFMBlockOptIn",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\OneDrive",
+          "name": "DisablePersonalSync",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "od.filesondemand",
+      "name": "Files On-Demand placeholder files",
+      "risk": "moderate",
+      "tags": [
+        "onedrive",
+        "cloud"
+      ],
+      "impact": "Whether OneDrive keeps only a stub on disk and downloads the real file when something opens it.",
+      "explain": "Files On-Demand saves disk space by leaving placeholders. The trouble is that any program scanning your folders, including backup tools, search indexers and antivirus, triggers a download of everything, and files are unavailable offline. Disabling it makes OneDrive keep real local copies of everything, which uses disk space but behaves predictably. Do this before removing OneDrive if you want to be certain the local files are real.",
+      "enableMeans": "OneDrive uses placeholder files and downloads on access.",
+      "disableMeans": "Forces OneDrive to keep full local copies of all synced files.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\OneDrive",
+          "name": "FilesOnDemandEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\OneDrive",
+          "name": "DehydrateSyncedTeamSites",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "od.autostart",
+      "name": "OneDrive starting automatically at sign-in",
+      "risk": "safe",
+      "tags": [
+        "onedrive",
+        "cloud",
+        "core"
+      ],
+      "impact": "Whether the OneDrive client launches with Windows.",
+      "explain": "The gentlest option in this category: OneDrive stays installed and your files stay exactly where they are, but the client does not start on its own. Nothing syncs until you launch it manually. A good middle step if you are not sure you want OneDrive gone.",
+      "enableMeans": "OneDrive starts automatically when you sign in.",
+      "disableMeans": "Removes the OneDrive start-up entry. It stays installed but syncs only when you open it.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+          "name": "OneDrive",
+          "type": "String",
+          "enable": "\"%LOCALAPPDATA%\\Microsoft\\OneDrive\\OneDrive.exe\" /background",
+          "disable": "@delete"
+        }
+      ]
+    },
+    {
+      "id": "od.disablepolicy",
+      "name": "OneDrive file sync by policy",
+      "risk": "moderate",
+      "tags": [
+        "onedrive",
+        "cloud",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Blocks OneDrive from syncing at all, for every account on the PC.",
+      "explain": "This is the Group Policy that enterprises use to switch OneDrive off without uninstalling it. The client stays on disk but refuses to sync and shows a message saying it has been disabled. It is fully reversible and does not touch a single file, which makes it a safer choice than uninstalling if you are not certain. Files already synced remain in the OneDrive folder on your disk.",
+      "enableMeans": "Removes the block so OneDrive can sync again.",
+      "disableMeans": "Blocks OneDrive syncing by policy for all users. Files stay on disk untouched.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\OneDrive",
+          "name": "DisableFileSyncNGSC",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\OneDrive",
+          "name": "DisableFileSync",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\OneDrive",
+          "name": "DisableMeteredNetworkFileSync",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "od.uninstall",
+      "name": "OneDrive client installation",
+      "risk": "aggressive",
+      "tags": [
+        "onedrive",
+        "cloud",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Runs the OneDrive uninstaller, removing the client from this machine.",
+      "explain": "This runs Microsoft's own uninstaller for both the per-user and per-machine installations. Before you use it, make sure your Desktop, Documents and Pictures are not redirected into OneDrive, or those folders will appear to empty out. Check by right-clicking Documents, choosing Properties and looking at the Location tab: if the path contains OneDrive, press Restore Default and let Windows move the files back first. Files in the OneDrive folder itself are left on disk and are also still in the cloud. Revert cannot reinstall the client automatically; download it from Microsoft if you change your mind.",
+      "enableMeans": "Cannot reinstall OneDrive automatically. This reports where to download the installer.",
+      "disableMeans": "Uninstalls the OneDrive client. Check your folder locations first, as described above.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$a = Test-Path (Join-Path $env:LOCALAPPDATA 'Microsoft\\OneDrive\\OneDrive.exe'); $b = Test-Path (Join-Path $env:ProgramFiles 'Microsoft OneDrive\\OneDrive.exe'); $c = Test-Path (Join-Path ${env:ProgramFiles(x86)} 'Microsoft OneDrive\\OneDrive.exe'); if ($a -or $b -or $c) { 'Enabled' } else { 'Disabled' }",
+          "enable": "Write-Output 'OneDrive cannot be reinstalled from here. Download it from microsoft.com/microsoft-365/onedrive/download and run the installer.'",
+          "disable": "Get-Process OneDrive -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue; $paths = @((Join-Path $env:SystemRoot 'SysWOW64\\OneDriveSetup.exe'), (Join-Path $env:SystemRoot 'System32\\OneDriveSetup.exe'), (Join-Path $env:LOCALAPPDATA 'Microsoft\\OneDrive\\OneDriveSetup.exe')); $ran = $false; foreach ($p in $paths) { if (Test-Path $p) { Start-Process $p -ArgumentList '/uninstall' -Wait -WindowStyle Hidden; $ran = $true } }; if ($ran) { Write-Output 'OneDrive uninstaller finished.' } else { Write-Output 'No OneDrive setup executable found; it may already be gone.' }"
+        }
+      ]
+    },
+    {
+      "id": "od.explorer.pin",
+      "name": "OneDrive setup shortcut for new accounts",
+      "risk": "safe",
+      "tags": [
+        "onedrive",
+        "cloud"
+      ],
+      "impact": "Whether the OneDrive setup wizard runs for every newly created account on this PC.",
+      "explain": "Windows stages a per-user OneDrive installer that runs the first time any new account signs in. Even after you uninstall OneDrive for yourself, a new account gets it again. Removing this run entry from the default user profile is what makes the removal stick for future accounts.",
+      "enableMeans": "New accounts get the OneDrive setup wizard on first sign-in.",
+      "disableMeans": "Stops OneDrive setup running for newly created accounts.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",
+          "name": "OneDriveSetup",
+          "type": "String",
+          "enable": "C:\\Windows\\SysWOW64\\OneDriveSetup.exe /thfirstsetup",
+          "disable": "@delete"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Run",
+          "name": "OneDriveSetup",
+          "type": "String",
+          "enable": "C:\\Windows\\System32\\OneDriveSetup.exe /thfirstsetup",
+          "disable": "@delete"
+        }
+      ]
+    },
+    {
+      "id": "od.office.savetocloud",
+      "name": "Office defaulting to save in the cloud",
+      "risk": "safe",
+      "tags": [
+        "onedrive",
+        "office",
+        "cloud"
+      ],
+      "impact": "Whether Word, Excel and PowerPoint offer OneDrive first when you save.",
+      "explain": "Office defaults its save dialog to OneDrive and hides the local file system behind an extra click, and AutoSave silently requires a cloud location. This option makes Office prefer the classic local save dialog. If Office is not installed the keys are written and ignored.",
+      "enableMeans": "Office prefers cloud locations when saving, the default.",
+      "disableMeans": "Makes Office default to local folders and the classic save dialog.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Office\\16.0\\Common\\General",
+          "name": "PreferCloudSaveLocations",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Office\\16.0\\Common\\Open Find\\Places",
+          "name": "DisableRoamingFolder",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\office\\16.0\\common",
+          "name": "usearticlesbackstage",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "od.storagesense.cloud",
+      "name": "Automatic dehydration of unused cloud files",
+      "risk": "safe",
+      "tags": [
+        "onedrive",
+        "cloud"
+      ],
+      "impact": "Storage Sense turning locally available OneDrive files back into placeholders after a period of disuse.",
+      "explain": "Storage Sense can free space by converting cloud files you have not opened recently back into online-only placeholders. That is helpful on a small disk and infuriating if you were relying on those files being available offline on a train. Disabling it means files you have made available offline stay that way.",
+      "enableMeans": "Storage Sense may convert unused cloud files back to online-only.",
+      "disableMeans": "Stops automatic dehydration so offline files stay locally available.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
+          "name": "128",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
+          "name": "256",
+          "type": "DWord",
+          "enable": 30,
+          "disable": 0
+        }
+      ]
+    }
+  ]
+}

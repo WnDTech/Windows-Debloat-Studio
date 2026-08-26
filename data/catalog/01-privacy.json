@@ -1,0 +1,1068 @@
+{
+  "category": {
+    "key": "privacy",
+    "name": "Privacy & Telemetry",
+    "glyph": "",
+    "order": 10,
+    "blurb": "Everything Windows sends back to Microsoft about how you use the machine, plus the sensors and personalisation engines that feed it. Turning these off is the least disruptive kind of debloating: nothing you actually interact with disappears."
+  },
+  "tweaks": [
+    {
+      "id": "priv.telemetry.level",
+      "name": "Diagnostic data sent to Microsoft",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Controls whether Windows uploads optional usage data about apps, drivers and your browsing to Microsoft.",
+      "explain": "Windows collects two tiers of diagnostic data. 'Required' is a small set of reliability and security facts that cannot be switched off on consumer editions. 'Optional' adds which apps you open, how long you use them, inking and typing samples, and website telemetry. This option sets the policy that pins collection down to the required tier. Home and Pro editions honour the policy for the optional tier; only Enterprise, Education and Server can drop below required.",
+      "enableMeans": "Full optional diagnostic data is allowed again, which is the state a freshly installed Windows 11 usually ships in.",
+      "disableMeans": "Sets the diagnostic data policy to the lowest tier your edition allows, so optional usage telemetry stops being gathered.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "AllowTelemetry",
+          "type": "DWord",
+          "enable": 3,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\DataCollection",
+          "name": "AllowTelemetry",
+          "type": "DWord",
+          "enable": 3,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "MaxTelemetryAllowed",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.diagtrack",
+      "name": "Connected User Experiences and Telemetry service",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "core",
+        "service"
+      ],
+      "restart": true,
+      "impact": "The background service (DiagTrack) that batches up diagnostic data and uploads it.",
+      "explain": "DiagTrack is the transport for Windows telemetry. It is also what feeds the 'Connected User Experiences' pipeline that a handful of Store and Feedback features query. Stopping it is one of the most effective single changes because it removes the uploader rather than just the data-collection flag. Nothing in normal desktop use depends on it; the Feedback Hub and some enterprise telemetry dashboards do.",
+      "enableMeans": "Sets the service back to Automatic and starts it, so telemetry uploads resume.",
+      "disableMeans": "Stops the service and sets it to Disabled so it never starts again.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "DiagTrack",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "dmwappushservice",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "priv.autologger",
+      "name": "AutoLogger telemetry trace session",
+      "risk": "safe",
+      "tags": [
+        "telemetry"
+      ],
+      "impact": "An always-on ETW trace that writes diagnostic events to disk before DiagTrack collects them.",
+      "explain": "AutoLogger-Diagtrack-Listener runs from boot and logs kernel and app events into a .etl file for the telemetry service to pick up. With DiagTrack disabled the file simply grows and is never sent, so switching the trace off saves a little disk churn and a small amount of CPU on every boot.",
+      "enableMeans": "Re-enables the boot trace session so events are captured to disk again.",
+      "disableMeans": "Sets the trace session's start flag to zero so it does not run at boot.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\WMI\\Autologger\\AutoLogger-Diagtrack-Listener",
+          "name": "Start",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\WMI\\Autologger\\SQMLogger",
+          "name": "Start",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.advertisingid",
+      "name": "Advertising ID for personalised ads",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "ads",
+        "core"
+      ],
+      "signout": true,
+      "impact": "A per-account identifier apps use to profile you and target ads across different apps.",
+      "explain": "Every Windows account gets a unique advertising ID that Store apps can read. Apps use it to link what you did in one app to what you did in another for ad targeting. Turning it off does not stop ads appearing; it makes them untargeted and stops the cross-app profile being built. This applies the machine-wide policy as well as your own account setting, so it covers accounts created later.",
+      "enableMeans": "Apps can read your advertising ID again and personalise ads with it.",
+      "disableMeans": "Blanks the ID and sets the group policy that stops apps requesting it at all.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AdvertisingInfo",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\AdvertisingInfo",
+          "name": "DisabledByGroupPolicy",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.activityhistory",
+      "name": "Activity history and Timeline sync",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "cloud",
+        "core"
+      ],
+      "impact": "A log of the apps, files and sites you used, kept locally and optionally uploaded to your Microsoft account.",
+      "explain": "Activity history powers the 'pick up where you left off' features and used to power Timeline. Windows records what you opened and, if the setting is on, uploads it so other devices signed into the same account can see it. Three separate policies are involved: whether the feed exists at all, whether apps may publish to it, and whether it is uploaded.",
+      "enableMeans": "Activity is recorded locally and uploaded to your Microsoft account again.",
+      "disableMeans": "Switches off the feed, local publishing and cloud upload in one go.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "EnableActivityFeed",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "PublishUserActivities",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "UploadUserActivities",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.tailored",
+      "name": "Tailored experiences using diagnostic data",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "ads",
+        "core"
+      ],
+      "impact": "Lets Microsoft use your diagnostic data to pick which tips, ads and app suggestions you are shown.",
+      "explain": "This is the setting behind Settings > Privacy & security > Diagnostics & feedback > 'Tailored experiences'. When it is on, the diagnostic data already being collected is also used to personalise the promotional content in Start, Settings, the lock screen and Windows tips. Switching it off leaves the diagnostic pipeline alone but stops it being reused for marketing.",
+      "enableMeans": "Diagnostic data may be used to personalise tips and adverts again.",
+      "disableMeans": "Sets both the per-user setting and the machine policy so diagnostic data is not reused for personalisation.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Privacy",
+          "name": "TailoredExperiencesWithDiagnosticDataEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableTailoredExperiencesWithDiagnosticData",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.feedback",
+      "name": "Feedback notifications and prompts",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "core"
+      ],
+      "impact": "The pop-ups asking how likely you are to recommend Windows.",
+      "explain": "Windows periodically asks for feedback through the Feedback Hub. The frequency is stored per user, and there is a policy that suppresses the notifications entirely. Setting the frequency to zero means never. Nothing else changes; you can still open Feedback Hub yourself if you want to file something.",
+      "enableMeans": "Windows chooses its own feedback prompt frequency again and notifications are allowed.",
+      "disableMeans": "Sets the prompt count to zero and suppresses feedback notifications via policy.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Siuf\\Rules",
+          "name": "NumberOfSIUFInPeriod",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Siuf\\Rules",
+          "name": "PeriodInNanoSeconds",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "DoNotShowFeedbackNotifications",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.inking",
+      "name": "Inking and typing personalisation",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "core"
+      ],
+      "impact": "Builds a personal dictionary from what you type and write, and can upload samples.",
+      "explain": "Windows watches your typing and handwriting to improve autocorrect, suggestions and handwriting recognition. The local model lives in your profile; samples can also be sent to Microsoft. Turning this off means suggestions fall back to the stock dictionary, which most people never notice, but you do lose the personal-word learning in the touch keyboard.",
+      "enableMeans": "Windows learns from your typing and handwriting again and may send samples.",
+      "disableMeans": "Blocks implicit ink and text collection, stops contact harvesting and clears the accepted-policy flag.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\InputPersonalization",
+          "name": "RestrictImplicitInkCollection",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\InputPersonalization",
+          "name": "RestrictImplicitTextCollection",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\InputPersonalization\\TrainedDataStore",
+          "name": "HarvestContacts",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Personalization\\Settings",
+          "name": "AcceptedPrivacyPolicy",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.speech",
+      "name": "Online speech recognition",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "ai"
+      ],
+      "impact": "Sends your voice to Microsoft's cloud recogniser for dictation and voice commands.",
+      "explain": "There are two speech engines: an offline one that ships with Windows, and a cloud one that is more accurate. With online recognition on, dictation audio leaves the device. Turning it off keeps Voice Typing and Speech Recognition working, just on the local model. Apps that specifically require the online service, such as some Cortana-era voice features, stop working.",
+      "enableMeans": "Voice input may be sent to Microsoft's online recogniser again.",
+      "disableMeans": "Clears the consent flag and blocks input personalisation by policy so only the offline recogniser is used.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Speech_OneCore\\Settings\\OnlineSpeechPrivacy",
+          "name": "HasAccepted",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\InputPersonalization",
+          "name": "AllowInputPersonalization",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.location",
+      "name": "Location services",
+      "risk": "moderate",
+      "tags": [
+        "sensors"
+      ],
+      "impact": "Whether any app, and Windows itself, can work out where the device is.",
+      "explain": "Location on a desktop PC is derived from Wi-Fi network fingerprints and IP address rather than GPS. Weather, Maps, Find My Device, automatic time zone and some store apps use it. Disabling it also stops the Geolocation Service (lfsvc) starting. On a laptop you take travelling, automatic time zone is the thing you are most likely to miss.",
+      "enableMeans": "Apps may ask for your location again and the geolocation service runs.",
+      "disableMeans": "Denies location to all apps at the consent-store level and disables the geolocation service.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\location",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors",
+          "name": "DisableLocation",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "service",
+          "name": "lfsvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "priv.findmydevice",
+      "name": "Find My Device location reporting",
+      "risk": "safe",
+      "tags": [
+        "cloud",
+        "sensors"
+      ],
+      "impact": "Periodically uploads the device's location to your Microsoft account so you can find it if lost.",
+      "explain": "Find My Device is genuinely useful on a laptop and pointless on a desktop that never moves. It needs location services and a Microsoft account. Turning it off stops the periodic location upload; if the machine is stolen you lose the ability to see it on a map from account.microsoft.com.",
+      "enableMeans": "Location is synced to your Microsoft account for device recovery.",
+      "disableMeans": "Turns off the location sync and sets the policy that blocks the feature.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Settings\\FindMyDevice",
+          "name": "LocationSyncEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\FindMyDevice",
+          "name": "AllowFindMyDevice",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.appdiagnostics",
+      "name": "App diagnostic access",
+      "risk": "safe",
+      "tags": [
+        "sensors"
+      ],
+      "impact": "Lets Store apps read diagnostic information about your other running apps.",
+      "explain": "This capability lets one app see the process names, memory use and window titles of other apps. Legitimate uses are performance monitors and accessibility tools. It is also a straightforward way for an app to profile what else you run. Very few consumer apps need it.",
+      "enableMeans": "Apps may request diagnostic information about other apps.",
+      "disableMeans": "Denies the app-diagnostics capability to every app.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\appDiagnostics",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        }
+      ]
+    },
+    {
+      "id": "priv.wer",
+      "name": "Windows Error Reporting",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "service"
+      ],
+      "restart": true,
+      "impact": "Collects crash dumps and uploads them to Microsoft when a program stops working.",
+      "explain": "When an app crashes, WER writes a dump and offers to send it. The reports help Microsoft and software vendors fix bugs, and they occasionally trigger a driver update being offered. If you never look at Reliability Monitor and do not want crash data leaving the machine, this can go. Local crash dumps configured by a developer are unaffected.",
+      "enableMeans": "Crash reports are gathered and offered for upload again.",
+      "disableMeans": "Sets the disable flag and policy, and stops the WerSvc service.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\Windows Error Reporting",
+          "name": "Disabled",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Error Reporting",
+          "name": "Disabled",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "service",
+          "name": "WerSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "priv.ceip",
+      "name": "Customer Experience Improvement Program",
+      "risk": "safe",
+      "tags": [
+        "telemetry"
+      ],
+      "impact": "An older, separate telemetry channel that surveys how you use Windows components.",
+      "explain": "CEIP predates the modern diagnostic pipeline and still exists. It is driven by scheduled tasks and a policy key. It sends component usage statistics, not documents. Because it is separate from the AllowTelemetry policy, it has to be switched off on its own.",
+      "enableMeans": "CEIP reporting is allowed again.",
+      "disableMeans": "Sets the CEIP policy to off for Windows and for Internet Explorer's variant.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\SQMClient\\Windows",
+          "name": "CEIPEnable",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\AppCompat",
+          "name": "AITEnable",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\AppCompat",
+          "name": "DisableInventory",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.onesettings",
+      "name": "OneSettings configuration downloads",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "cloud"
+      ],
+      "impact": "Windows phoning home to fetch experiment and feature-flag configuration.",
+      "explain": "OneSettings is how Microsoft remotely tunes Windows behaviour and rolls features out to subsets of machines. Blocking it means your machine keeps whatever configuration shipped with the build, which is more predictable but means you do not receive server-side fixes for feature rollouts. Combine with the telemetry options above for a machine that talks noticeably less.",
+      "enableMeans": "Windows downloads remote configuration from the OneSettings service again.",
+      "disableMeans": "Blocks the downloads and stops the device name being attached to telemetry.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "DisableOneSettingsDownloads",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "AllowDeviceNameInTelemetry",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "EnableOneSettingsAuditing",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.diaglimits",
+      "name": "Diagnostic log and crash dump limits",
+      "risk": "safe",
+      "tags": [
+        "telemetry"
+      ],
+      "impact": "Caps the extra diagnostic logs and memory dumps Windows is allowed to gather.",
+      "explain": "Even at the required diagnostic tier, Windows can be asked to collect additional logs and dumps on demand. These two policies put a ceiling on that. They are the belt-and-braces companions to the main diagnostic data setting, and they are the ones enterprises set when they want telemetry technically on but minimal.",
+      "enableMeans": "Windows may collect the full set of diagnostic logs and dumps again.",
+      "disableMeans": "Limits diagnostic log collection and dump collection by policy.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "LimitDiagnosticLogCollection",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "LimitDumpCollection",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection",
+          "name": "DisableEnterpriseAuthProxy",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.eventtranscript",
+      "name": "EventTranscript diagnostic database",
+      "risk": "safe",
+      "tags": [
+        "telemetry"
+      ],
+      "impact": "A local SQLite database that mirrors every telemetry event so the Diagnostic Data Viewer can show it.",
+      "explain": "If you have ever installed the Diagnostic Data Viewer, Windows starts keeping EventTranscript.db, which can grow to hundreds of megabytes. It is a copy of what is being sent, kept for your inspection. Unless you actively audit your own telemetry, it is pure disk cost.",
+      "enableMeans": "Windows keeps the local transcript of telemetry events for the Diagnostic Data Viewer.",
+      "disableMeans": "Stops the transcript being written.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Diagnostics\\DiagTrack\\EventTranscriptKey",
+          "name": "EnableEventTranscript",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.handwriting",
+      "name": "Handwriting error reports",
+      "risk": "safe",
+      "tags": [
+        "telemetry"
+      ],
+      "impact": "Uploads samples of handwriting the recogniser got wrong.",
+      "explain": "A narrow, old channel that only matters if you use a pen. When handwriting recognition misreads something, Windows can send the ink sample to Microsoft to improve the model. The sample is your actual handwriting, which is why it has its own policy.",
+      "enableMeans": "Handwriting samples may be reported when recognition fails.",
+      "disableMeans": "Prevents handwriting error reports being generated or sent.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\HandwritingErrorReports",
+          "name": "PreventHandwritingErrorReports",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\TabletPC",
+          "name": "PreventHandwritingDataSharing",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.language",
+      "name": "Website access to your language list",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "core"
+      ],
+      "impact": "Websites can read your full list of installed languages, which is a strong browser fingerprint.",
+      "explain": "Windows exposes your language preferences to websites so they can localise content. The full ordered list is unusual enough to help identify you across sites. Opting out sends a single generic language instead. The only cost is that some sites will not auto-select your preferred language.",
+      "enableMeans": "Your language list is shared with websites for localisation.",
+      "disableMeans": "Sets the opt-out flag so the list is not exposed.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\International\\User Profile",
+          "name": "HttpAcceptLanguageOptOut",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.trackprogs",
+      "name": "App launch tracking for Start suggestions",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "ads",
+        "explorer"
+      ],
+      "impact": "Counts how often you open each program so Start can rank and suggest apps.",
+      "explain": "Windows keeps a running tally of program launches per user. It drives the 'Most used' and 'Recommended' lists in Start. Turning it off empties those lists over time and stops the counting. Purely a personalisation feature; nothing breaks.",
+      "enableMeans": "Windows counts app launches to personalise Start.",
+      "disableMeans": "Stops the launch counting and the suggestions built from it.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "Start_TrackProgs",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.clipboardcloud",
+      "name": "Clipboard sync across devices",
+      "risk": "safe",
+      "tags": [
+        "cloud",
+        "core"
+      ],
+      "impact": "Uploads what you copy so it can be pasted on your other Windows devices.",
+      "explain": "Cloud clipboard sends clipboard contents through your Microsoft account to other signed-in machines. Anything you copy, including passwords pasted from a manager, transits Microsoft's servers. Local clipboard history is a separate setting and is left alone here.",
+      "enableMeans": "Clipboard contents may be synced between your devices again.",
+      "disableMeans": "Blocks cross-device clipboard by policy.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "AllowCrossDeviceClipboard",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.clipboardhistory",
+      "name": "Local clipboard history",
+      "risk": "safe",
+      "tags": [
+        "core"
+      ],
+      "impact": "Keeps the last 25 things you copied in memory for the Win+V panel.",
+      "explain": "Clipboard history is local only and genuinely handy, but it does mean copied passwords and tokens sit in memory until reboot. Some people want it off for that reason alone. This is a per-user setting and takes effect immediately.",
+      "enableMeans": "Win+V keeps a history of recent clipboard items.",
+      "disableMeans": "Turns clipboard history off; only the single most recent item exists.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Clipboard",
+          "name": "EnableClipboardHistory",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.mrt",
+      "name": "Malicious Software Removal Tool reporting",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "security"
+      ],
+      "impact": "Reports back to Microsoft when the monthly malware scanner finds an infection.",
+      "explain": "MRT ships with Patch Tuesday and does a quick sweep for known families. By default it tells Microsoft what it found, including some environment details. The scan itself still runs and still cleans; only the report is suppressed.",
+      "enableMeans": "Infection information is reported to Microsoft.",
+      "disableMeans": "Sets the policy that stops infection reports being sent.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\MRT",
+          "name": "DontReportInfectionInformation",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "priv.wifisense",
+      "name": "Wi-Fi Sense hotspot reporting",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "network"
+      ],
+      "impact": "Reports open Wi-Fi networks you connect to and auto-joins hotspots others have shared.",
+      "explain": "Wi-Fi Sense was scaled back years ago but the policy hooks remain and are still honoured. It uploads details of open networks near you and can silently connect to hotspots. On a desktop it is irrelevant; on a laptop it is a small privacy and security win to switch off.",
+      "enableMeans": "Hotspot reporting and automatic hotspot connection are allowed.",
+      "disableMeans": "Blocks both hotspot reporting and auto-connect.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\PolicyManager\\default\\WiFi\\AllowWiFiHotSpotReporting",
+          "name": "Value",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\PolicyManager\\default\\WiFi\\AllowAutoConnectToWiFiSenseHotspots",
+          "name": "Value",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.edge.telemetry",
+      "name": "Microsoft Edge telemetry and personalisation",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "edge",
+        "ads"
+      ],
+      "impact": "Edge's own metrics reporting, personalised advertising and shopping features.",
+      "explain": "Edge has a separate policy tree from Windows and its own reporting. These policies switch off usage metrics, personalised ad measurement, the shopping and coupon features, and the 'browser essentials' recommendations. Edge keeps working normally, including sync if you use it. Applies even if Edge is your secondary browser, because Edge components run for Widgets and some Windows UI.",
+      "enableMeans": "Edge reports metrics and personalises content again.",
+      "disableMeans": "Sets the Edge policies that switch off metrics, personalised ads, shopping and recommendation surfaces.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "MetricsReportingEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "PersonalizationReportingEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "ShoppingAssistantEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "ShowRecommendationsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "SpotlightExperienceAndRecommendationsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "priv.office.telemetry",
+      "name": "Microsoft Office telemetry level",
+      "risk": "safe",
+      "tags": [
+        "telemetry",
+        "office"
+      ],
+      "impact": "How much usage data desktop Office apps send, if Office is installed.",
+      "explain": "Office has its own diagnostic policy independent of Windows. Level 3 is the minimum 'neither required nor optional' setting that Office honours, which keeps the apps licensed and functional while stopping optional connected experiences data. If Office is not installed the keys are simply written and ignored.",
+      "enableMeans": "Office returns to its default optional diagnostic level.",
+      "disableMeans": "Pins Office diagnostics to the minimum level and switches off optional connected experiences.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\office\\common\\clienttelemetry",
+          "name": "sendtelemetry",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 3
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\office\\16.0\\common\\privacy",
+          "name": "disconnectedstate",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\office\\16.0\\common\\privacy",
+          "name": "usercontentdisabled",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\office\\16.0\\common\\privacy",
+          "name": "downloadcontentdisabled",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 2
+        }
+      ]
+    },
+    {
+      "id": "priv.sensors.general",
+      "name": "General sensor access for apps",
+      "risk": "moderate",
+      "tags": [
+        "sensors"
+      ],
+      "impact": "Whether apps may use the microphone, camera, contacts, calendar and other sensitive capabilities without you being asked.",
+      "explain": "Windows keeps a consent store per capability. This option denies the broad set that consumer apps rarely need and that are frequently abused: account information, contacts, calendar, call history, email, messaging, phone calls, radios and tasks. Camera and microphone are deliberately left alone because you almost certainly want to choose those per app. Anything you deny here can still be re-allowed individually in Settings afterwards.",
+      "enableMeans": "The capability set is set back to Allow so apps can request it.",
+      "disableMeans": "Denies account info, contacts, calendar, call history, email, messaging, phone calls, radios and tasks to all apps.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userAccountInformation",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\contacts",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\appointments",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\phoneCallHistory",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\email",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\chat",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\phoneCall",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\radios",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\userDataTasks",
+          "name": "Value",
+          "type": "String",
+          "enable": "Allow",
+          "disable": "Deny"
+        }
+      ]
+    },
+    {
+      "id": "priv.settingsync",
+      "name": "Settings sync to your Microsoft account",
+      "risk": "safe",
+      "tags": [
+        "cloud",
+        "core"
+      ],
+      "impact": "Uploads your theme, passwords, language preferences and other settings so they follow you to other PCs.",
+      "explain": "Settings sync copies personalisation, saved Wi-Fi passwords, browser data and language settings into your Microsoft account. It is convenient across several machines and pointless on a single one. Disabling it by policy also greys the toggles out in Settings so nothing turns it back on later. Files in OneDrive are a separate feature and are not affected.",
+      "enableMeans": "Settings sync is allowed again and you can control it from Settings > Accounts.",
+      "disableMeans": "Blocks settings sync by policy and stops the per-user override.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\SettingSync",
+          "name": "DisableSettingSync",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\SettingSync",
+          "name": "DisableSettingSyncUserOverride",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\SettingSync",
+          "name": "DisableCredentialsSettingSync",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 2
+        }
+      ]
+    }
+  ]
+}

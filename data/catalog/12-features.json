@@ -1,0 +1,539 @@
+{
+  "category": {
+    "key": "features",
+    "name": "Windows Features",
+    "glyph": "",
+    "order": 120,
+    "blurb": "Optional Windows components and on-demand capabilities, the same lists you would find under 'Turn Windows features on or off' and 'Optional features' in Settings. These are handled through DISM, so each change takes tens of seconds rather than being instant, and several need a restart. Reading the state of this category requires a slower system query, which the app runs the first time you open it."
+  },
+  "tweaks": [
+    {
+      "id": "feat.ie11",
+      "name": "Internet Explorer 11 mode",
+      "risk": "safe",
+      "tags": [
+        "legacy",
+        "features",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The retired Internet Explorer browser engine, still present as an optional feature.",
+      "explain": "Internet Explorer is end of life and the desktop application is disabled, but the optional feature and its MSHTML engine remain installed. Some very old business applications embed that engine. Removing the feature reduces the attack surface meaningfully, since MSHTML has been the target of several document-based exploits. Edge's IE mode uses a separate component and is unaffected.",
+      "enableMeans": "Reinstalls the Internet Explorer 11 optional feature.",
+      "disableMeans": "Removes the Internet Explorer 11 feature. Applications embedding the old IE engine may break.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "Internet-Explorer-Optional-amd64"
+        }
+      ]
+    },
+    {
+      "id": "feat.wmp",
+      "name": "Windows Media Player (legacy)",
+      "risk": "safe",
+      "tags": [
+        "legacy",
+        "features"
+      ],
+      "restart": true,
+      "impact": "The classic Windows Media Player and its codec infrastructure.",
+      "explain": "The legacy player is separate from the modern Media Player Store app. It also carries a set of codecs and a network sharing component. Removing it is safe on any machine using VLC, MPC or the modern app. A handful of old applications call into its codecs for playback.",
+      "enableMeans": "Reinstalls the legacy Windows Media Player feature.",
+      "disableMeans": "Removes legacy Windows Media Player and its components.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "WindowsMediaPlayer"
+        }
+      ]
+    },
+    {
+      "id": "feat.workfolders",
+      "name": "Work Folders client",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "core"
+      ],
+      "restart": true,
+      "impact": "A corporate file sync client for on-premises file servers.",
+      "explain": "Work Folders syncs a folder with a company file server, configured by IT. On a personal machine it has never been set up and does nothing. Do not remove it on a work laptop where IT may rely on it.",
+      "enableMeans": "Reinstalls the Work Folders client.",
+      "disableMeans": "Removes the Work Folders client feature.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "WorkFolders-Client"
+        }
+      ]
+    },
+    {
+      "id": "feat.printtopdf",
+      "name": "Microsoft Print to PDF",
+      "risk": "moderate",
+      "tags": [
+        "features"
+      ],
+      "restart": true,
+      "impact": "The virtual printer that turns any print job into a PDF file.",
+      "explain": "Print to PDF is genuinely useful and is the only built-in way to export a PDF from an application that has no PDF export. Listed here because it is an optional feature that some people remove after installing a full PDF suite. It depends on the Print Spooler service, so disabling the spooler in Background Services also disables this.",
+      "enableMeans": "Reinstalls the Print to PDF virtual printer.",
+      "disableMeans": "Removes the Print to PDF printer. You will need another way to export PDFs.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "Printing-PrintToPDFServices-Features"
+        }
+      ]
+    },
+    {
+      "id": "feat.xpsviewer",
+      "name": "XPS document services and viewer",
+      "risk": "safe",
+      "tags": [
+        "legacy",
+        "features",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Microsoft's failed PDF competitor and its viewer.",
+      "explain": "XPS never gained adoption and the format is effectively dead. Both the print-to-XPS service and the viewer can be removed with no consequence unless you have archived documents in that format, which is unusual.",
+      "enableMeans": "Reinstalls XPS document services and the viewer.",
+      "disableMeans": "Removes XPS printing services and the XPS viewer.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "Printing-XPSServices-Features"
+        },
+        {
+          "kind": "capability",
+          "name": "XPS.Viewer~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.faxscan",
+      "name": "Windows Fax and Scan",
+      "risk": "safe",
+      "tags": [
+        "legacy",
+        "features",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The Fax and Scan application.",
+      "explain": "Fax and Scan handles fax modems and TWAIN scanners. Almost all modern scanners ship with their own software or use the Windows Scan Store app instead. If you have an old flatbed scanner that only works through this application, leave it.",
+      "enableMeans": "Reinstalls Windows Fax and Scan.",
+      "disableMeans": "Removes the Fax and Scan application.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "FaxServicesClientPackage"
+        }
+      ]
+    },
+    {
+      "id": "feat.stepsrecorder",
+      "name": "Steps Recorder",
+      "risk": "safe",
+      "tags": [
+        "legacy",
+        "features",
+        "core"
+      ],
+      "restart": true,
+      "impact": "A tool that records screenshots of every click for a support ticket.",
+      "explain": "Steps Recorder is deprecated and Microsoft has announced its removal. It captures screenshots on every mouse click, which is occasionally useful for documenting a bug and otherwise dormant.",
+      "enableMeans": "Reinstalls the Steps Recorder capability.",
+      "disableMeans": "Removes Steps Recorder.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "App.StepsRecorder~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.quickassist.cap",
+      "name": "Quick Assist capability",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "remote",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The optional-feature form of Microsoft's remote support tool.",
+      "explain": "Depending on your build, Quick Assist is present as a Store app, as an on-demand capability, or both. This removes the capability form; the Preinstalled Apps category removes the Store app. Removing both closes a route that support scammers rely on because it looks official and is already installed.",
+      "enableMeans": "Reinstalls the Quick Assist capability.",
+      "disableMeans": "Removes the Quick Assist capability.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "App.Support.QuickAssist~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.mathrecognizer",
+      "name": "Math Recognizer",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Handwriting recognition for mathematical expressions, used by the OneNote maths input panel.",
+      "explain": "Math Recognizer converts handwritten equations to structured maths. It only matters if you write equations with a pen in OneNote or a similar app. On a machine with no pen it is unused.",
+      "enableMeans": "Reinstalls the Math Recognizer capability.",
+      "disableMeans": "Removes the Math Recognizer capability.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "MathRecognizer~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.handwriting",
+      "name": "Handwriting and OCR language components",
+      "risk": "moderate",
+      "tags": [
+        "features"
+      ],
+      "restart": true,
+      "impact": "Pen handwriting recognition and optical character recognition for English.",
+      "explain": "These capabilities back pen input recognition and the OCR that lets Snipping Tool and PowerToys extract text from an image. Removing them frees a few hundred megabytes. If you use text extraction from screenshots, keep OCR.",
+      "enableMeans": "Reinstalls the handwriting and OCR language components.",
+      "disableMeans": "Removes handwriting recognition and OCR. Text extraction from images stops working.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "Language.Handwriting~~~en-GB~0.0.1.0"
+        },
+        {
+          "kind": "capability",
+          "name": "Language.OCR~~~en-GB~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.speechcap",
+      "name": "Speech recognition language components",
+      "risk": "moderate",
+      "tags": [
+        "features",
+        "ai"
+      ],
+      "restart": true,
+      "impact": "The offline speech recognition model and text-to-speech voices.",
+      "explain": "These capabilities provide offline dictation and the built-in narrator voices. Removing them frees space and breaks Voice Typing, Voice Access and Narrator. Do not remove them if anyone using this machine relies on screen reading or dictation for accessibility reasons.",
+      "enableMeans": "Reinstalls the speech recognition and text-to-speech components.",
+      "disableMeans": "Removes offline speech and text-to-speech. Narrator, Voice Access and dictation stop working.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "Language.Speech~~~en-GB~0.0.1.0"
+        },
+        {
+          "kind": "capability",
+          "name": "Language.TextToSpeech~~~en-GB~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.wordpad",
+      "name": "WordPad",
+      "risk": "safe",
+      "tags": [
+        "legacy",
+        "features",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The simple rich text editor that Microsoft removed in Windows 11 24H2.",
+      "explain": "WordPad has been discontinued and is absent from recent builds. Where it still exists as an optional feature, it is the default handler for .rtf files. If it is missing on your build this option will show as Unknown and do nothing.",
+      "enableMeans": "Reinstalls WordPad where the component is still available.",
+      "disableMeans": "Removes WordPad. RTF files will have no default handler.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "Microsoft.Windows.WordPad~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.notepadcap",
+      "name": "Legacy Notepad component",
+      "risk": "safe",
+      "tags": [
+        "legacy",
+        "features"
+      ],
+      "restart": true,
+      "impact": "The old system Notepad, superseded by the Store app.",
+      "explain": "On builds where Notepad exists both as a system component and as a Store app, removing the legacy component leaves the Store app as the only text editor. Harmless either way; useful only for tidiness.",
+      "enableMeans": "Reinstalls the legacy Notepad component.",
+      "disableMeans": "Removes the legacy Notepad component.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "Microsoft.Windows.Notepad~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.powershellise",
+      "name": "Windows PowerShell ISE",
+      "risk": "safe",
+      "tags": [
+        "legacy",
+        "features",
+        "dev"
+      ],
+      "restart": true,
+      "impact": "The old PowerShell script editor.",
+      "explain": "PowerShell ISE is no longer developed; VS Code with the PowerShell extension replaced it. Some people still use it for quick edits. Removing it frees a small amount of space and removes another scripting host, though it is not a meaningful security improvement on its own since PowerShell itself remains.",
+      "enableMeans": "Reinstalls the PowerShell ISE capability.",
+      "disableMeans": "Removes PowerShell ISE.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "Microsoft.Windows.PowerShell.ISE~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.opensshclient",
+      "name": "OpenSSH client",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "dev"
+      ],
+      "restart": true,
+      "impact": "The built-in ssh, scp and ssh-keygen commands.",
+      "explain": "The OpenSSH client is installed by default on Windows 11 and is genuinely useful for anyone who connects to servers, routers or a Raspberry Pi. Note the direction: most people should leave this enabled. Included so the catalogue covers the whole optional-features list.",
+      "enableMeans": "Installs the OpenSSH client so ssh works from the command line.",
+      "disableMeans": "Removes the OpenSSH client. The ssh command will no longer exist.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "OpenSSH.Client~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.opensshserver",
+      "name": "OpenSSH server",
+      "risk": "moderate",
+      "tags": [
+        "features",
+        "remote",
+        "security"
+      ],
+      "restart": true,
+      "impact": "Lets other machines open a remote shell on this PC over SSH.",
+      "explain": "The SSH server is not installed by default. If it has been installed and left running, it is a remote shell listening on the network, which is worth knowing about. Disabling removes the component. Enable only if you deliberately want remote shell access and understand the exposure.",
+      "enableMeans": "Installs the OpenSSH server, allowing inbound SSH connections.",
+      "disableMeans": "Removes the OpenSSH server so no inbound SSH is possible.",
+      "actions": [
+        {
+          "kind": "capability",
+          "name": "OpenSSH.Server~~~~0.0.1.0"
+        }
+      ]
+    },
+    {
+      "id": "feat.hyperv",
+      "name": "Hyper-V",
+      "risk": "moderate",
+      "tags": [
+        "features",
+        "dev",
+        "perf"
+      ],
+      "restart": true,
+      "impact": "Microsoft's hypervisor, which also underpins WSL2, Windows Sandbox and memory integrity.",
+      "explain": "Hyper-V is more entangled than it looks. Enabling it inserts a hypervisor beneath Windows, which costs a small amount of performance and conflicts with some other virtualisation products and a few anti-cheat systems. Disabling it breaks WSL2, Windows Sandbox, Android subsystem and virtualisation-based security if you use them. Check what depends on it before changing this.",
+      "enableMeans": "Installs the Hyper-V platform and management tools.",
+      "disableMeans": "Removes Hyper-V. WSL2, Windows Sandbox and VBS features that depend on it will stop working.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "Microsoft-Hyper-V-All"
+        }
+      ]
+    },
+    {
+      "id": "feat.sandbox",
+      "name": "Windows Sandbox",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "dev",
+        "security"
+      ],
+      "restart": true,
+      "impact": "A disposable virtual machine for opening files you do not trust.",
+      "explain": "Windows Sandbox gives you a clean, throwaway Windows desktop in seconds, which is the safest way to open a suspicious attachment or test an unknown installer. It requires Pro or higher and hardware virtualisation. Note the direction: this is one people often want enabled. It costs disk space and needs Hyper-V's platform underneath.",
+      "enableMeans": "Installs Windows Sandbox for running untrusted software in isolation.",
+      "disableMeans": "Removes Windows Sandbox.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "Containers-DisposableClientVM"
+        }
+      ]
+    },
+    {
+      "id": "feat.wsl",
+      "name": "Windows Subsystem for Linux",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "dev"
+      ],
+      "restart": true,
+      "impact": "Running Linux distributions natively on Windows.",
+      "explain": "WSL is a developer feature that costs nothing when no distribution is installed. Removing the component is a tidiness measure on a machine that will never use it. Enabling installs the platform; you then install a distribution separately from the Store or with wsl --install.",
+      "enableMeans": "Installs the Windows Subsystem for Linux platform.",
+      "disableMeans": "Removes the WSL platform. Any installed Linux distributions become unusable.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "Microsoft-Windows-Subsystem-Linux"
+        },
+        {
+          "kind": "feature",
+          "name": "VirtualMachinePlatform"
+        }
+      ]
+    },
+    {
+      "id": "feat.dotnet35",
+      "name": ".NET Framework 3.5",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "The old .NET runtime that some legacy business and desktop applications require.",
+      "explain": ".NET 3.5 is not installed by default and Windows offers to fetch it when an application needs it. Installing it ahead of time avoids that prompt; removing it saves a few hundred megabytes. If an old application throws a .NET error on launch, this is usually what it wants.",
+      "enableMeans": "Installs the .NET Framework 3.5 runtime.",
+      "disableMeans": "Removes .NET Framework 3.5. Applications that require it will stop working.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "NetFx3"
+        }
+      ]
+    },
+    {
+      "id": "feat.smbdirect",
+      "name": "SMB Direct (RDMA file transfer)",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "High-speed file transfer over RDMA-capable network hardware.",
+      "explain": "SMB Direct needs specialised network adapters found in servers and high-end workstations. On ordinary hardware it is installed and idle. Removing it is safe unless you have RDMA networking, in which case you would know.",
+      "enableMeans": "Reinstalls SMB Direct support.",
+      "disableMeans": "Removes SMB Direct.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "SmbDirect"
+        }
+      ]
+    },
+    {
+      "id": "feat.telnetclient",
+      "name": "Telnet client",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "legacy",
+        "dev"
+      ],
+      "restart": true,
+      "impact": "The unencrypted remote terminal client.",
+      "explain": "Telnet sends everything, including passwords, in clear text. It is not installed by default. It is still occasionally handy for poking at a port to see whether something answers, which is why network engineers install it. If it is present and you do not use it, remove it.",
+      "enableMeans": "Installs the Telnet client.",
+      "disableMeans": "Removes the Telnet client.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "TelnetClient"
+        }
+      ]
+    },
+    {
+      "id": "feat.simpletcp",
+      "name": "Simple TCP/IP services",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "legacy",
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Echo, discard, daytime, quote-of-the-day and character-generator network services.",
+      "explain": "These are 1980s diagnostic services that listen on the network and have been used for traffic amplification in denial-of-service attacks. They are not installed by default. If they are present on your machine, remove them.",
+      "enableMeans": "Installs the simple TCP/IP services.",
+      "disableMeans": "Removes the simple TCP/IP services.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "SimpleTCP"
+        }
+      ]
+    },
+    {
+      "id": "feat.legacycomponents",
+      "name": "DirectPlay and legacy game components",
+      "risk": "safe",
+      "tags": [
+        "features",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "A retired multiplayer networking API used by games from the late 1990s and early 2000s.",
+      "explain": "DirectPlay is only needed by genuinely old games, and Windows offers to install it when one asks. If you play games from that era, keep it. Otherwise it is an unused legacy component.",
+      "enableMeans": "Installs DirectPlay and the legacy components package.",
+      "disableMeans": "Removes DirectPlay. Some very old games will refuse to run.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "DirectPlay"
+        }
+      ]
+    },
+    {
+      "id": "feat.mediafeatures",
+      "name": "Media Features package",
+      "risk": "aggressive",
+      "tags": [
+        "features",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "The parent feature that provides most of Windows' audio and video codecs.",
+      "explain": "Removing the Media Features package strips the codec infrastructure that a surprising amount of software expects, including some video conferencing apps, screen recorders and games that play cutscenes. It also removes Windows Media Player as a dependency. This is the N-edition configuration sold in the EU, so it does work, but expect to hunt down codec problems afterwards. Only worth doing if you have a specific reason.",
+      "enableMeans": "Reinstalls the Media Features package and its codecs.",
+      "disableMeans": "Removes the Media Features package. Many applications will lose audio or video playback.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "MediaPlayback"
+        }
+      ]
+    }
+  ]
+}

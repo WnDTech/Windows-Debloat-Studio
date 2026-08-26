@@ -1,0 +1,1059 @@
+{
+  "category": {
+    "key": "explorer",
+    "name": "Taskbar, Start & Explorer",
+    "glyph": "",
+    "order": 50,
+    "blurb": "The parts of Windows 11 that changed for the worse compared with Windows 10, and the shell settings that are buried too deep to find. Nothing here removes functionality from the system; it changes how the shell looks and behaves. Most of these take effect after File Explorer restarts, which this app offers to do for you at the end of an apply."
+  },
+  "tweaks": [
+    {
+      "id": "ui.taskbar.align",
+      "name": "Centred taskbar",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "Whether the Start button and pinned icons sit in the middle of the taskbar or on the left.",
+      "explain": "Windows 11 centres the taskbar by default. Left alignment puts Start back in the bottom-left corner where two decades of muscle memory expects it, and keeps icon positions stable as you open and close windows rather than shuffling them around the centre.",
+      "enableMeans": "Taskbar contents stay centred, the Windows 11 default.",
+      "disableMeans": "Aligns the taskbar to the left, like Windows 10.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "TaskbarAl",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.search",
+      "name": "Search box on the taskbar",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "search",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "The wide search field or pill next to Start.",
+      "explain": "The taskbar search entry can be a full box with a text field, a pill with a label, an icon only, or hidden entirely. Disabling it removes it completely; you can still search by pressing Start and typing, or with Win+S. Removing it reclaims a surprising amount of taskbar width on a small screen.",
+      "enableMeans": "Restores the search box on the taskbar.",
+      "disableMeans": "Removes the search box and its icon from the taskbar.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search",
+          "name": "SearchboxTaskbarMode",
+          "type": "DWord",
+          "enable": 2,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.taskview",
+      "name": "Task View button",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "The virtual desktop and window overview button on the taskbar.",
+      "explain": "Task View shows open windows and virtual desktops. The button is redundant if you use Win+Tab, and the space it occupies is worth reclaiming. Hiding the button does not disable virtual desktops or the keyboard shortcut.",
+      "enableMeans": "Shows the Task View button on the taskbar.",
+      "disableMeans": "Hides the Task View button. Win+Tab still works.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ShowTaskViewButton",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.widgets",
+      "name": "Widgets button on the taskbar",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "widgets",
+        "ads",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "The weather and news button at the left end of the taskbar.",
+      "explain": "This hides just the button. To stop the Widgets platform running in the background as well, use the Widgets options in the Ads and Preinstalled Apps categories. Hiding the button alone still leaves the WebView host being started at sign-in.",
+      "enableMeans": "Shows the Widgets button on the taskbar.",
+      "disableMeans": "Hides the Widgets button.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "TaskbarDa",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.chat",
+      "name": "Chat button on the taskbar",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "The Teams consumer chat button.",
+      "explain": "The Chat button launches the consumer Teams client. Hiding it by policy also stops the client being warm-started at sign-in, which is worth a little memory. Removing the Teams package entirely is in the Preinstalled Apps category.",
+      "enableMeans": "Shows the Chat button on the taskbar.",
+      "disableMeans": "Hides the Chat button and stops its client being pre-warmed.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "TaskbarMn",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Chat",
+          "name": "ChatIcon",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 3
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.copilotbutton",
+      "name": "Copilot button on the taskbar",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "ai",
+        "copilot"
+      ],
+      "explorer": true,
+      "impact": "The Copilot icon in the taskbar tray area.",
+      "explain": "Hides just the button. The Copilot policy in the AI category is the one that actually stops the feature; this is the cosmetic half, useful on its own if you want the button gone but the feature reachable from Win+C.",
+      "enableMeans": "Shows the Copilot button on the taskbar.",
+      "disableMeans": "Hides the Copilot button.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ShowCopilotButton",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.seconds",
+      "name": "Seconds in the taskbar clock",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui"
+      ],
+      "explorer": true,
+      "impact": "Whether the clock shows seconds ticking.",
+      "explain": "Windows 11 can show seconds in the system tray clock. It costs a tiny amount of power because the tray redraws every second, which is why it is off by default and why laptop users may want it left off. Handy for anyone timing things.",
+      "enableMeans": "Shows seconds in the taskbar clock.",
+      "disableMeans": "Hides seconds so the clock only updates each minute.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ShowSecondsInSystemClock",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.endtask",
+      "name": "End Task in the taskbar right-click menu",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "dev"
+      ],
+      "explorer": true,
+      "impact": "Adds an End Task entry when you right-click a taskbar button, killing a hung app without Task Manager.",
+      "explain": "A genuinely useful addition that is off by default. Right-clicking any taskbar button gains an End Task item that terminates the process immediately. Note the direction of this option: Enable turns the feature on. It is one of the few things in this app you may actively want enabled.",
+      "enableMeans": "Adds End Task to taskbar right-click menus.",
+      "disableMeans": "Removes the End Task entry, the Windows default.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced\\TaskbarDeveloperSettings",
+          "name": "TaskbarEndTask",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.grouping",
+      "name": "Combine taskbar buttons and show labels",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui"
+      ],
+      "explorer": true,
+      "impact": "Whether each window gets its own labelled taskbar button or windows of an app are stacked into one icon.",
+      "explain": "Windows 11 originally removed the option to never combine taskbar buttons and later brought it back. Never combining, with labels, gives you the Windows 7 style taskbar where every window is separately clickable and named. It uses much more taskbar width but removes a hover-and-wait step.",
+      "enableMeans": "Windows groups taskbar buttons by app and hides labels, the Windows 11 default.",
+      "disableMeans": "Never combines taskbar buttons and shows window labels.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "TaskbarGlomLevel",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "MMTaskbarGlomLevel",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 2
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.multimon",
+      "name": "Taskbar on every monitor",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui"
+      ],
+      "explorer": true,
+      "impact": "Whether secondary monitors get their own taskbar.",
+      "explain": "With this on, each display shows a taskbar containing the windows on that display. With it off, only the primary monitor has one. Multi-monitor users generally want it on; it is listed here because it is a shell setting people hunt for. Enable turns the extra taskbars on.",
+      "enableMeans": "Shows a taskbar on all displays.",
+      "disableMeans": "Only the primary display has a taskbar.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "MMTaskbarEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskbar.recentapps",
+      "name": "Recently opened items in jump lists",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "privacy"
+      ],
+      "explorer": true,
+      "impact": "The recent-files lists that appear when you right-click a taskbar or Start item.",
+      "explain": "Windows tracks which documents you opened per application and shows them in jump lists and in Start. It is convenient and it is also a visible history of your work to anyone at your screen. Disabling it clears the tracking and empties the lists.",
+      "enableMeans": "Jump lists and Start show recently opened documents.",
+      "disableMeans": "Stops tracking recent documents and empties the jump lists.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "Start_TrackDocs",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+          "name": "NoRecentDocsHistory",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.contextmenu.classic",
+      "name": "Windows 11 compact context menu",
+      "risk": "moderate",
+      "tags": [
+        "explorer",
+        "ui",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "Whether right-click shows the short Windows 11 menu with 'Show more options', or the full classic menu directly.",
+      "explain": "Windows 11 added a compact right-click menu and pushed everything else, including most third-party entries from 7-Zip, Git, WinRAR and so on, behind a 'Show more options' item. Disabling the new menu restores the full classic menu on the first click. This is done by registering an empty shell extension blocker, which is the only supported mechanism; it is fully reversible. Note that on the newest builds Microsoft has begun ignoring this key, in which case the option will show as applied but the menu will not change.",
+      "enableMeans": "Uses the compact Windows 11 context menu with 'Show more options'.",
+      "disableMeans": "Restores the full classic right-click menu with every entry on the first click.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\CLASSES\\CLSID\\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\\InprocServer32",
+          "name": "",
+          "type": "String",
+          "enable": "@delete",
+          "disable": ""
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.extensions",
+      "name": "Hide extensions for known file types",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "security",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "Whether File Explorer hides the .exe, .txt and .pdf part of file names.",
+      "explain": "Hiding extensions is a long-standing security problem: a file called invoice.pdf.exe displays as invoice.pdf with a PDF-looking icon. Showing extensions is the single most useful Explorer change you can make. Note the direction here: Windows enables hiding by default, so you want Disable.",
+      "enableMeans": "Extensions stay hidden, the Windows default.",
+      "disableMeans": "Shows every file extension in Explorer.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "HideFileExt",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.hiddenfiles",
+      "name": "Hide hidden files and folders",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "Whether items marked hidden are shown in Explorer.",
+      "explain": "Showing hidden files exposes AppData, ProgramData and the various dot-directories that development tools create. Useful for anyone who edits configuration files. Protected operating system files remain hidden; that is a separate, more dangerous setting which this option deliberately does not touch.",
+      "enableMeans": "Hidden files stay hidden, the Windows default.",
+      "disableMeans": "Shows hidden files and folders.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "Hidden",
+          "type": "DWord",
+          "enable": 2,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.launchto",
+      "name": "File Explorer opens to Home",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "Whether a new Explorer window lands on Home with recommended files, or on This PC with your drives.",
+      "explain": "Home shows recent and pinned files, cloud recommendations and a Microsoft 365 section. This PC shows your drives and user folders. Most people who reach for Explorer want the drive list. Disabling Home also stops the recommended-files network call.",
+      "enableMeans": "Explorer opens to Home, the Windows 11 default.",
+      "disableMeans": "Explorer opens to This PC instead.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "LaunchTo",
+          "type": "DWord",
+          "enable": 3,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.gallery",
+      "name": "Gallery and Home entries in the navigation pane",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "core"
+      ],
+      "explorer": true,
+      "impact": "The Gallery photo view and the Home shortcut in the left-hand pane of Explorer.",
+      "explain": "Gallery is a photo timeline that indexes your Pictures folder and OneDrive camera roll. Home is the recommended-files landing page. Both add navigation-pane clutter and both do background work. Removing them is done by blocking their namespace CLSIDs, which is clean and reversible.",
+      "enableMeans": "Gallery and Home appear in the Explorer navigation pane.",
+      "disableMeans": "Removes Gallery and Home from the navigation pane.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Desktop\\NameSpace_36354489\\{e88865ea-0e1c-4e20-9aa9-2b306bb2fdb2}",
+          "name": "",
+          "type": "String",
+          "enable": "Gallery",
+          "disable": "@delete"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ShowRecommendedSection",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.onedrivepane",
+      "name": "OneDrive in the Explorer navigation pane",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "onedrive"
+      ],
+      "explorer": true,
+      "impact": "The OneDrive tree entry in the left pane of File Explorer.",
+      "explain": "Even with OneDrive uninstalled the namespace entry sometimes survives and shows a dead folder. This removes the pinned entry from the navigation pane. Your files are not touched; if OneDrive is still running you can reach it through its own folder.",
+      "enableMeans": "OneDrive appears in the navigation pane.",
+      "disableMeans": "Removes the OneDrive entry from the navigation pane.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Classes\\CLSID\\{018D5C66-4533-4307-9B53-224DE2ED1FE6}",
+          "name": "System.IsPinnedToNameSpaceTree",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Classes\\Wow6432Node\\CLSID\\{018D5C66-4533-4307-9B53-224DE2ED1FE6}",
+          "name": "System.IsPinnedToNameSpaceTree",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.3dobjects",
+      "name": "3D Objects and other legacy user folders",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui"
+      ],
+      "explorer": true,
+      "impact": "The 3D Objects folder that appears under This PC alongside Documents and Downloads.",
+      "explain": "3D Objects was added for Paint 3D and Mixed Reality, both of which are retired. The folder still shows up under This PC on many systems. Removing the namespace registration hides it without deleting anything on disk.",
+      "enableMeans": "Restores the 3D Objects folder under This PC.",
+      "disableMeans": "Removes the 3D Objects entry from This PC.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MyComputer\\NameSpace\\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}",
+          "name": "",
+          "type": "String",
+          "enable": "",
+          "disable": "@delete"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MyComputer\\NameSpace\\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}",
+          "name": "",
+          "type": "String",
+          "enable": "",
+          "disable": "@delete"
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.compact",
+      "name": "Compact view in File Explorer",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui"
+      ],
+      "explorer": true,
+      "impact": "Row spacing in Explorer lists: tight like Windows 10, or airy like Windows 11.",
+      "explain": "Windows 11 adds generous padding between list rows to be touch friendly. On a mouse-driven desktop it means noticeably fewer files visible per screen. Compact view restores Windows 10 density.",
+      "enableMeans": "Uses the roomier Windows 11 row spacing.",
+      "disableMeans": "Switches Explorer to compact, denser rows.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "UseCompactMode",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.fullpath",
+      "name": "Full path in the Explorer title bar",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui"
+      ],
+      "explorer": true,
+      "impact": "Shows the complete folder path rather than just the folder name.",
+      "explain": "Useful when you have several folders with the same name open, or when you need to copy a path out of a window title. Enable turns the feature on; it is off by default.",
+      "enableMeans": "Shows the full path in the title bar and Alt+Tab preview.",
+      "disableMeans": "Shows only the folder name, the Windows default.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\CabinetState",
+          "name": "FullPath",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.thumbnails",
+      "name": "Thumbnail previews and thumbnail cache",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui",
+        "perf"
+      ],
+      "explorer": true,
+      "impact": "Whether Explorer renders picture and video previews instead of generic icons.",
+      "explain": "Thumbnails require Explorer to read and decode every file in a folder, which is slow on network shares and on directories with thousands of images, and it writes a cache database. Turning them off makes folder browsing instant at the cost of showing generic icons. Video thumbnails in particular can hang Explorer if a codec misbehaves.",
+      "enableMeans": "Explorer shows thumbnail previews.",
+      "disableMeans": "Shows icons only and stops the thumbnail cache being written.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "IconsOnly",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "DisableThumbnailCache",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.recentsearch",
+      "name": "Recent searches and search history in Explorer",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "privacy"
+      ],
+      "explorer": true,
+      "impact": "The dropdown of things you have searched for before.",
+      "explain": "Explorer remembers your search terms per user and offers them again. It is a small convenience and a visible history. Disabling it stops the terms being recorded.",
+      "enableMeans": "Explorer remembers and suggests recent searches.",
+      "disableMeans": "Stops recording search history in Explorer.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer",
+          "name": "DisableSearchBoxSuggestions",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.snap.assist",
+      "name": "Snap layouts and Snap Assist flyout",
+      "risk": "safe",
+      "tags": [
+        "explorer",
+        "ui"
+      ],
+      "impact": "The layout picker that drops down when you hover the maximise button, and the suggestion panel after snapping a window.",
+      "explain": "Snap layouts are one of the better Windows 11 additions, but the hover flyout can fire accidentally and the post-snap suggestion panel interrupts you. This option covers the flyout, the suggestion panel and the layout grid together. Basic left and right snapping with Win+Arrow continues to work either way.",
+      "enableMeans": "Snap layouts, the hover flyout and Snap Assist suggestions all work.",
+      "disableMeans": "Turns off the snap layout flyout and the Snap Assist suggestion panel.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "EnableSnapAssistFlyout",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "SnapAssist",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "EnableSnapBar",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.animations",
+      "name": "Window animations and visual effects",
+      "risk": "safe",
+      "tags": [
+        "ui",
+        "perf",
+        "core"
+      ],
+      "impact": "Minimise and maximise animations, fades, and the various shell transitions.",
+      "explain": "Windows animates almost every state change. The animations are short but they add real latency to every window action, and on a slower GPU they stutter. Turning them off makes the desktop feel considerably snappier. Font smoothing and desktop composition are deliberately left on so text still looks right.",
+      "enableMeans": "Restores window animations and shell transitions.",
+      "disableMeans": "Switches off window animations, menu fades and shell transition effects.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\VisualEffects",
+          "name": "VisualFXSetting",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 3
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\DWM",
+          "name": "EnableAeroPeek",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Desktop\\WindowMetrics",
+          "name": "MinAnimate",
+          "type": "String",
+          "enable": "1",
+          "disable": "0"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Desktop",
+          "name": "MenuShowDelay",
+          "type": "String",
+          "enable": "400",
+          "disable": "0"
+        }
+      ]
+    },
+    {
+      "id": "ui.transparency",
+      "name": "Transparency and Mica effects",
+      "risk": "safe",
+      "tags": [
+        "ui",
+        "perf"
+      ],
+      "impact": "The frosted-glass backgrounds in Start, the taskbar, Settings and app title bars.",
+      "explain": "Mica and Acrylic blur whatever is behind a window, which requires the GPU to composite extra layers continuously. On integrated graphics or a battery-powered machine, turning it off is a measurable saving and removes some flicker on window drag. The interface becomes flat rather than translucent.",
+      "enableMeans": "Restores transparency and the blur effects.",
+      "disableMeans": "Disables transparency so surfaces are painted with solid colours.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+          "name": "EnableTransparency",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.darkmode",
+      "name": "Dark mode for Windows and apps",
+      "risk": "safe",
+      "tags": [
+        "ui"
+      ],
+      "explorer": true,
+      "impact": "Whether the shell and apps use the dark colour scheme.",
+      "explain": "Purely cosmetic and included because it is one of the first things most people change. Enable turns dark mode on for both the system chrome and app content. Some older desktop programs ignore the setting entirely.",
+      "enableMeans": "Turns dark mode on for the system and for apps.",
+      "disableMeans": "Returns to the light colour scheme.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+          "name": "AppsUseLightTheme",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+          "name": "SystemUsesLightTheme",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.lockscreen.tipsonlogin",
+      "name": "First sign-in animation and welcome tour",
+      "risk": "safe",
+      "tags": [
+        "ui",
+        "ads"
+      ],
+      "impact": "The 'Hi, we are setting things up for you' sequence a new account sees.",
+      "explain": "The first sign-in animation delays a new account's first desktop by up to a minute while it plays a welcome sequence. Disabling it means a new user reaches the desktop as soon as the profile is ready. Useful on machines you set up for other people.",
+      "enableMeans": "New accounts see the first sign-in animation and tour.",
+      "disableMeans": "Skips the first sign-in animation so new accounts go straight to the desktop.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon",
+          "name": "EnableFirstLogonAnimation",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "EnableFirstLogonAnimation",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.stickykeys",
+      "name": "Sticky Keys and Filter Keys shortcut prompts",
+      "risk": "safe",
+      "tags": [
+        "ui",
+        "gaming"
+      ],
+      "impact": "The dialog and chime that appear when you press Shift five times or hold Shift for eight seconds.",
+      "explain": "Accessibility shortcuts fire accidentally all the time, particularly in games where Shift is a movement key. This disables the keyboard shortcuts that turn Sticky, Filter and Toggle Keys on, without removing the accessibility features themselves, which stay available from Settings.",
+      "enableMeans": "The keyboard shortcuts and confirmation prompts work again.",
+      "disableMeans": "Turns off the accidental-activation shortcuts for Sticky, Filter and Toggle Keys.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Accessibility\\StickyKeys",
+          "name": "Flags",
+          "type": "String",
+          "enable": "510",
+          "disable": "506"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Accessibility\\Keyboard Response",
+          "name": "Flags",
+          "type": "String",
+          "enable": "126",
+          "disable": "122"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Accessibility\\ToggleKeys",
+          "name": "Flags",
+          "type": "String",
+          "enable": "62",
+          "disable": "58"
+        }
+      ]
+    },
+    {
+      "id": "ui.explorer.autoplay",
+      "name": "AutoPlay for removable media",
+      "risk": "safe",
+      "tags": [
+        "ui",
+        "security",
+        "core"
+      ],
+      "impact": "The prompt or automatic action when you plug in a USB stick, phone or insert a disc.",
+      "explain": "AutoPlay decides what happens when removable media appears. Historically AutoRun was a malware vector; modern Windows no longer runs executables automatically, but AutoPlay still opens apps and dialogs. Disabling it means inserted media does nothing until you open it yourself, which is both quieter and safer on shared machines.",
+      "enableMeans": "AutoPlay prompts and handlers work again.",
+      "disableMeans": "Disables AutoPlay for all drive types and blocks AutoRun by policy.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers",
+          "name": "DisableAutoplay",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+          "name": "NoDriveTypeAutoRun",
+          "type": "DWord",
+          "enable": 145,
+          "disable": 255
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer",
+          "name": "NoAutorun",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.shortcut.text",
+      "name": "'- Shortcut' suffix on new shortcuts",
+      "risk": "safe",
+      "tags": [
+        "ui",
+        "explorer"
+      ],
+      "explorer": true,
+      "impact": "Whether newly created shortcuts get ' - Shortcut' appended to their name.",
+      "explain": "A small annoyance with an obscure fix: the suffix is stored as a binary template. Setting it to an empty template means new shortcuts take the name of their target. Existing shortcuts keep whatever name they already have.",
+      "enableMeans": "New shortcuts are named 'Something - Shortcut'.",
+      "disableMeans": "New shortcuts take the plain name of their target.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer",
+          "name": "link",
+          "type": "Binary",
+          "enable": "GwAAAA==",
+          "disable": "AAAAAA=="
+        }
+      ]
+    },
+    {
+      "id": "ui.mousekeyboard.accel",
+      "name": "Mouse pointer acceleration",
+      "risk": "safe",
+      "tags": [
+        "ui",
+        "gaming",
+        "core"
+      ],
+      "impact": "Whether the pointer travels further when you move the mouse faster.",
+      "explain": "Enhance pointer precision is mouse acceleration. It makes the relationship between hand movement and cursor movement non-linear, which prevents building muscle memory. Anyone aiming in a game or doing precise design work generally wants it off. Trackpad users often prefer it on.",
+      "enableMeans": "Pointer acceleration is on, the Windows default.",
+      "disableMeans": "Turns off pointer acceleration for a one-to-one relationship between mouse and cursor.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Mouse",
+          "name": "MouseSpeed",
+          "type": "String",
+          "enable": "1",
+          "disable": "0"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Mouse",
+          "name": "MouseThreshold1",
+          "type": "String",
+          "enable": "6",
+          "disable": "0"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Mouse",
+          "name": "MouseThreshold2",
+          "type": "String",
+          "enable": "10",
+          "disable": "0"
+        }
+      ]
+    },
+    {
+      "id": "ui.notifications.master",
+      "name": "Notification banners and sounds",
+      "risk": "moderate",
+      "tags": [
+        "ui"
+      ],
+      "impact": "Whether apps may show toast notifications at all.",
+      "explain": "This is the master notification switch. Disabling it silences every app including calendar reminders, security warnings and messaging apps. It is a blunt instrument; per-app control in Settings is usually a better answer. Included because some people want a completely silent machine for presentations or recording.",
+      "enableMeans": "Apps may show notifications again.",
+      "disableMeans": "Turns off all toast notifications and their sounds.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\PushNotifications",
+          "name": "ToastEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings",
+          "name": "NOC_GLOBAL_SETTING_TOASTS_ENABLED",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ui.taskmanager.efficiency",
+      "name": "Efficiency mode prompt in Task Manager",
+      "risk": "safe",
+      "tags": [
+        "ui"
+      ],
+      "impact": "The confirmation dialog when you put a process into efficiency mode.",
+      "explain": "Task Manager asks for confirmation every single time you throttle a process, which gets tiresome if you do it often. Disabling the prompt applies efficiency mode immediately. The feature itself is unaffected.",
+      "enableMeans": "Task Manager asks before applying efficiency mode.",
+      "disableMeans": "Applies efficiency mode without a confirmation dialog.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\TaskManager",
+          "name": "EfficiencyModeDisclaimerShown",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ui.lockscreen.enable",
+      "name": "Lock screen before the sign-in prompt",
+      "risk": "safe",
+      "tags": [
+        "ui"
+      ],
+      "impact": "Whether you see a wallpaper screen you have to dismiss before the password box appears.",
+      "explain": "The lock screen is an extra keypress or click between waking the machine and typing your password. Disabling it takes you straight to the credential prompt. The machine is still locked and still requires your password; only the decorative screen is skipped.",
+      "enableMeans": "The lock screen appears before sign-in.",
+      "disableMeans": "Skips the lock screen and goes straight to the password prompt.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization",
+          "name": "NoLockScreen",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    }
+  ]
+}

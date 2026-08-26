@@ -1,0 +1,517 @@
+{
+  "category": {
+    "key": "network",
+    "name": "Network & Sharing",
+    "glyph": "",
+    "order": 110,
+    "blurb": "Discovery protocols, sharing services and the network features that are on by default whether or not you share anything. Most of these reduce how much this machine announces itself on the local network. If you use a home NAS, a network printer or media casting, read the notes before disabling discovery."
+  },
+  "tweaks": [
+    {
+      "id": "net.doh",
+      "name": "DNS over HTTPS",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "privacy"
+      ],
+      "restart": true,
+      "impact": "Encrypts DNS lookups so your internet provider cannot read or modify them.",
+      "explain": "By default DNS queries travel in plain text, so anyone between you and the resolver can see every domain you visit and, in some countries, rewrite the answers. Windows 11 can send DNS over HTTPS instead. Enabling it here turns on the system-wide DoH client and allows it even for resolvers Windows does not recognise, so it works with a custom resolver. You need a DoH-capable DNS server configured on the adapter for it to take effect. Note the direction: Enable is the private choice here.",
+      "enableMeans": "Turns on DNS over HTTPS for the system resolver, including unknown resolvers.",
+      "disableMeans": "Returns to plaintext DNS, the Windows default.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient",
+          "name": "DoHPolicy",
+          "type": "DWord",
+          "enable": 2,
+          "disable": "@delete"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters",
+          "name": "EnableAutoDoh",
+          "type": "DWord",
+          "enable": 2,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "net.teredo",
+      "name": "Teredo IPv6 tunnelling",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "legacy",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Tunnels IPv6 traffic over an IPv4 network, punching through NAT to do it.",
+      "explain": "Teredo exists so IPv6-only services can be reached from an IPv4-only network. It creates a tunnel that bypasses NAT, which is why it is disabled in many corporate environments. On a home connection with native IPv6 it is redundant, and it occasionally causes multiplayer connectivity oddities. Note that Xbox networking and some peer-to-peer game matchmaking do use it, so if you play console-linked multiplayer, leave it alone.",
+      "enableMeans": "Teredo tunnelling is available again.",
+      "disableMeans": "Disables the Teredo tunnel adapter. Some Xbox and peer-to-peer matchmaking may be affected.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Services\\TCPIP6\\Parameters",
+          "name": "DisabledComponents",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 8
+        }
+      ]
+    },
+    {
+      "id": "net.networkdiscovery",
+      "name": "Network discovery and function discovery services",
+      "risk": "moderate",
+      "tags": [
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "How this PC finds, and is found by, other devices on the local network.",
+      "explain": "Function Discovery announces this machine and looks for others using WS-Discovery and SSDP. It is what populates the Network folder and what lets a network printer or a Chromecast be discovered. Disabling it means you reach network resources by name or address rather than by browsing, and casting to a TV stops working. On a laptop that joins untrusted networks, turning it off is a sensible privacy measure.",
+      "enableMeans": "Network discovery and device announcement work again.",
+      "disableMeans": "Disables network discovery. Devices stop appearing in the Network folder and casting stops working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "FDResPub",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "fdPHost",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "SSDPSRV",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "upnphost",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "net.filesharing",
+      "name": "File and printer sharing (SMB server)",
+      "risk": "moderate",
+      "tags": [
+        "network",
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Whether this PC can host shared folders and printers for other machines.",
+      "explain": "The LanmanServer service is the SMB server. If nobody connects to shared folders on this machine it is a listening service for no reason, and SMB is a heavily targeted protocol. Disabling it does not affect your ability to connect to other machines' shares, which is the client side. If you share a printer or folder from this PC, or use it as a small home file server, leave this alone.",
+      "enableMeans": "This PC can host file and printer shares again.",
+      "disableMeans": "Disables the SMB server. Other machines can no longer reach shares on this PC. Connecting out still works.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "LanmanServer",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "net.hotspot",
+      "name": "Mobile hotspot and Internet Connection Sharing",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Turning this PC into a Wi-Fi access point for other devices.",
+      "explain": "The ICS service backs the mobile hotspot feature. On a desktop with a single wired connection it has nothing to share. Disabling it removes a service and closes the hotspot feature. Note that a few VPN clients use ICS internally for their virtual adapters, so if a VPN stops connecting after this, put it back.",
+      "enableMeans": "Mobile hotspot and connection sharing are available again.",
+      "disableMeans": "Disables Internet Connection Sharing and the mobile hotspot feature.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "SharedAccess",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Network Connections",
+          "name": "NC_ShowSharedAccessUI",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "net.nearbysharing",
+      "name": "Nearby Sharing",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "cloud",
+        "core"
+      ],
+      "impact": "Sends files to nearby Windows PCs over Bluetooth and Wi-Fi.",
+      "explain": "Nearby Sharing advertises this machine over Bluetooth so other Windows PCs can offer to send it files. It is the Windows equivalent of AirDrop and, like AirDrop, it means broadcasting a discoverable identifier. Useful if you move files between your own machines, unnecessary otherwise.",
+      "enableMeans": "Nearby Sharing is available and this PC is discoverable.",
+      "disableMeans": "Turns Nearby Sharing off so this PC stops advertising itself.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CDP",
+          "name": "NearShareChannelUserAuthzPolicy",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CDP",
+          "name": "CdpSessionUserAuthzPolicy",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "EnableCdp",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "net.metered.default",
+      "name": "Treat all connections as metered",
+      "risk": "moderate",
+      "tags": [
+        "network",
+        "update"
+      ],
+      "impact": "Makes Windows behave as if you are paying per gigabyte, cutting back background downloads.",
+      "explain": "Marking connections as metered is a broad brush that reduces update downloads, stops Store apps updating in the background and pauses some sync. It is the single most effective way to quieten a machine on a slow or capped connection. The trade is that security updates may be deferred, which is why this is marked Moderate rather than Safe.",
+      "enableMeans": "Connections are treated normally as unmetered.",
+      "disableMeans": "Marks connections as metered so Windows holds back background downloads.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\DefaultMediaCost",
+          "name": "Ethernet",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\NetworkList\\DefaultMediaCost",
+          "name": "WiFi",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 2
+        }
+      ]
+    },
+    {
+      "id": "net.wlansvc.autoconnect",
+      "name": "Automatic connection to open Wi-Fi networks",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "security"
+      ],
+      "impact": "Whether Windows joins open hotspots by itself.",
+      "explain": "Joining an open network automatically means your traffic can travel over a network run by anybody, including a fake access point using a common name such as a coffee shop chain. Disabling automatic connection to open networks means you decide each time. Saved networks you have joined deliberately are unaffected.",
+      "enableMeans": "Windows may auto-connect to open networks and suggested hotspots.",
+      "disableMeans": "Stops automatic connection to open Wi-Fi networks and hotspot suggestions.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\WcmSvc\\wifinetworkmanager\\config",
+          "name": "AutoConnectAllowedOEM",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\PolicyManager\\default\\WiFi\\AllowAutoConnectToWiFiSenseHotspots",
+          "name": "Value",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "net.p2p.grouping",
+      "name": "Peer-to-peer networking services",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "legacy",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The old peer name resolution, grouping and identity services behind HomeGroup-era features.",
+      "explain": "These four services supported HomeGroup and peer-to-peer collaboration features that Windows removed years ago. They are still installed and can still be started. Nothing current uses them.",
+      "enableMeans": "The peer-to-peer networking services are available again.",
+      "disableMeans": "Disables the legacy peer networking, grouping and identity manager services.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "PNRPsvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "p2psvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "p2pimsvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "PNRPAutoReg",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "net.wpad",
+      "name": "Web Proxy Auto-Discovery (WPAD)",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "security",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "Windows asking the local network where the web proxy is, and trusting whoever answers.",
+      "explain": "WPAD looks for a proxy configuration file by DNS and NetBIOS guessing. An attacker on the same network can answer and become your proxy, seeing all your web traffic. It is a classic local-network attack and there is no reason to leave it on unless your workplace genuinely uses WPAD, in which case your browser will lose its proxy settings.",
+      "enableMeans": "WPAD proxy auto-discovery is allowed again.",
+      "disableMeans": "Disables WPAD auto-discovery and the WinHTTP auto proxy service.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\Wpad",
+          "name": "WpadOverride",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "service",
+          "name": "WinHttpAutoProxySvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "net.printing.wsd",
+      "name": "Network printer discovery and Internet printing",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Automatic discovery of network printers and printing to printers over the internet.",
+      "explain": "WSD printer discovery scans the network for printers and Internet Printing allows print jobs over HTTP. If your printer is connected by USB, or you added it once by IP address, neither is needed. Disabling them means new network printers will not appear on their own and must be added manually by address.",
+      "enableMeans": "Network printer discovery and internet printing are available again.",
+      "disableMeans": "Disables automatic network printer discovery and internet printing.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Printers",
+          "name": "DisableWebPnPDownload",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\Printers",
+          "name": "DisableHTTPPrinting",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "net.ipv6",
+      "name": "IPv6 protocol",
+      "risk": "aggressive",
+      "tags": [
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The entire IPv6 stack on every network adapter.",
+      "explain": "Disabling IPv6 is folk wisdom that Microsoft explicitly recommends against: parts of Windows, including some Active Directory and Hyper-V functionality, assume it is present, and IPv6-only services become unreachable. There are narrow cases where it helps, such as a broken tunnel adding DNS latency, but the correct fix there is usually to fix the tunnel. If you only want Teredo gone, use the Teredo option instead of this one.",
+      "enableMeans": "Restores the full IPv6 stack.",
+      "disableMeans": "Disables IPv6 on all interfaces. Microsoft advises against this and some Windows components expect IPv6.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Services\\TCPIP6\\Parameters",
+          "name": "DisabledComponents",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 255
+        }
+      ]
+    },
+    {
+      "id": "net.smbclient.signing",
+      "name": "SMB client signing requirement",
+      "risk": "moderate",
+      "tags": [
+        "network",
+        "security"
+      ],
+      "restart": true,
+      "impact": "Requires that SMB traffic be cryptographically signed, defeating relay attacks.",
+      "explain": "SMB signing stops an attacker relaying your authentication to another server, which is the core of the most common local-network attack. Windows 11 now requires it by default for the client. Enabling it explicitly is the secure choice; the cost is a small throughput reduction on large file transfers and incompatibility with very old NAS firmware that cannot sign.",
+      "enableMeans": "Requires SMB signing on the client, the secure setting.",
+      "disableMeans": "Makes SMB signing optional again, which allows relay attacks.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters",
+          "name": "RequireSecuritySignature",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters",
+          "name": "EnableSecuritySignature",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "net.guestaccess",
+      "name": "Insecure guest logons to network shares",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "security"
+      ],
+      "restart": true,
+      "impact": "Whether Windows will connect to a share with no credentials at all.",
+      "explain": "Guest logons are unauthenticated and unsigned, so the connection can be intercepted or redirected. Windows disables them by default, which is why cheap NAS boxes configured for open access sometimes stop working after an update. Keeping them disabled is correct; enable only if you have a device that needs it and you accept the risk.",
+      "enableMeans": "Allows insecure guest logons to SMB shares.",
+      "disableMeans": "Blocks unauthenticated guest access to network shares, the secure default.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\LanmanWorkstation",
+          "name": "AllowInsecureGuestAuth",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "net.icmp.ping",
+      "name": "Responding to network pings",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "security"
+      ],
+      "impact": "Whether this PC answers ICMP echo requests from other machines.",
+      "explain": "Responding to ping tells anyone scanning the network that this address is live. Blocking it is a small obscurity measure rather than real security, and it makes your own network troubleshooting harder because you can no longer ping the machine to check it is up. Enable means the firewall rule allowing ping is on.",
+      "enableMeans": "Allows inbound ping so the PC answers echo requests.",
+      "disableMeans": "Blocks inbound ping. Your own diagnostics will no longer see this machine respond.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$r = Get-NetFirewallRule -Name 'DebloatStudio-AllowPingV4' -ErrorAction SilentlyContinue; if ($null -eq $r) { 'Unknown' } elseif ($r.Enabled -eq 'True' -and $r.Action -eq 'Allow') { 'Enabled' } else { 'Disabled' }",
+          "enable": "Remove-NetFirewallRule -Name 'DebloatStudio-BlockPingV4' -ErrorAction SilentlyContinue; if (-not (Get-NetFirewallRule -Name 'DebloatStudio-AllowPingV4' -ErrorAction SilentlyContinue)) { New-NetFirewallRule -Name 'DebloatStudio-AllowPingV4' -DisplayName 'Allow ICMPv4 echo (Debloat Studio)' -Protocol ICMPv4 -IcmpType 8 -Action Allow -Direction Inbound | Out-Null }",
+          "disable": "Remove-NetFirewallRule -Name 'DebloatStudio-AllowPingV4' -ErrorAction SilentlyContinue; if (-not (Get-NetFirewallRule -Name 'DebloatStudio-BlockPingV4' -ErrorAction SilentlyContinue)) { New-NetFirewallRule -Name 'DebloatStudio-BlockPingV4' -DisplayName 'Block ICMPv4 echo (Debloat Studio)' -Protocol ICMPv4 -IcmpType 8 -Action Block -Direction Inbound | Out-Null }"
+        }
+      ]
+    },
+    {
+      "id": "net.linklocal.mdns",
+      "name": "Link-Local Multicast and Connected Devices platform announcements",
+      "risk": "safe",
+      "tags": [
+        "network",
+        "privacy"
+      ],
+      "restart": true,
+      "impact": "The periodic broadcasts that let other devices know this PC exists.",
+      "explain": "Windows announces itself over several multicast channels for device pairing and cross-device features. On an untrusted network this is a fingerprint that includes your machine name. Disabling the connected-device announcements stops the broadcasts while leaving normal networking untouched. Nearby Sharing and Phone Link handoff stop working.",
+      "enableMeans": "Device announcement broadcasts resume.",
+      "disableMeans": "Stops the connected-device multicast announcements from this PC.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "CDPUserSvc",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "EnableMmx",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    }
+  ]
+}

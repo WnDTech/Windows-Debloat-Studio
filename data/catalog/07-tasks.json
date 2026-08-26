@@ -1,0 +1,544 @@
+{
+  "category": {
+    "key": "tasks",
+    "name": "Scheduled Tasks",
+    "glyph": "",
+    "order": 70,
+    "blurb": "Windows runs several hundred scheduled tasks. The ones grouped here exist to gather data, report usage or nag you, rather than to keep the system healthy. Disabling a task is completely reversible and takes effect immediately. Tasks that are not present on your build are skipped silently, which is why some options show as Unknown."
+  },
+  "tweaks": [
+    {
+      "id": "task.appraiser",
+      "name": "Compatibility Appraiser tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry",
+        "core"
+      ],
+      "impact": "CompatTelRunner, the process that inventories your installed software and hardware for upgrade telemetry.",
+      "explain": "The Microsoft Compatibility Appraiser scans your installed programs, drivers and hardware and reports the inventory as part of the upgrade-readiness pipeline. It is the single most visible telemetry task because CompatTelRunner.exe can peg a CPU core for several minutes and cause noticeable disk activity. Disabling the tasks is safe; the only thing lost is Microsoft's assessment of whether your PC can take the next feature update, which Windows Update determines by other means anyway.",
+      "enableMeans": "The compatibility inventory tasks run on their normal schedule again.",
+      "disableMeans": "Disables the appraiser, program data updater and inventory tasks so CompatTelRunner stops running.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser",
+            "\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater",
+            "\\Microsoft\\Windows\\Application Experience\\AitAgent",
+            "\\Microsoft\\Windows\\Application Experience\\StartupAppTask",
+            "\\Microsoft\\Windows\\Application Experience\\PcaPatchDbTask",
+            "\\Microsoft\\Windows\\Application Experience\\MareBackup",
+            "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser Exp",
+            "\\Microsoft\\Windows\\Application Experience\\SdbinstMergeDbTask"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.ceip",
+      "name": "Customer Experience Improvement tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry",
+        "core"
+      ],
+      "impact": "The Consolidator, USB CEIP and Kernel CEIP tasks that gather and upload usage statistics.",
+      "explain": "These three tasks are the delivery mechanism for the older CEIP telemetry channel. Consolidator uploads the collected data, UsbCeip reports USB device information and KernelCeipTask gathers kernel-level usage. They are separate from the modern diagnostic pipeline and have to be disabled on their own.",
+      "enableMeans": "The CEIP collection and upload tasks run again.",
+      "disableMeans": "Disables the Consolidator, USB CEIP and Kernel CEIP tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator",
+            "\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip",
+            "\\Microsoft\\Windows\\Customer Experience Improvement Program\\KernelCeipTask",
+            "\\Microsoft\\Windows\\Customer Experience Improvement Program\\BthSQM",
+            "\\Microsoft\\Windows\\Customer Experience Improvement Program\\Uploader"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.dusmtask",
+      "name": "Data Usage and network cost tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry"
+      ],
+      "impact": "Tracks per-app network usage for the Data Usage page in Settings.",
+      "explain": "DusmTask keeps the database behind Settings > Network > Data usage, recording how much each app sent and received. Useful on a metered connection, pointless on unlimited broadband, and it writes to disk continuously.",
+      "enableMeans": "Per-app data usage tracking runs again.",
+      "disableMeans": "Disables the data usage tracking task. The Data usage page will stop updating.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\SettingSync\\NetworkStateChangeTask",
+            "\\Microsoft\\Windows\\Flighting\\FeatureConfig\\ReconcileFeatures",
+            "\\Microsoft\\Windows\\Flighting\\FeatureConfig\\UsageDataFlushing",
+            "\\Microsoft\\Windows\\Flighting\\FeatureConfig\\UsageDataReporting",
+            "\\Microsoft\\Windows\\Flighting\\OneSettings\\RefreshCache"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.wer",
+      "name": "Error reporting queue tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry"
+      ],
+      "impact": "The tasks that submit queued crash reports to Microsoft.",
+      "explain": "Windows Error Reporting queues crash data and these tasks flush the queue on a schedule. If you disabled the error reporting service, the queue is never populated and these tasks do nothing. Disabling them completes the job.",
+      "enableMeans": "Queued crash reports are submitted again.",
+      "disableMeans": "Disables the error report queue submission tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Windows Error Reporting\\QueueReporting"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.diskdiagnostic",
+      "name": "Disk diagnostic data collector",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry"
+      ],
+      "impact": "Collects SMART and disk health data and includes it in telemetry.",
+      "explain": "The Microsoft-Windows-DiskDiagnosticDataCollector task gathers drive health information for upload. The actual SMART failure prediction that warns you about a dying disk is a separate mechanism and is not affected, so you keep the warning without the reporting.",
+      "enableMeans": "The disk diagnostic data collector runs again.",
+      "disableMeans": "Disables the disk diagnostic data collection task.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector",
+            "\\Microsoft\\Windows\\DiskFootprint\\Diagnostics",
+            "\\Microsoft\\Windows\\DiskFootprint\\StorageSense"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.familysafety",
+      "name": "Family Safety monitoring tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "core"
+      ],
+      "impact": "Uploads activity reports for accounts managed by Microsoft Family.",
+      "explain": "These tasks collect and upload a child account's browsing and app usage to the family organiser. On a PC with no managed accounts they run and find nothing. Do not disable them if you use family screen time or activity reporting, because reports will stop arriving.",
+      "enableMeans": "Family Safety monitoring and upload tasks run again.",
+      "disableMeans": "Disables Family Safety monitoring. Activity reports will stop being uploaded.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Shell\\FamilySafetyMonitor",
+            "\\Microsoft\\Windows\\Shell\\FamilySafetyRefreshTask",
+            "\\Microsoft\\Windows\\Shell\\FamilySafetyRefresh",
+            "\\Microsoft\\Windows\\Shell\\FamilySafetyUpload"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.officetelemetry",
+      "name": "Office telemetry and subscription tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry",
+        "office"
+      ],
+      "impact": "Office's own usage-reporting and licence-check tasks.",
+      "explain": "If Office or Microsoft 365 is installed, it registers tasks that report usage and check subscription state. Disabling the telemetry agent tasks does not affect licensing, which is validated by the Click-to-Run service. If Office is not installed these tasks do not exist and the option shows Unknown.",
+      "enableMeans": "The Office telemetry tasks run again.",
+      "disableMeans": "Disables the Office telemetry agent and logging tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Office\\OfficeTelemetryAgentFallBack",
+            "\\Microsoft\\Office\\OfficeTelemetryAgentLogOn",
+            "\\Microsoft\\Office\\OfficeTelemetryAgentFallBack2016",
+            "\\Microsoft\\Office\\OfficeTelemetryAgentLogOn2016",
+            "\\Microsoft\\Office\\Office ClickToRun Service Monitor",
+            "\\Microsoft\\Office\\Office Feature Updates Logon",
+            "\\Microsoft\\Office\\Office Automatic Updates 2.0"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.xbox",
+      "name": "Xbox Game Save and log tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "gaming",
+        "xbox"
+      ],
+      "impact": "Cloud save synchronisation and log collection for Game Pass titles.",
+      "explain": "These tasks sync game saves to the cloud and rotate Xbox logs. They pair with the Xbox services. If you play Game Pass titles, leave them enabled or you risk save sync problems. If you never touch the Microsoft gaming stack they are inert.",
+      "enableMeans": "Xbox save sync and log tasks run again.",
+      "disableMeans": "Disables the Xbox save sync and log tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\XblGameSave\\XblGameSaveTask",
+            "\\Microsoft\\XblGameSave\\XblGameSaveTaskLogon"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.maps",
+      "name": "Map data download tasks",
+      "risk": "safe",
+      "tags": [
+        "task"
+      ],
+      "impact": "Checks for and downloads offline map updates.",
+      "explain": "MapsToastTask and MapsUpdateTask wake up to check for map data. Since Windows Maps was retired these calls have little to fetch. If you removed the Maps app they have nothing to serve at all.",
+      "enableMeans": "Map update tasks run again.",
+      "disableMeans": "Disables the map download and notification tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Maps\\MapsToastTask",
+            "\\Microsoft\\Windows\\Maps\\MapsUpdateTask"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.feedback",
+      "name": "Feedback and Insider tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry",
+        "core"
+      ],
+      "impact": "Schedules feedback prompts and Insider build checks.",
+      "explain": "These tasks decide when to ask for feedback and, on Insider machines, when to check for a new preview build. On a stable-channel PC with feedback prompts already off, they are redundant.",
+      "enableMeans": "The feedback and Insider scheduling tasks run again.",
+      "disableMeans": "Disables the feedback prompt scheduling and Insider check tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Feedback\\Siuf\\DmClient",
+            "\\Microsoft\\Windows\\Feedback\\Siuf\\DmClientOnScenarioDownload",
+            "\\Microsoft\\Windows\\WindowsUpdate\\Scheduled Start"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.cloudexperience",
+      "name": "Cloud experience and account nag tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "ads",
+        "core"
+      ],
+      "impact": "The tasks behind the 'finish setting up your PC' prompts and account upsells.",
+      "explain": "These tasks schedule the SCOOBE wizard and the Microsoft account completion prompts. Disabling them stops the prompts being queued in the first place, which is more reliable than dismissing them each time.",
+      "enableMeans": "The setup and account prompt tasks run again.",
+      "disableMeans": "Disables the tasks that queue the finish-setup and account prompts.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Clip\\License Validation",
+            "\\Microsoft\\Windows\\PushToInstall\\LoginCheck",
+            "\\Microsoft\\Windows\\PushToInstall\\Registration",
+            "\\Microsoft\\Windows\\Subscription\\EnableLicenseAcquisition",
+            "\\Microsoft\\Windows\\Subscription\\LicenseAcquisition"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.autochk",
+      "name": "AutoChk proxy task",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry"
+      ],
+      "impact": "Uploads the results of boot-time disk checks as part of CEIP.",
+      "explain": "The Autochk Proxy task collects the outcome of chkdsk runs at boot and hands them to the CEIP pipeline. Disk checking itself happens in the boot loader and is entirely unaffected; only the reporting stops.",
+      "enableMeans": "The AutoChk proxy reporting task runs again.",
+      "disableMeans": "Disables the AutoChk proxy task. Disk checks still run at boot.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\AppID\\SmartScreenSpecific",
+            "\\Microsoft\\Windows\\Autochk\\Proxy"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.speech",
+      "name": "Speech model download tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "ai"
+      ],
+      "impact": "Downloads and updates offline speech recognition models.",
+      "explain": "These tasks fetch speech model updates for dictation and voice access. If you never dictate, they are periodic downloads for nothing. Disabling them does not remove already-installed models, so existing offline dictation keeps working.",
+      "enableMeans": "Speech model updates are downloaded again.",
+      "disableMeans": "Disables the speech model download tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Speech\\HeadsetButtonPress",
+            "\\Microsoft\\Windows\\Speech\\SpeechModelDownloadTask"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.defender.scans",
+      "name": "Microsoft Defender scheduled scan tasks",
+      "risk": "aggressive",
+      "tags": [
+        "task",
+        "security"
+      ],
+      "impact": "The scheduled full scans, cache maintenance and verification tasks for Defender.",
+      "explain": "These tasks run Defender's periodic scans and signature verification. Disabling them does not turn off real-time protection, but it does mean no scheduled sweeps and no cache maintenance, which reduces your chance of catching something that slipped past real-time. Only sensible if you have replaced Defender with another antivirus that does its own scheduling.",
+      "enableMeans": "Defender's scheduled scan and maintenance tasks run again.",
+      "disableMeans": "Disables Defender's scheduled scans and maintenance. Real-time protection is unaffected but you lose periodic sweeps.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Windows Defender\\Windows Defender Cache Maintenance",
+            "\\Microsoft\\Windows\\Windows Defender\\Windows Defender Cleanup",
+            "\\Microsoft\\Windows\\Windows Defender\\Windows Defender Scheduled Scan",
+            "\\Microsoft\\Windows\\Windows Defender\\Windows Defender Verification"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.oem.updaters",
+      "name": "Third-party updater tasks",
+      "risk": "moderate",
+      "tags": [
+        "task",
+        "oem",
+        "core"
+      ],
+      "impact": "Background update checkers installed by Google, Adobe, Edge, Office and OEM tools.",
+      "explain": "Every vendor installs its own scheduled updater, and they all wake up on login and on a timer. Disabling them means those applications stop updating themselves, which is a genuine security trade-off: you become responsible for updating Chrome, Edge and Adobe Reader yourself. Consider a package manager such as winget upgrade instead. Tasks that do not exist are skipped.",
+      "enableMeans": "The third-party updater tasks run again.",
+      "disableMeans": "Disables vendor background updaters. You must then update those apps yourself.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\GoogleUpdateTaskMachineCore",
+            "\\GoogleUpdateTaskMachineUA",
+            "\\GoogleSystem\\GoogleUpdater\\GoogleUpdaterTaskSystem118.0.6023.0",
+            "\\MicrosoftEdgeUpdateTaskMachineCore",
+            "\\MicrosoftEdgeUpdateTaskMachineUA",
+            "\\Adobe Acrobat Update Task",
+            "\\CCleaner Update",
+            "\\Opera scheduled Autoupdate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.wsrefresh",
+      "name": "Windows Store app auto-update tasks",
+      "risk": "moderate",
+      "tags": [
+        "task",
+        "store"
+      ],
+      "impact": "The tasks that check for and install Store app updates in the background.",
+      "explain": "Store apps update silently through these tasks. Disabling them stops background app updates, which is quieter and saves bandwidth but leaves apps on old versions with unpatched bugs. You can still update manually from the Store's Library page.",
+      "enableMeans": "Store apps update automatically again.",
+      "disableMeans": "Disables background Store app updates. Update manually from the Store Library.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\WindowsUpdate\\Refresh Group Policy Caches",
+            "\\Microsoft\\Windows\\InstallService\\ScanForUpdates",
+            "\\Microsoft\\Windows\\InstallService\\ScanForUpdatesAsUser",
+            "\\Microsoft\\Windows\\InstallService\\SmartRetry",
+            "\\Microsoft\\Windows\\InstallService\\WakeUpAndContinueUpdates",
+            "\\Microsoft\\Windows\\InstallService\\WakeUpAndScanForUpdates",
+            "\\Microsoft\\Windows\\InstallService\\RestoreDevice"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.updateorchestrator",
+      "name": "Update Orchestrator scan and reboot tasks",
+      "risk": "aggressive",
+      "tags": [
+        "task",
+        "update"
+      ],
+      "impact": "The tasks that scan for updates and schedule the reboot that installs them.",
+      "explain": "These are the scheduling half of Windows Update. Disabling them means updates stop being scanned for and pending reboots stop being scheduled, which is a quiet way to end up months behind on security patches without noticing. Windows also actively repairs these through the Update Medic service, so they often re-enable themselves. If you want control over update timing, use the deferral and active-hours options rather than this.",
+      "enableMeans": "The update scan and reboot scheduling tasks run again.",
+      "disableMeans": "Disables the update orchestrator tasks. Updates stop being scanned for and scheduled, and Windows may re-enable them by itself.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\UpdateOrchestrator\\Schedule Scan",
+            "\\Microsoft\\Windows\\UpdateOrchestrator\\Schedule Scan Static Task",
+            "\\Microsoft\\Windows\\UpdateOrchestrator\\Reboot_AC",
+            "\\Microsoft\\Windows\\UpdateOrchestrator\\Reboot_Battery",
+            "\\Microsoft\\Windows\\UpdateOrchestrator\\UpdateModelTask",
+            "\\Microsoft\\Windows\\WindowsUpdate\\sih"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.diagnosis",
+      "name": "Scheduled diagnostics and power efficiency analysis",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "telemetry"
+      ],
+      "impact": "Periodic diagnostic scenario runs and the power efficiency report generator.",
+      "explain": "These tasks run the built-in diagnostic scenarios and generate the power efficiency report that powercfg can print. They are the scheduled half of the diagnostic policy framework. Nothing depends on them unless you actually read those reports.",
+      "enableMeans": "The scheduled diagnostics and power analysis tasks run again.",
+      "disableMeans": "Disables the scheduled diagnostic and power efficiency tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Diagnosis\\Scheduled",
+            "\\Microsoft\\Windows\\Diagnosis\\RecommendedTroubleshootingScanner",
+            "\\Microsoft\\Windows\\Power Efficiency Diagnostics\\AnalyzeSystem",
+            "\\Microsoft\\Windows\\MemoryDiagnostic\\ProcessMemoryDiagnosticEvents",
+            "\\Microsoft\\Windows\\MemoryDiagnostic\\RunFullMemoryDiagnostic"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.licensemanager",
+      "name": "License and subscription refresh tasks",
+      "risk": "moderate",
+      "tags": [
+        "task",
+        "store"
+      ],
+      "impact": "Periodic revalidation of Store app licences and Windows subscription state.",
+      "explain": "These tasks refresh the licences that Store apps and subscription editions of Windows check against. On a retail machine with permanently licensed apps they are mostly redundant, but if you use Game Pass, a Microsoft 365 subscription or an education-licensed Windows, leave them alone: apps can stop launching when their licence goes stale.",
+      "enableMeans": "The licence refresh tasks run again.",
+      "disableMeans": "Disables the licence refresh tasks. Subscription-licensed apps may eventually refuse to start.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\License Manager\\TempSignedLicenseExchange",
+            "\\Microsoft\\Windows\\Subscription\\EnableLicenseAcquisition"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.retaildemo.cleanup",
+      "name": "Retail Demo content cleanup task",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "core"
+      ],
+      "impact": "Cleans up in-store demonstration content.",
+      "explain": "Pairs with the Retail Demo service. On a machine that was never a shop display unit there is nothing to clean up, and the task simply wakes and exits.",
+      "enableMeans": "The retail demo cleanup task runs again.",
+      "disableMeans": "Disables the retail demo cleanup task.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\RetailDemo\\CleanupOfflineContent"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.chkdsk.proactive",
+      "name": "Proactive disk scan",
+      "risk": "moderate",
+      "tags": [
+        "task"
+      ],
+      "impact": "Scans NTFS volumes in the background for corruption so a boot-time chkdsk is not needed.",
+      "explain": "ProactiveScan is the reason modern Windows rarely needs a long chkdsk at boot: it repairs filesystem corruption online while the machine is idle. Disabling it is not recommended, because corruption then accumulates until something forces a full offline scan. Listed for completeness rather than as advice.",
+      "enableMeans": "Proactive disk scanning runs again, the recommended state.",
+      "disableMeans": "Disables proactive disk scanning. Filesystem problems will go unrepaired until a full offline check runs.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Chkdsk\\ProactiveScan",
+            "\\Microsoft\\Windows\\Chkdsk\\SyspartRepair"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "task.sysmain.tasks",
+      "name": "SysMain and prefetch maintenance tasks",
+      "risk": "safe",
+      "tags": [
+        "task",
+        "perf"
+      ],
+      "impact": "The scheduled half of SysMain: rebuilding prefetch and application priority data.",
+      "explain": "These tasks rebuild the resource priority and prefetch databases that SysMain uses. If you disabled the SysMain service in Background Services, they have nothing left to feed and disabling them completes the job. On a machine where SysMain is still running, leave them.",
+      "enableMeans": "The SysMain maintenance tasks run again.",
+      "disableMeans": "Disables the SysMain and prefetch maintenance tasks.",
+      "actions": [
+        {
+          "kind": "task",
+          "tasks": [
+            "\\Microsoft\\Windows\\Sysmain\\ResPriStaticDbSync",
+            "\\Microsoft\\Windows\\Sysmain\\WsSwapAssessmentTask",
+            "\\Microsoft\\Windows\\Sysmain\\HybridDriveCachePrepopulate",
+            "\\Microsoft\\Windows\\Sysmain\\HybridDriveCacheRebalance"
+          ]
+        }
+      ]
+    }
+  ]
+}

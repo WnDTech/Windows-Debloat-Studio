@@ -1,0 +1,858 @@
+{
+  "schema": "debloat-presets/1",
+  "presets": [
+    {
+      "id": "builtin.privacy-essentials",
+      "name": "Privacy Essentials",
+      "glyph": "",
+      "risk": "safe",
+      "summary": "Stops the data collection and the advertising surfaces, and changes nothing else. The one to start with if you are unsure.",
+      "detail": "• Pins diagnostic data to the minimum your edition allows and stops the telemetry uploader service\n• Clears the advertising ID, activity history, tailored experiences and the feedback prompts\n• Switches off every suggestion, tip and promoted-app surface in Start, Settings, the lock screen and File Explorer\n• Turns off Copilot, Recall and the AI data collection channels\n• Disables the compatibility appraiser and CEIP scheduled tasks, so CompatTelRunner stops running\n• Leaves every app installed, every service you use running, and all security features on",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "priv.clipboardhistory"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ads"
+          ],
+          "risk": [
+            "safe"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ai"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "ai.textprediction"
+          ]
+        },
+        {
+          "action": "Disable",
+          "ids": [
+            "task.appraiser",
+            "task.ceip",
+            "task.wer",
+            "task.diskdiagnostic",
+            "task.feedback",
+            "task.cloudexperience",
+            "task.autochk",
+            "ads.explorer.syncprovider",
+            "edge.newtabcontent",
+            "edge.searchsuggestions",
+            "edge.crashreports",
+            "edge.sync",
+            "edge.sidebarapps"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "edge.trackingprevention"
+          ]
+        }
+      ],
+      "tier": "free"
+    },
+    {
+      "id": "builtin.recommended",
+      "name": "Recommended Desktop",
+      "glyph": "",
+      "risk": "moderate",
+      "summary": "The full sensible pass for a personal desktop: privacy, adverts, junk apps and the Windows 11 interface annoyances.",
+      "detail": "• Everything in Privacy Essentials\n• Removes the clearly disposable preinstalled apps: News, Weather, Clipchamp, Solitaire, Teams consumer, Skype, Maps, Tips, Get Help, Feedback Hub, Dev Home, Mixed Reality leftovers and the sponsored third-party apps\n• Leaves Photos, Paint, Notepad, Snipping Tool, Calculator, Terminal and the Store alone, because removing those costs you more than it gains\n• Left-aligns the taskbar, hides Widgets and Chat, shows file extensions, opens Explorer to This PC and turns off the File Explorer advertising banner\n• Disables the telemetry scheduled tasks and the services that genuinely do nothing on a desktop: Fax, Retail Demo, Remote Registry, Downloaded Maps, Wallet and Xbox background services\n• Does not touch Defender, the firewall, UAC, Windows Update or anything marked Aggressive",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "priv.clipboardhistory"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ads"
+          ],
+          "risk": [
+            "safe",
+            "moderate"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ai"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "ai.textprediction"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "tasks"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "task.familysafety",
+            "task.officetelemetry"
+          ]
+        },
+        {
+          "action": "Disable",
+          "ids": [
+            "app.bing.news",
+            "app.bing.weather",
+            "app.clipchamp",
+            "app.teams",
+            "app.solitaire",
+            "app.officehub",
+            "app.outlook.new",
+            "app.mailcalendar",
+            "app.getstarted",
+            "app.gethelp",
+            "app.feedbackhub",
+            "app.maps",
+            "app.people",
+            "app.skype",
+            "app.todo",
+            "app.mixedreality",
+            "app.onenote",
+            "app.powerautomate",
+            "app.journal",
+            "app.oem.bundled",
+            "app.devhome",
+            "app.quickassist",
+            "app.familysafety",
+            "app.copilot",
+            "app.widgets.package",
+            "svc.fax",
+            "svc.retaildemo",
+            "svc.remoteregistry",
+            "svc.remoteaccess",
+            "svc.mapsbroker",
+            "svc.walletservice",
+            "svc.phonesvc",
+            "svc.xbox",
+            "svc.wisvc",
+            "svc.wmpnetworksvc",
+            "svc.wpnuser.tiles",
+            "svc.pcasvc",
+            "svc.smbclient.browser",
+            "ui.taskbar.align",
+            "ui.taskbar.widgets",
+            "ui.taskbar.chat",
+            "ui.taskbar.copilotbutton",
+            "ui.explorer.extensions",
+            "ui.explorer.launchto",
+            "ui.explorer.gallery",
+            "ui.explorer.compact",
+            "ui.contextmenu.classic",
+            "ui.animations",
+            "ui.lockscreen.tipsonlogin",
+            "upd.autorestart",
+            "upd.restartnotify",
+            "upd.deliveryopt.mode",
+            "upd.store.pushtoinstall",
+            "sec.smb1",
+            "sec.llmnr",
+            "sec.powershell2",
+            "sec.wdigest",
+            "sec.remoteassistance",
+            "feat.ie11",
+            "feat.xpsviewer",
+            "feat.faxscan",
+            "feat.stepsrecorder",
+            "feat.quickassist.cap",
+            "od.folderbackup",
+            "od.explorer.pin",
+            "edge.startupboost",
+            "edge.backgroundmode",
+            "edge.newtabcontent",
+            "edge.searchsuggestions",
+            "edge.crashreports",
+            "edge.collections",
+            "edge.sidebarapps",
+            "edge.importprompt",
+            "edge.pdf",
+            "svc.ajrouter",
+            "svc.alg",
+            "svc.trkwks",
+            "svc.peerdist",
+            "svc.snmptrap",
+            "svc.qwave",
+            "svc.spectrum",
+            "svc.wercplsupport",
+            "svc.tiering",
+            "app.cortana.pkg",
+            "app.whiteboard",
+            "app.crossdevice",
+            "task.retaildemo.cleanup",
+            "task.diagnosis"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "ui.taskbar.endtask",
+            "adv.verbose.status",
+            "perf.longpaths",
+            "edge.trackingprevention",
+            "edge.sleepingtabs"
+          ]
+        }
+      ],
+      "tier": "pro"
+    },
+    {
+      "id": "builtin.win10feel",
+      "name": "Windows 10 Feel",
+      "glyph": "",
+      "risk": "safe",
+      "summary": "Interface only. Puts the shell back the way Windows 10 behaved, and touches nothing else at all.",
+      "detail": "• Taskbar aligned left with the Start button in the corner\n• Full classic right-click menu with no 'Show more options' step\n• File extensions and hidden files shown, Explorer opens to This PC, compact row spacing\n• Search box, Widgets, Chat and Copilot buttons removed from the taskbar\n• Taskbar buttons never combined, with window labels, and a taskbar on every monitor\n• Recommended section, recent files and account nags removed from Start\n• No telemetry, service, app or security changes whatsoever",
+      "rules": [
+        {
+          "action": "Disable",
+          "ids": [
+            "ui.taskbar.align",
+            "ui.taskbar.search",
+            "ui.taskbar.widgets",
+            "ui.taskbar.chat",
+            "ui.taskbar.copilotbutton",
+            "ui.taskbar.grouping",
+            "ui.contextmenu.classic",
+            "ui.explorer.extensions",
+            "ui.explorer.hiddenfiles",
+            "ui.explorer.launchto",
+            "ui.explorer.gallery",
+            "ui.explorer.compact",
+            "ui.explorer.onedrivepane",
+            "ui.explorer.3dobjects",
+            "ui.snap.assist",
+            "ads.start.recommended",
+            "ads.start.accountnotify",
+            "ads.explorer.syncprovider",
+            "ads.search.highlights"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "ui.taskbar.multimon",
+            "ui.taskbar.endtask",
+            "ui.explorer.fullpath"
+          ]
+        }
+      ],
+      "tier": "free"
+    },
+    {
+      "id": "builtin.quiet",
+      "name": "Quiet Machine",
+      "glyph": "",
+      "risk": "safe",
+      "summary": "Removes every prompt, banner, tip and nag Windows shows you, and leaves everything functional.",
+      "detail": "• All suggestion and promoted-content surfaces off: Start, Settings, lock screen, notification centre, File Explorer\n• No 'finish setting up your device' wizard, no account badges, no Windows tips\n• Update restart reminders suppressed and automatic restarts blocked while you are signed in, with active hours pinned to 6am–11pm\n• Edge first-run tour, default-browser prompts and shopping features suppressed\n• Store marketing notifications and Game Bar promotions silenced\n• Firewall block prompts and Task Manager efficiency-mode confirmations removed\n• Updates still install and every security feature stays on",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "ads"
+          ]
+        },
+        {
+          "action": "Disable",
+          "ids": [
+            "priv.feedback",
+            "app.getstarted",
+            "upd.autorestart",
+            "upd.restartnotify",
+            "upd.activehours",
+            "sec.firewall.notify",
+            "ui.taskmanager.efficiency",
+            "task.feedback",
+            "task.cloudexperience",
+            "ui.lockscreen.tipsonlogin",
+            "edge.newtabcontent",
+            "edge.importprompt",
+            "edge.sidebarapps",
+            "edge.collections"
+          ]
+        }
+      ],
+      "tier": "pro"
+    },
+    {
+      "id": "builtin.gaming",
+      "name": "Gaming Rig",
+      "glyph": "",
+      "risk": "moderate",
+      "summary": "Latency and frame-pacing work on a desktop, plus the privacy pass. Keeps the Xbox sign-in broker so games still authenticate.",
+      "detail": "• Game DVR background recording off, which is the one gaming setting with a reliably measurable effect\n• Fullscreen optimisations off, mouse acceleration off, network packet throttling and the multimedia CPU reservation removed\n• Nagle's algorithm disabled on every adapter, core parking and PCIe link-state power saving turned off, Ultimate Performance power plan activated\n• Visual effects, transparency and menu delays reduced\n• Sticky Keys and Filter Keys shortcuts disabled so Shift no longer opens a dialog mid-game\n• Full privacy and advertising pass, telemetry tasks disabled\n• Deliberately keeps the Xbox Identity Provider, memory integrity, Defender and the CPU mitigations, because removing those breaks anti-cheat or the machine's security\n• Ultimate Performance and core parking changes are for a desktop. Do not use this preset on a laptop running on battery.",
+      "warning": "This preset activates the Ultimate Performance power plan and stops CPU cores being parked. On a laptop that will noticeably shorten battery life. Use the Laptop preset instead.",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "priv.clipboardhistory"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ads"
+          ],
+          "risk": [
+            "safe"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ai"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "ai.textprediction"
+          ]
+        },
+        {
+          "action": "Disable",
+          "ids": [
+            "perf.gamedvr",
+            "perf.gamebar",
+            "perf.fso",
+            "perf.nagle",
+            "perf.netthrottle",
+            "perf.startupdelay",
+            "perf.menudelay",
+            "perf.usbselectivesuspend",
+            "ui.animations",
+            "ui.transparency",
+            "ui.mousekeyboard.accel",
+            "ui.stickykeys",
+            "ui.taskbar.widgets",
+            "ui.taskbar.chat",
+            "ui.taskbar.copilotbutton",
+            "task.appraiser",
+            "task.ceip",
+            "task.diskdiagnostic",
+            "svc.sysmain",
+            "svc.wisvc",
+            "svc.retaildemo",
+            "svc.fax",
+            "app.bing.news",
+            "app.bing.weather",
+            "app.clipchamp",
+            "app.getstarted",
+            "app.oem.bundled",
+            "upd.autorestart",
+            "upd.restartnotify",
+            "upd.deliveryopt.mode",
+            "edge.startupboost",
+            "edge.backgroundmode",
+            "edge.newtabcontent",
+            "edge.sidebarapps",
+            "svc.ajrouter",
+            "svc.alg",
+            "svc.snmptrap",
+            "svc.spectrum",
+            "svc.trkwks",
+            "app.cortana.pkg"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "perf.powerplan.ultimate",
+            "perf.gamespriority",
+            "perf.corepark",
+            "perf.pcielinkstate",
+            "ui.taskbar.endtask"
+          ]
+        }
+      ],
+      "tier": "pro"
+    },
+    {
+      "id": "builtin.laptop",
+      "name": "Laptop & Battery",
+      "glyph": "",
+      "risk": "safe",
+      "summary": "The privacy and advert pass with the power-hungry tweaks deliberately left out, plus the settings that reduce background work.",
+      "detail": "• Full privacy, telemetry and advertising pass\n• Telemetry scheduled tasks off, so CompatTelRunner stops waking the machine and draining battery\n• Widgets platform removed, which stops a WebView process refreshing on a timer\n• Delivery Optimization restricted to your local network so the laptop stops uploading updates over a tethered connection\n• Search highlights, Spotlight and the news feed off, removing several periodic network calls\n• Automatic restarts blocked while signed in and active hours pinned to daytime\n• Deliberately keeps location services, automatic time zone, Bluetooth, sensors, adaptive brightness, hibernation and core parking, all of which a laptop needs\n• No power plan changes, so battery life is unaffected",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "priv.clipboardhistory",
+            "priv.findmydevice"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ads"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ai"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "ai.textprediction"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "tasks"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "task.familysafety",
+            "task.defender.scans",
+            "task.oem.updaters",
+            "task.wsrefresh"
+          ]
+        },
+        {
+          "action": "Disable",
+          "ids": [
+            "app.widgets.package",
+            "app.bing.news",
+            "app.clipchamp",
+            "app.getstarted",
+            "app.oem.bundled",
+            "app.solitaire",
+            "app.copilot",
+            "svc.retaildemo",
+            "svc.fax",
+            "svc.wisvc",
+            "svc.wmpnetworksvc",
+            "upd.autorestart",
+            "upd.restartnotify",
+            "upd.activehours",
+            "upd.deliveryopt.mode",
+            "ui.taskbar.widgets",
+            "ui.taskbar.chat",
+            "ui.animations",
+            "ui.transparency",
+            "edge.startupboost",
+            "edge.backgroundmode",
+            "edge.newtabcontent",
+            "edge.sidebarapps",
+            "edge.crashreports",
+            "svc.ajrouter",
+            "svc.alg",
+            "svc.snmptrap",
+            "svc.spectrum",
+            "app.cortana.pkg"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "edge.sleepingtabs",
+            "edge.trackingprevention"
+          ]
+        }
+      ],
+      "tier": "pro"
+    },
+    {
+      "id": "builtin.security",
+      "name": "Security Hardening",
+      "glyph": "",
+      "risk": "moderate",
+      "summary": "The only preset that mostly uses Enable. Closes legacy protocols and turns on protections Windows leaves off by default.",
+      "detail": "• Removes SMBv1, PowerShell 2.0, LLMNR, NetBIOS, WPAD, WDigest credential caching and TLS 1.0/1.1\n• Blocks Remote Desktop, Remote Assistance, remote registry and anonymous share enumeration\n• Turns ON LSA protection, controlled folder access, attack surface reduction rules and SMB client signing, which Windows does not enable by itself\n• Blocks AutoRun on every drive type and stops insecure guest logons to shares\n• Removes Quick Assist, the tool support scammers ask people to open\n• Deliberately leaves Defender, SmartScreen, the firewall, UAC and memory integrity fully enabled\n• Controlled folder access and ASR rules will occasionally block a legitimate program. You allow it once and it stays allowed.",
+      "warning": "Controlled folder access and attack surface reduction rules can block legitimate software, most often games saving to Documents and Office macros that launch other programs. Both are easy to allow per-application afterwards, but expect one or two prompts in the first week.",
+      "rules": [
+        {
+          "action": "Disable",
+          "ids": [
+            "sec.smb1",
+            "sec.llmnr",
+            "sec.netbios",
+            "sec.powershell2",
+            "sec.wdigest",
+            "sec.rdp",
+            "sec.remoteassistance",
+            "sec.autorun.policy",
+            "sec.anonymous.enum",
+            "sec.dotnet.oldtls",
+            "sec.bitlocker.autoencrypt",
+            "sec.msaccount.required",
+            "net.wpad",
+            "net.guestaccess",
+            "net.p2p.grouping",
+            "net.wlansvc.autoconnect",
+            "svc.remoteregistry",
+            "svc.remoteaccess",
+            "svc.smbclient.browser",
+            "app.quickassist",
+            "feat.quickassist.cap",
+            "feat.simpletcp",
+            "feat.telnetclient",
+            "feat.ie11",
+            "feat.opensshserver",
+            "ui.explorer.autoplay",
+            "priv.wifisense",
+            "edge.iemode",
+            "edge.autofill",
+            "edge.sync",
+            "svc.winrm",
+            "svc.snmptrap",
+            "svc.alg",
+            "svc.peerdist",
+            "svc.trkwks"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "sec.lsa.protection",
+            "sec.controlledfolder",
+            "sec.asr.rules",
+            "net.smbclient.signing",
+            "net.doh",
+            "ui.explorer.extensions",
+            "edge.trackingprevention"
+          ]
+        }
+      ],
+      "tier": "pro"
+    },
+    {
+      "id": "builtin.developer",
+      "name": "Developer Workstation",
+      "glyph": "",
+      "risk": "moderate",
+      "summary": "Privacy and advert pass, plus the developer conveniences Windows ships turned off, and none of the tweaks that break tooling.",
+      "detail": "• Full privacy, telemetry and advertising pass\n• Turns ON long path support, developer mode and sideloading, verbose sign-in messages, End Task on the taskbar, and the full file path in Explorer title bars\n• Turns ON Windows Sandbox and the WSL platform so you can install a distribution\n• Removes the disposable preinstalled apps but explicitly keeps Terminal, Notepad, Snipping Tool, the Store and WebView2, all of which developer tooling depends on\n• Disables NTFS last-access timestamps, which measurably speeds up large builds and repository scans\n• Removes PowerShell 2.0 and Windows Script Host is left alone, because some installers still need it\n• Does not disable Windows Search, since Explorer and editor search depend on the index",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "priv.clipboardhistory"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ads"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "ai"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "ai.textprediction"
+          ]
+        },
+        {
+          "action": "Disable",
+          "ids": [
+            "task.appraiser",
+            "task.ceip",
+            "task.wer",
+            "task.diskdiagnostic",
+            "task.feedback",
+            "app.bing.news",
+            "app.bing.weather",
+            "app.clipchamp",
+            "app.solitaire",
+            "app.getstarted",
+            "app.gethelp",
+            "app.oem.bundled",
+            "app.mixedreality",
+            "app.journal",
+            "app.teams",
+            "svc.fax",
+            "svc.retaildemo",
+            "svc.remoteregistry",
+            "svc.mapsbroker",
+            "svc.walletservice",
+            "perf.lastaccess",
+            "sec.smb1",
+            "sec.powershell2",
+            "sec.llmnr",
+            "ui.taskbar.widgets",
+            "ui.taskbar.chat",
+            "ui.contextmenu.classic",
+            "ui.explorer.extensions",
+            "ui.explorer.hiddenfiles",
+            "ui.explorer.launchto",
+            "upd.autorestart",
+            "upd.restartnotify",
+            "od.folderbackup",
+            "edge.startupboost",
+            "edge.backgroundmode",
+            "edge.newtabcontent",
+            "edge.sidebarapps",
+            "edge.crashreports",
+            "svc.ajrouter",
+            "svc.alg",
+            "svc.snmptrap",
+            "svc.spectrum",
+            "app.cortana.pkg"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "perf.longpaths",
+            "adv.developermode",
+            "adv.verbose.status",
+            "ui.taskbar.endtask",
+            "ui.explorer.fullpath",
+            "feat.sandbox",
+            "feat.wsl",
+            "feat.opensshclient",
+            "edge.sleepingtabs"
+          ]
+        }
+      ],
+      "tier": "pro"
+    },
+    {
+      "id": "builtin.shared",
+      "name": "Shared or Family PC",
+      "glyph": "",
+      "risk": "safe",
+      "summary": "For a machine other people use. Removes the marketing and the remote-access tools, and leaves every protection in place.",
+      "detail": "• Full advertising and suggestion removal, so nobody is upsold a subscription\n• Telemetry reduced to the minimum and the advertising ID cleared\n• Removes Quick Assist and blocks Remote Assistance and Remote Desktop, closing the routes support scammers talk people through\n• Blocks AutoRun on removable media and disables Windows Script Host, the two classic ways a stranger's USB stick or an email attachment runs code\n• Removes the sponsored third-party apps and the games with adverts in them\n• Deliberately keeps Defender, SmartScreen, the firewall, UAC, parental controls and Family Safety all fully enabled\n• Deliberately keeps Photos, Paint, Notepad, Calculator, Snipping Tool and the Store, because someone else will expect them to be there",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "ads"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy"
+          ],
+          "risk": [
+            "safe"
+          ],
+          "excludeIds": [
+            "priv.clipboardhistory",
+            "priv.settingsync"
+          ]
+        },
+        {
+          "action": "Disable",
+          "ids": [
+            "ai.copilot.windows",
+            "ai.recall",
+            "ai.clicktodo",
+            "ai.datacollection",
+            "app.quickassist",
+            "feat.quickassist.cap",
+            "app.solitaire",
+            "app.oem.bundled",
+            "app.bing.news",
+            "app.getstarted",
+            "app.copilot",
+            "sec.rdp",
+            "sec.remoteassistance",
+            "sec.wsh",
+            "sec.autorun.policy",
+            "svc.remoteregistry",
+            "svc.remoteaccess",
+            "ui.explorer.autoplay",
+            "task.appraiser",
+            "task.ceip",
+            "upd.restartnotify",
+            "edge.newtabcontent",
+            "edge.sidebarapps",
+            "edge.importprompt",
+            "edge.autofill",
+            "svc.winrm"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "ui.explorer.extensions",
+            "sec.lsa.protection",
+            "edge.trackingprevention"
+          ]
+        }
+      ],
+      "tier": "pro"
+    },
+    {
+      "id": "builtin.maximum",
+      "name": "Maximum Debloat",
+      "glyph": "",
+      "risk": "aggressive",
+      "summary": "Everything the catalogue can safely disable, plus a number of things it cannot. Read the warning, then go through the list yourself.",
+      "detail": "• Stages Disable on every Safe and Moderate option in every category\n• Removes nearly all preinstalled apps, including Photos, Paint, Notepad, Snipping Tool and Media Player, so you will need replacements for those\n• Disables Windows Search indexing, the print spooler, push notifications, Bluetooth, network discovery, SMB file sharing and the connected devices platform\n• Disables the diagnostic framework, so the Settings troubleshooters stop working\n• Strips every Microsoft Edge surface: new tab feed, sidebar, collections, startup boost, background mode and sync\n• Deliberately excludes everything marked Aggressive: Defender, the firewall, UAC, SmartScreen, memory integrity, the CPU mitigations, Windows Update, IPv6, the Microsoft Store and the Xbox Identity Provider are all left alone\n• This is a starting point for a deliberate, sparse machine. It is not a recommendation.",
+      "warning": "This stages well over a hundred changes at once, including several that remove functionality you probably use: Windows Search indexing, printing, Bluetooth, network file sharing and push notifications all stop working. Review the list on the confirmation screen and untick anything you need. Take a restore point first.",
+      "rules": [
+        {
+          "action": "Disable",
+          "risk": [
+            "safe",
+            "moderate"
+          ],
+          "excludeIds": [
+            "app.store",
+            "app.edge.webview",
+            "app.xbox.identity",
+            "app.terminal",
+            "svc.defrag",
+            "svc.superfetch.prefetch",
+            "adv.recyclebin.size",
+            "adv.componentstore.cleanup",
+            "adv.windowsold",
+            "adv.eventlogs",
+            "adv.wu.cache",
+            "sec.smartappcontrol",
+            "sec.defender.cloud",
+            "net.ipv6",
+            "net.metered.default",
+            "upd.wufb.disable",
+            "upd.notifyonly",
+            "upd.defer.feature",
+            "feat.mediafeatures",
+            "feat.printtopdf",
+            "feat.dotnet35",
+            "feat.hyperv",
+            "od.uninstall",
+            "perf.pagefile.systemmanaged",
+            "perf.mitigations",
+            "perf.vbs",
+            "perf.memorycompression",
+            "adv.hibernation.file",
+            "adv.gpupdate.consumer",
+            "adv.startupfolder.audit",
+            "adv.tempfiles",
+            "adv.thumbnailcache.clear",
+            "adv.deliveryopt.cache",
+            "feat.opensshclient",
+            "feat.speechcap",
+            "feat.handwriting",
+            "net.icmp.ping",
+            "ui.notifications.master",
+            "ui.darkmode",
+            "ui.taskbar.multimon",
+            "ui.taskbar.seconds",
+            "ui.taskbar.endtask",
+            "ui.explorer.fullpath",
+            "perf.longpaths",
+            "perf.storagesense",
+            "adv.developermode",
+            "adv.verbose.status",
+            "adv.fastboot.menu",
+            "adv.crashdump",
+            "feat.sandbox",
+            "feat.wsl",
+            "net.doh",
+            "sec.lsa.protection",
+            "sec.controlledfolder",
+            "sec.asr.rules",
+            "net.smbclient.signing",
+            "net.guestaccess",
+            "sec.anonymous.enum",
+            "sec.dotnet.oldtls",
+            "sec.autorun.policy",
+            "sec.bitlocker.autoencrypt",
+            "edge.trackingprevention",
+            "edge.sleepingtabs",
+            "edge.pdf",
+            "task.chkdsk.proactive",
+            "task.licensemanager",
+            "svc.smartcard"
+          ]
+        },
+        {
+          "action": "Enable",
+          "ids": [
+            "ui.explorer.extensions",
+            "ui.taskbar.endtask",
+            "edge.trackingprevention",
+            "edge.sleepingtabs"
+          ]
+        }
+      ],
+      "tier": "pro"
+    },
+    {
+      "id": "builtin.revert-all",
+      "name": "Put Everything Back",
+      "glyph": "",
+      "risk": "safe",
+      "summary": "Stages Revert on every option in the catalogue. The considered alternative to the Undo button in the footer.",
+      "detail": "• Sets Revert on all options, so each one goes back to the value it had before this app first touched it\n• Options this app has never changed are skipped automatically, so nothing is set to a guessed default\n• Unlike the Undo button, this stages the changes first so you can review the list, and you can untick anything you want to keep\n• Apps that were removed are reinstalled from local payload where it still exists; where it does not, the log tells you which ones to fetch from the Store\n• The cleanup options in Advanced deleted data and cannot be undone by this or by anything else",
+      "rules": [
+        {
+          "action": "Revert"
+        }
+      ],
+      "tier": "free"
+    }
+  ]
+}

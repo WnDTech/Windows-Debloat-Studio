@@ -1,0 +1,87 @@
+# Builds and tests Windows Debloat Studio on a clean Windows runner.
+#
+# This exists for two reasons. The obvious one is catching anything that only
+# works on the developer's machine. The other is that SignPath Foundation - the
+# free code-signing programme for open-source projects - will only sign
+# artefacts produced by a build pipeline it can inspect, not files uploaded from
+# someone's laptop. So the release exe has to come from here.
+#
+# Nothing is installed: the build uses the C# compiler already present in the
+# .NET Framework on every Windows image, which is the same compiler the app uses
+# at runtime for its view-models.
+
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Catalogue integrity
+        shell: pwsh
+        run: python tools/Validate-Catalog.py
+
+      # -STA is required: the UI test builds real WPF objects, and WPF will not
+      # start on a multi-threaded apartment.
+      - name: Engine tests
+        shell: powershell
+        run: powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\Test-Engine.ps1
+
+      - name: Licence and entitlement tests
+        shell: powershell
+        run: powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\Test-License.ps1
+
+      - name: UI smoke test
+        shell: powershell
+        run: powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\Test-Ui.ps1
+
+      - name: Build the exe
+        shell: powershell
+        run: powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools\Build-Exe.ps1
+
+      # Checks what is actually inside the built file: no dev-only folders, no
+      # machine identifiers, no licence key, and timestamps preserved.
+      - name: Inspect the package
+        shell: powershell
+        run: powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File tools\Test-Package.ps1
+
+      - name: Publish the unsigned build
+        uses: actions/upload-artifact@v4
+        with:
+          name: WindowsDebloatStudio-unsigned
+          path: |
+            dist/WindowsDebloatStudio.exe
+            dist/WindowsDebloatStudio.exe.sha256
+          if-no-files-found: error
+
+      # ------------------------------------------------------------------
+      # Signing goes here once SignPath approves the project. It collects the
+      # artefact above, signs it in their infrastructure and returns it, so no
+      # certificate or private key is ever present in this repository or in a
+      # GitHub secret. Left commented rather than removed so the shape of it is
+      # obvious when the time comes.
+      #
+      # - name: Sign with SignPath
+      #   uses: signpath/github-action-submit-signing-request@v1
+      #   with:
+      #     api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+      #     organization-id: '<from the SignPath dashboard>'
+      #     project-slug: 'windows-debloat-studio'
+      #     signing-policy-slug: 'release-signing'
+      #     github-artifact-id: '${{ steps.upload.outputs.artifact-id }}'
+      #     wait-for-completion: true
+      #     output-artifact-directory: 'dist-signed'
+      # ------------------------------------------------------------------

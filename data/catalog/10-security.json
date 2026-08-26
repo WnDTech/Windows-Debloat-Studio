@@ -1,0 +1,801 @@
+{
+  "category": {
+    "key": "security",
+    "name": "Security & Defender",
+    "glyph": "",
+    "order": 100,
+    "blurb": "This category cuts both ways. Some options here make the machine safer by closing legacy protocols and old scripting hosts that nothing modern uses. Others weaken real defences and are marked Aggressive with an explicit warning. Read the explanation on anything red before you stage it. Nothing here is applied until you press Apply, and everything can be reverted."
+  },
+  "tweaks": [
+    {
+      "id": "sec.smb1",
+      "name": "SMBv1 file sharing protocol",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "network",
+        "legacy",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The 1990s file sharing protocol exploited by WannaCry and NotPetya.",
+      "explain": "SMBv1 has no message signing, no encryption and a long list of remote code execution flaws. Modern Windows uses SMBv2 and v3. Microsoft removes SMBv1 on clean installs but upgraded machines and some OEM images still have it. The only things that need it are printers and NAS devices manufactured before roughly 2010. Disabling it is one of the clearest security wins available.",
+      "enableMeans": "Reinstalls SMBv1 support, which is strongly discouraged.",
+      "disableMeans": "Removes the SMBv1 client and server. Very old NAS boxes and printers may become unreachable.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "SMB1Protocol"
+        }
+      ]
+    },
+    {
+      "id": "sec.llmnr",
+      "name": "LLMNR and mDNS name resolution",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "network",
+        "legacy",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Broadcast name lookups that leak credentials to anyone on the same network.",
+      "explain": "When DNS fails, Windows shouts the name onto the local network and trusts whoever answers. Attack tools such as Responder exploit exactly this to capture NTLM hashes, and it is the standard first move on a corporate network penetration test. Disabling LLMNR is standard hardening guidance. The cost is that some peer-to-peer discovery on flat home networks stops resolving by name; addresses and proper DNS names still work.",
+      "enableMeans": "Allows LLMNR multicast name resolution again.",
+      "disableMeans": "Turns off LLMNR so Windows no longer broadcasts name lookups.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows NT\\DNSClient",
+          "name": "EnableMulticast",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Services\\Dnscache\\Parameters",
+          "name": "EnableMDNS",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.netbios",
+      "name": "NetBIOS over TCP/IP",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "network",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "Another legacy broadcast name service with the same credential-leaking problem as LLMNR.",
+      "explain": "NetBIOS name service predates DNS and behaves the same way: it broadcasts and trusts the reply. It is also used by network scanners to fingerprint machines. Disabling it on every interface removes another relay attack path. Very old file shares referenced by NetBIOS name may stop resolving.",
+      "enableMeans": "Restores default NetBIOS behaviour on all interfaces.",
+      "disableMeans": "Disables NetBIOS over TCP/IP on every network interface.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$ifs = Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NetBT\\Parameters\\Interfaces' -ErrorAction SilentlyContinue; $n = 0; $t = 0; foreach ($i in $ifs) { $t++; if ((Get-ItemProperty $i.PSPath -Name NetbiosOptions -ErrorAction SilentlyContinue).NetbiosOptions -eq 2) { $n++ } }; if ($t -eq 0) { 'Unknown' } elseif ($n -eq $t) { 'Disabled' } elseif ($n -eq 0) { 'Enabled' } else { 'Mixed' }",
+          "enable": "Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NetBT\\Parameters\\Interfaces' | ForEach-Object { New-ItemProperty $_.PSPath -Name NetbiosOptions -Value 0 -PropertyType DWord -Force | Out-Null }",
+          "disable": "Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\NetBT\\Parameters\\Interfaces' | ForEach-Object { New-ItemProperty $_.PSPath -Name NetbiosOptions -Value 2 -PropertyType DWord -Force | Out-Null }"
+        }
+      ]
+    },
+    {
+      "id": "sec.powershell2",
+      "name": "PowerShell 2.0 engine",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "legacy",
+        "core"
+      ],
+      "restart": true,
+      "impact": "An old PowerShell engine that bypasses modern script logging and AMSI scanning.",
+      "explain": "Attackers explicitly downgrade to PowerShell 2.0 because it predates script block logging, transcription and antimalware scanning. Nothing written this decade needs it. Removing the engine closes a well-known evasion technique and is recommended by every hardening guide. PowerShell 5.1 and 7 are unaffected.",
+      "enableMeans": "Reinstalls the PowerShell 2.0 engine, which is discouraged.",
+      "disableMeans": "Removes the PowerShell 2.0 engine so scripts cannot downgrade to evade logging.",
+      "actions": [
+        {
+          "kind": "feature",
+          "name": "MicrosoftWindowsPowerShellV2Root"
+        }
+      ]
+    },
+    {
+      "id": "sec.wsh",
+      "name": "Windows Script Host (VBScript and JScript)",
+      "risk": "moderate",
+      "tags": [
+        "security",
+        "legacy",
+        "core"
+      ],
+      "impact": "The engine that runs .vbs and .js files when you double-click them.",
+      "explain": "Script-based malware delivered by email has relied on VBScript through Windows Script Host for two decades. Disabling WSH stops .vbs and .js files executing from Explorer entirely. The risk is that some installers, older enterprise login scripts and a few legitimate utilities are written in VBScript and will stop working. Check before applying this on a work machine.",
+      "enableMeans": "Windows Script Host runs .vbs and .js files again.",
+      "disableMeans": "Blocks Windows Script Host so script files cannot execute. Some legacy installers may break.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows Script Host\\Settings",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows Script Host\\Settings",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.smartscreen",
+      "name": "SmartScreen reputation checks",
+      "risk": "aggressive",
+      "tags": [
+        "security",
+        "core"
+      ],
+      "impact": "Warns before running downloaded programs and visiting sites with a bad reputation.",
+      "explain": "SmartScreen sends a hash of downloaded executables, and in Edge the URLs you visit, to Microsoft for a reputation verdict. That is a genuine privacy cost and a genuine protection: it is the thing that stops most people running the malware they just downloaded. Disabling it removes the nag on unsigned software you trust and removes the warning on the malware you did not mean to download. Consider leaving it on and just clicking through when you know better.",
+      "enableMeans": "SmartScreen reputation checking is on for apps and for Edge.",
+      "disableMeans": "Turns off SmartScreen. You will get no warning before running unrecognised downloaded programs.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "EnableSmartScreen",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer",
+          "name": "SmartScreenEnabled",
+          "type": "String",
+          "enable": "Warn",
+          "disable": "Off"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "SmartScreenEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppHost",
+          "name": "EnableWebContentEvaluation",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.defender.cloud",
+      "name": "Defender cloud protection and sample submission",
+      "risk": "moderate",
+      "tags": [
+        "security",
+        "telemetry",
+        "core"
+      ],
+      "impact": "Whether Defender consults Microsoft's cloud and uploads suspicious files it finds.",
+      "explain": "Cloud-delivered protection lets Defender check a file against Microsoft's live intelligence, which catches new threats hours before a signature update would. Automatic sample submission uploads files it is unsure about, and those files may contain your data. Disabling submission while keeping cloud lookups is a reasonable middle ground, but this option turns off both, which measurably reduces detection of new malware.",
+      "enableMeans": "Cloud protection and automatic sample submission are on.",
+      "disableMeans": "Turns off cloud-delivered protection and stops files being uploaded to Microsoft. Detection of brand-new malware gets worse.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet",
+          "name": "SpynetReporting",
+          "type": "DWord",
+          "enable": 2,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet",
+          "name": "SubmitSamplesConsent",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet",
+          "name": "DontReportInfectionInformation",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "sec.defender.realtime",
+      "name": "Microsoft Defender real-time protection",
+      "risk": "aggressive",
+      "tags": [
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The antivirus scanning that inspects every file as it is opened or written.",
+      "explain": "This is your antivirus. Turning it off leaves the machine with no malware protection at all unless you have installed a third-party product, in which case Defender steps aside automatically and you do not need this option. Note also that Tamper Protection, which is on by default, will silently reject these registry changes, so this option often appears to apply and then does nothing. If you are chasing performance, use exclusions for specific folders instead. This is here for completeness, not as a recommendation.",
+      "enableMeans": "Turns Defender real-time protection back on.",
+      "disableMeans": "Attempts to disable Defender real-time protection. The machine will have no antivirus. Tamper Protection usually blocks this.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows Defender",
+          "name": "DisableAntiSpyware",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection",
+          "name": "DisableRealtimeMonitoring",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection",
+          "name": "DisableBehaviorMonitoring",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection",
+          "name": "DisableScanOnRealtimeEnable",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "sec.defender.tamper",
+      "name": "Defender Tamper Protection",
+      "risk": "aggressive",
+      "tags": [
+        "security"
+      ],
+      "restart": true,
+      "impact": "Stops anything, including administrators and this app, changing Defender settings from outside the Security app.",
+      "explain": "Tamper Protection exists precisely to stop malware disabling your antivirus, and it works by ignoring registry and policy changes to Defender. That is why the option above so often has no effect. Turning it off is a deliberate act that makes Defender modifiable by any process running as administrator, which is exactly what ransomware wants. Microsoft also blocks this key on managed machines. Leave this on.",
+      "enableMeans": "Tamper Protection is on and Defender settings are locked.",
+      "disableMeans": "Attempts to turn off Tamper Protection, allowing Defender to be modified externally. This significantly weakens the machine.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows Defender\\Features",
+          "name": "TamperProtection",
+          "type": "DWord",
+          "enable": 5,
+          "disable": 4
+        }
+      ]
+    },
+    {
+      "id": "sec.uac.level",
+      "name": "User Account Control prompting",
+      "risk": "aggressive",
+      "tags": [
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Whether you are asked to confirm when a program wants administrator rights.",
+      "explain": "UAC is the boundary that stops a program you ran as a standard user quietly becoming administrator. Setting it to never notify does not just stop the prompts: it means elevation happens silently, so any program you run can take full control of the machine without asking. This is one of the most consequential options in the whole catalogue. If the prompts annoy you, the secure-desktop dimming can be turned off separately below instead.",
+      "enableMeans": "UAC prompts on elevation, the Windows default.",
+      "disableMeans": "Sets UAC to never notify. Programs can then gain administrator rights without asking you.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+          "name": "ConsentPromptBehaviorAdmin",
+          "type": "DWord",
+          "enable": 5,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.uac.securedesktop",
+      "name": "Dimmed secure desktop for UAC prompts",
+      "risk": "moderate",
+      "tags": [
+        "security",
+        "perf"
+      ],
+      "impact": "The screen dimming and freeze when a UAC prompt appears.",
+      "explain": "The secure desktop switch is what stops another program drawing a fake UAC dialog or clicking the real one for you. It also takes a noticeable moment on some systems and interrupts anything fullscreen. Turning it off keeps the prompt, so you are still asked to consent, but the prompt appears on the normal desktop where in principle another program could interact with it. A reasonable middle ground; much safer than disabling UAC.",
+      "enableMeans": "UAC prompts appear on the dimmed secure desktop.",
+      "disableMeans": "UAC still prompts, but on the normal desktop without dimming.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+          "name": "PromptOnSecureDesktop",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.lsa.protection",
+      "name": "LSA protection and Credential Guard",
+      "risk": "moderate",
+      "tags": [
+        "security"
+      ],
+      "restart": true,
+      "impact": "Runs the process holding your password hashes as a protected process so tools like Mimikatz cannot read it.",
+      "explain": "LSA protection is a strong defence against credential theft. Enabling it is the secure choice; it is off by default on some upgraded systems. The reason it is not always on is that a few old smart card and biometric drivers load into LSA and are refused, which breaks that hardware. Note the direction here: you probably want Enable.",
+      "enableMeans": "Turns on LSA protection so credentials cannot be read out of memory.",
+      "disableMeans": "Turns LSA protection off, which makes credential theft tooling work again.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+          "name": "RunAsPPL",
+          "type": "DWord",
+          "enable": 2,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+          "name": "LsaCfgFlags",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.controlledfolder",
+      "name": "Controlled folder access (ransomware protection)",
+      "risk": "moderate",
+      "tags": [
+        "security"
+      ],
+      "impact": "Blocks untrusted programs from modifying files in Documents, Pictures and other protected folders.",
+      "explain": "Controlled folder access is Defender's anti-ransomware feature. It is genuinely effective and genuinely annoying: legitimate programs, particularly games saving to Documents and backup tools, get blocked and you have to allow each one. Enabling it is the secure choice if you are willing to manage the allow list. It is off by default.",
+      "enableMeans": "Turns on controlled folder access to protect your document folders from ransomware.",
+      "disableMeans": "Turns controlled folder access off, the Windows default.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$s = (Get-MpPreference -ErrorAction SilentlyContinue).EnableControlledFolderAccess; if ($null -eq $s) { 'Unknown' } elseif ($s -eq 1) { 'Enabled' } else { 'Disabled' }",
+          "enable": "Set-MpPreference -EnableControlledFolderAccess Enabled",
+          "disable": "Set-MpPreference -EnableControlledFolderAccess Disabled"
+        }
+      ]
+    },
+    {
+      "id": "sec.asr.rules",
+      "name": "Attack surface reduction rules",
+      "risk": "moderate",
+      "tags": [
+        "security"
+      ],
+      "impact": "Blocks common malware techniques such as Office spawning child processes and scripts running downloaded content.",
+      "explain": "ASR rules are targeted blocks on behaviours that are almost always malicious: Office launching executables, scripts running obfuscated content, credential theft from LSASS, executables running from email attachments. Enabling them is a substantial security improvement with a small chance of blocking an unusual but legitimate workflow, most often an Office macro that shells out. This option enables a conservative, widely recommended subset.",
+      "enableMeans": "Enables a conservative set of attack surface reduction rules in Defender.",
+      "disableMeans": "Turns the attack surface reduction rules back off, the Windows default.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$p = Get-MpPreference -ErrorAction SilentlyContinue; if ($null -eq $p) { 'Unknown' } elseif (@($p.AttackSurfaceReductionRules_Ids).Count -gt 0) { 'Enabled' } else { 'Disabled' }",
+          "enable": "$ids = @('D4F940AB-401B-4EFC-AADC-AD5F3C50688A','3B576869-A4EC-4529-8536-B80A7769E899','5BEB7EFE-FD9A-4556-801D-275E5FFC04CC','D3E037E1-3EB8-44C8-A917-57927947596D','92E97FA1-2EDF-4476-BDD6-9DD0B4DDDC7B','9E6C4E1F-7D60-472F-BA1A-A39EF669E4B2','BE9BA2D9-53EA-4CDC-84E5-9B1EEEE46550'); Add-MpPreference -AttackSurfaceReductionRules_Ids $ids -AttackSurfaceReductionRules_Actions Enabled",
+          "disable": "$p = Get-MpPreference; foreach ($i in @($p.AttackSurfaceReductionRules_Ids)) { Remove-MpPreference -AttackSurfaceReductionRules_Ids $i -ErrorAction SilentlyContinue }"
+        }
+      ]
+    },
+    {
+      "id": "sec.rdp",
+      "name": "Remote Desktop inbound connections",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "remote",
+        "network",
+        "core"
+      ],
+      "impact": "Whether other machines can connect to this PC's desktop over the network.",
+      "explain": "Remote Desktop listening on the network is one of the most commonly attacked services on the internet; exposed RDP is a primary ransomware entry point. If you do not connect to this machine remotely, it should be off. Windows 11 Home cannot host RDP anyway, so on Home this simply confirms it is off. This does not affect your ability to connect out to other machines.",
+      "enableMeans": "Allows inbound Remote Desktop connections, with Network Level Authentication required.",
+      "disableMeans": "Blocks inbound Remote Desktop connections entirely.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Terminal Server",
+          "name": "fDenyTSConnections",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "sec.remoteassistance",
+      "name": "Remote Assistance invitations",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "remote",
+        "core"
+      ],
+      "impact": "The older 'invite someone to help you' remote control mechanism.",
+      "explain": "Remote Assistance is separate from Remote Desktop and from Quick Assist. It allows a helper to view or take control after an invitation. It is legacy, rarely used deliberately, and another remote surface. Disabling it is standard hardening.",
+      "enableMeans": "Remote Assistance invitations are allowed.",
+      "disableMeans": "Blocks Remote Assistance invitations and remote control.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Remote Assistance",
+          "name": "fAllowToGetHelp",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Remote Assistance",
+          "name": "fAllowFullControl",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.wdigest",
+      "name": "WDigest plaintext credential caching",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "An old authentication provider that can keep your password in memory in clear text.",
+      "explain": "WDigest was disabled by default years ago, but the key is sometimes re-enabled by old software or left set on upgraded machines. When on, your plaintext password sits in LSASS memory where credential dumping tools can read it directly. Explicitly setting it to zero is pure upside; nothing modern authenticates with WDigest.",
+      "enableMeans": "Allows WDigest to cache credentials in memory, which is strongly discouraged.",
+      "disableMeans": "Explicitly stops WDigest keeping plaintext credentials in memory.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest",
+          "name": "UseLogonCredential",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.autorun.policy",
+      "name": "AutoRun command execution from removable media",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "legacy",
+        "core"
+      ],
+      "impact": "Whether an autorun.inf file on a USB stick can nominate a program to run.",
+      "explain": "AutoRun from removable media was how Conficker and Stuxnet spread. Modern Windows already restricts it, but the policy can be set explicitly to block it on every drive type including network drives, which is what this does. There is essentially no legitimate use of autorun.inf left.",
+      "enableMeans": "Restores default AutoRun behaviour.",
+      "disableMeans": "Blocks AutoRun on all drive types, including network and removable drives.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+          "name": "NoDriveTypeAutoRun",
+          "type": "DWord",
+          "enable": 145,
+          "disable": 255
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer",
+          "name": "NoAutoplayfornonVolume",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "sec.bitlocker.autoencrypt",
+      "name": "Automatic device encryption on first sign-in",
+      "risk": "moderate",
+      "tags": [
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Whether Windows silently encrypts the system drive and escrows the recovery key to your Microsoft account.",
+      "explain": "Windows 11 24H2 enables device encryption automatically on many machines. Encryption is good; the problem is that people do not realise it happened, do not know where the recovery key is, and then lose access to their data after a firmware update or motherboard change. It also costs a little performance on drives without hardware encryption. Disabling automatic encryption means you choose deliberately, and can then enable BitLocker yourself and save the key somewhere you control. If your drive is already encrypted, this option does not decrypt it.",
+      "enableMeans": "Allows Windows to encrypt the system drive automatically.",
+      "disableMeans": "Prevents automatic device encryption on setup. Existing encryption is left in place.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\BitLocker",
+          "name": "PreventDeviceEncryption",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "sec.smartappcontrol",
+      "name": "Smart App Control",
+      "risk": "moderate",
+      "tags": [
+        "security"
+      ],
+      "restart": true,
+      "impact": "Blocks any application that is not signed or known-good to Microsoft's reputation service.",
+      "explain": "Smart App Control is much stricter than SmartScreen: unsigned software simply does not run, with no override. It is a strong protection and a serious inconvenience if you use small utilities, self-compiled tools or older software. Microsoft also only allows it to be turned on from a clean install, so on most machines it is stuck off and this option only records your intent.",
+      "enableMeans": "Requests Smart App Control be enforced, if this installation permits it.",
+      "disableMeans": "Turns Smart App Control off so unsigned applications are allowed to run.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\CI\\Policy",
+          "name": "VerifiedAndReputablePolicyState",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.firewall.notify",
+      "name": "Windows Firewall block notifications",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "network"
+      ],
+      "impact": "The popup asking whether to allow a program through the firewall.",
+      "explain": "When a program first listens on the network, the firewall asks. Many people click Allow reflexively, which makes the prompt worse than useless, and it interrupts games. Disabling notifications means the firewall silently blocks unknown inbound listeners, which is the safe default outcome. The firewall itself stays fully on; you can still add rules manually.",
+      "enableMeans": "The firewall notifies you when it blocks a new program.",
+      "disableMeans": "Suppresses firewall prompts. Unknown inbound connections are silently blocked.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\WindowsFirewall\\DomainProfile",
+          "name": "DisableNotifications",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\WindowsFirewall\\StandardProfile",
+          "name": "DisableNotifications",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\WindowsFirewall\\PublicProfile",
+          "name": "DisableNotifications",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "sec.firewall.master",
+      "name": "Windows Firewall",
+      "risk": "aggressive",
+      "tags": [
+        "security",
+        "network"
+      ],
+      "impact": "The host firewall on all three network profiles.",
+      "explain": "Turning the firewall off exposes every listening service on the machine to your local network, and to the internet if the machine is directly connected rather than behind a router. Occasionally people disable it to debug a connection problem and forget to put it back. If a specific program needs access, add a rule instead. This is listed for completeness and should be left enabled.",
+      "enableMeans": "Turns the Windows Firewall on for all profiles.",
+      "disableMeans": "Turns the firewall off for all profiles. Every listening service becomes reachable from the network.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$p = Get-NetFirewallProfile -ErrorAction SilentlyContinue; if ($null -eq $p) { 'Unknown' } elseif (@($p | Where-Object { $_.Enabled -eq 'True' }).Count -eq 3) { 'Enabled' } elseif (@($p | Where-Object { $_.Enabled -eq 'True' }).Count -eq 0) { 'Disabled' } else { 'Mixed' }",
+          "enable": "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True",
+          "disable": "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False"
+        }
+      ]
+    },
+    {
+      "id": "sec.msaccount.required",
+      "name": "Microsoft account requirement and sign-in options",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "cloud",
+        "core"
+      ],
+      "impact": "Whether Windows insists on a Microsoft account and automatically signs you back in after a restart.",
+      "explain": "Two separate irritations: the policy that blocks adding local accounts, and the automatic sign-in that restores your session and apps after an update restart. Disabling the Microsoft account requirement lets you create local accounts from Settings. Disabling automatic sign-in means an update restart leaves the machine at the lock screen rather than logged in and unlocked, which matters if the machine is somewhere other people are.",
+      "enableMeans": "Restores default Microsoft account behaviour and automatic sign-in after restarts.",
+      "disableMeans": "Allows local accounts and stops Windows signing you back in automatically after an update restart.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+          "name": "NoConnectedUser",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 3
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+          "name": "DisableAutomaticRestartSignOn",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\System",
+          "name": "AllowCrossDeviceClipboard",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.dotnet.oldtls",
+      "name": "Legacy TLS 1.0 and 1.1 protocols",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "network",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "Whether Windows will still negotiate the old, broken TLS versions.",
+      "explain": "TLS 1.0 and 1.1 have known weaknesses and every major service dropped them years ago. Disabling them at the Schannel level means Windows applications cannot fall back to them. The only risk is an old internal appliance or a legacy line-of-business application that never got updated; if something stops connecting after this, that is why.",
+      "enableMeans": "Allows TLS 1.0 and 1.1 to be negotiated.",
+      "disableMeans": "Disables TLS 1.0 and 1.1 for both client and server. Very old services may stop connecting.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.0\\Client",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.1\\Client",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.0\\Server",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\Protocols\\TLS 1.1\\Server",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "sec.anonymous.enum",
+      "name": "Anonymous share and account enumeration",
+      "risk": "safe",
+      "tags": [
+        "security",
+        "network",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "Whether an unauthenticated machine on the network can list this PC's user accounts and shares.",
+      "explain": "Null-session enumeration lets an attacker with no credentials get a list of usernames and shares, which is the first step in a targeted password attack. Restricting it is standard hardening and breaks nothing on a modern network. Some very old NAS devices rely on anonymous share listing.",
+      "enableMeans": "Restores default anonymous enumeration behaviour.",
+      "disableMeans": "Blocks anonymous enumeration of accounts and shares over the network.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Lsa",
+          "name": "RestrictAnonymous",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+          "name": "RestrictNullSessAccess",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1110 @@
+{
+  "category": {
+    "key": "services",
+    "name": "Background Services",
+    "glyph": "",
+    "order": 60,
+    "blurb": "Windows ships with well over two hundred services. Most sit idle on Manual and cost nothing, so blanket service-disabling advice from the internet does more harm than good. Listed here are the ones that genuinely run when you do not need them, each with an honest note on what stops working. Service changes usually need a restart, and anything set through the registry rather than the service controller definitely does."
+  },
+  "tweaks": [
+    {
+      "id": "svc.sysmain",
+      "name": "SysMain (Superfetch)",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "perf",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Learns which programs you launch and preloads them into free memory.",
+      "explain": "SysMain was a large win on mechanical hard disks, where it turned random reads into sequential prefetching. On an SSD the benefit is small and the constant background reading and memory bookkeeping is occasionally visible as disk activity on an otherwise idle machine. On a system with a spinning disk, or with less than 8 GB of memory, leave it enabled.",
+      "enableMeans": "SysMain runs and preloads your commonly used applications.",
+      "disableMeans": "Stops SysMain. First launches of large applications may be slightly slower on a hard disk.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "SysMain",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wsearch",
+      "name": "Windows Search indexing",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "perf",
+        "search",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Builds the content index that makes Start search and Explorer search instant.",
+      "explain": "The indexer reads your documents and mail to build a searchable database. It is the reason searching Start is fast. With it off, Explorer falls back to a slow brute-force scan and Start search finds apps and settings but not file contents. Outlook's instant search stops working entirely. Only disable this if you search by folder structure rather than by search box.",
+      "enableMeans": "The search index is maintained again and content search works.",
+      "disableMeans": "Stops indexing. Explorer search becomes slow and Outlook search breaks.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WSearch",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.printspooler",
+      "name": "Print Spooler",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Required for all printing, including Print to PDF.",
+      "explain": "The Print Spooler has a long history of privilege escalation vulnerabilities, PrintNightmare being the best known, which is why security guidance recommends disabling it on machines that never print. Note that Microsoft Print to PDF also goes through the spooler, so PDF export from applications stops working too. If you print anything at all, leave this alone.",
+      "enableMeans": "Printing works again, including Print to PDF.",
+      "disableMeans": "Disables the spooler. All printing, including Print to PDF, stops working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "Spooler",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.fax",
+      "name": "Fax service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "impact": "Support for sending and receiving faxes through a modem.",
+      "explain": "The Fax service requires a physical fax modem, which essentially no current PC has. It is one of the few services that can be disabled with no realistic consequence at all.",
+      "enableMeans": "The Fax service is available again.",
+      "disableMeans": "Disables the Fax service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "Fax",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.retaildemo",
+      "name": "Retail Demo service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "impact": "Powers the in-store demonstration mode on shop display machines.",
+      "explain": "Retail Demo mode resets a display machine to a scripted state for shoppers. On a machine you own it has no purpose whatsoever and it occasionally wakes up to check whether it should activate.",
+      "enableMeans": "The Retail Demo service is available again.",
+      "disableMeans": "Disables the Retail Demo service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "RetailDemo",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.remoteregistry",
+      "name": "Remote Registry",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "security",
+        "remote",
+        "core"
+      ],
+      "impact": "Lets an administrator on the network read and change this machine's registry.",
+      "explain": "Remote Registry is used by domain management tools and by some monitoring agents. It is disabled by default on modern Windows, but upgraded systems and some OEM images have it on Manual, where it can be started remotely. On a home machine it is an unnecessary remote attack surface.",
+      "enableMeans": "Remote registry access is possible again.",
+      "disableMeans": "Disables remote registry access entirely.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "RemoteRegistry",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.remoteaccess",
+      "name": "Routing and Remote Access",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "security",
+        "remote",
+        "network"
+      ],
+      "impact": "Turns the PC into a router, VPN server or dial-up server.",
+      "explain": "This service exists so a Windows machine can route traffic between networks or accept inbound VPN connections. Nothing a normal desktop does needs it, and it is disabled by default. Some third-party VPN clients install their own drivers and do not use it.",
+      "enableMeans": "Routing and Remote Access is available again.",
+      "disableMeans": "Disables the routing and inbound VPN server service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "RemoteAccess",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.mapsbroker",
+      "name": "Downloaded Maps Manager",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "impact": "Downloads and updates offline map data for the Maps app.",
+      "explain": "MapsBroker keeps offline maps current. Since Windows Maps has been retired, this service now mostly wakes up, checks a server and goes back to sleep. If you removed the Maps app this service has nothing left to serve.",
+      "enableMeans": "Offline map data can be downloaded and updated again.",
+      "disableMeans": "Disables the map data downloader.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "MapsBroker",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.walletservice",
+      "name": "Wallet Service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "impact": "Backs the retired Microsoft Wallet payment feature.",
+      "explain": "Microsoft Wallet on Windows was discontinued. The service remains and is started on demand by a feature that no longer exists in a usable form. Browser-based payment autofill does not use it.",
+      "enableMeans": "The Wallet service is available again.",
+      "disableMeans": "Disables the Wallet service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WalletService",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.phonesvc",
+      "name": "Phone Service and telephony",
+      "risk": "safe",
+      "tags": [
+        "service"
+      ],
+      "impact": "Manages cellular telephony state on devices with a modem.",
+      "explain": "PhoneSvc handles cellular calls and SIM state. It is meaningful on a Windows tablet with a SIM slot and pointless on a desktop or a Wi-Fi-only laptop. Phone Link does not depend on it; that talks to your handset over Bluetooth and the network instead.",
+      "enableMeans": "The telephony services are available again.",
+      "disableMeans": "Disables the phone and telephony services.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "PhoneSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "TapiSrv",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.tabletinput",
+      "name": "Touch Keyboard and Handwriting Panel",
+      "risk": "moderate",
+      "tags": [
+        "service"
+      ],
+      "restart": true,
+      "impact": "The on-screen keyboard, handwriting input and emoji panel.",
+      "explain": "This service provides the touch keyboard, the Win+. emoji picker and pen input. Windows 11 renamed it from TabletInputService to TextInputManagementService, so both names are set here and whichever is absent is skipped. On a desktop with no touchscreen the keyboard is unused, but the emoji panel is popular and stops working if this is disabled. Disable only if you use neither touch input nor the emoji picker.",
+      "enableMeans": "The touch keyboard, pen input and emoji panel work again.",
+      "disableMeans": "Disables touch keyboard, handwriting and the Win+. emoji picker.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "TextInputManagementService",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "TabletInputService",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.xbox",
+      "name": "Xbox background services",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "gaming",
+        "xbox",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Xbox accessory management, game save sync and the networking service for Xbox Live.",
+      "explain": "Four services support the Xbox app and Game Pass titles: accessory management, live authentication, live networking and the game save sync. If you do not use Game Pass, the Xbox app or an Xbox controller with its wireless adapter, none of them are doing anything. A controller connected over USB or standard Bluetooth still works without them.",
+      "enableMeans": "The Xbox services are set back to on-demand start.",
+      "disableMeans": "Disables the Xbox accessory, authentication, networking and save sync services.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "XblAuthManager",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "XblGameSave",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "XboxNetApiSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "XboxGipSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.dosvc",
+      "name": "Delivery Optimization service",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "update",
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Peer-to-peer distribution of Windows updates and Store apps between PCs.",
+      "explain": "Delivery Optimization can pull update content from other machines on your network or on the internet, and it uploads to them in return. On a single-PC household the upload is pure cost. Disabling the service means updates download from Microsoft directly, which is usually fine but slower on a metered or slow connection where a local peer existed. The Windows Update category has the policy that limits this to local peers only, which is the gentler option.",
+      "enableMeans": "Peer-to-peer update delivery works again.",
+      "disableMeans": "Disables Delivery Optimization. Updates come straight from Microsoft.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "DoSvc",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.diagsvc",
+      "name": "Diagnostic policy and execution services",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "telemetry"
+      ],
+      "restart": true,
+      "impact": "The framework behind Windows troubleshooters and automatic problem detection.",
+      "explain": "DPS, WdiServiceHost and WdiSystemHost implement the diagnostic scenarios that power the built-in troubleshooters and some automatic repairs, such as detecting a failing disk or a broken network adapter. Disabling them makes the Settings troubleshooters fail and removes some proactive warnings. They are genuinely low cost when idle, so this is a change for the minimalist rather than an obvious win.",
+      "enableMeans": "The diagnostic framework and troubleshooters work again.",
+      "disableMeans": "Disables the diagnostic policy framework. Built-in troubleshooters will not run.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "DPS",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "WdiServiceHost",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "WdiSystemHost",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.pcasvc",
+      "name": "Program Compatibility Assistant",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "telemetry"
+      ],
+      "restart": true,
+      "impact": "Watches programs for compatibility problems and offers to apply fixes.",
+      "explain": "PcaSvc detects when an old program misbehaves and offers compatibility shims. It also reports the application inventory it builds, which is part of the compatibility telemetry channel. Modern software rarely needs the shims, and you can always set compatibility mode by hand from a program's properties.",
+      "enableMeans": "The compatibility assistant watches programs again.",
+      "disableMeans": "Disables the compatibility assistant and its inventory reporting.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "PcaSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wpn",
+      "name": "Windows Push Notification services",
+      "risk": "moderate",
+      "tags": [
+        "service"
+      ],
+      "restart": true,
+      "impact": "Delivers push notifications and live tile updates to Store apps.",
+      "explain": "WpnService and WpnUserService keep a connection to Microsoft's notification platform so apps can be woken by a server. Messaging apps, mail and calendar reminders all depend on it. Disabling it means those apps only notify you while they are running. This is a real functionality loss if you rely on any Store app for alerts.",
+      "enableMeans": "Push notifications are delivered again.",
+      "disableMeans": "Disables push notifications. Store apps only notify you while open.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WpnService",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.cdpsvc",
+      "name": "Connected Devices Platform",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "cloud"
+      ],
+      "restart": true,
+      "impact": "Cross-device features: Nearby Sharing, Phone Link handoff, shared clipboard and 'continue on PC'.",
+      "explain": "CDPSvc and CDPUserSvc discover your other devices and broker the features that span them. If you use Nearby Sharing or Phone Link, leave this alone. If you do not, it is a service that maintains a cloud connection and does device discovery on your local network for no benefit.",
+      "enableMeans": "Cross-device features work again.",
+      "disableMeans": "Disables the connected devices platform. Nearby Sharing and Phone Link handoff stop working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "CDPSvc",
+          "enable": "Automatic",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wisvc",
+      "name": "Windows Insider Program service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "update",
+        "core"
+      ],
+      "impact": "Manages enrolment in preview builds.",
+      "explain": "This service only matters if you are on the Insider programme. On a stable channel machine it exists purely so the Settings page can offer to enrol you.",
+      "enableMeans": "The Insider service is available again.",
+      "disableMeans": "Disables the Insider Program service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "wisvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.biometric",
+      "name": "Windows Biometric Service",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "security"
+      ],
+      "restart": true,
+      "impact": "Fingerprint and face recognition for Windows Hello sign-in.",
+      "explain": "Required for any biometric sign-in. If your machine has no fingerprint reader and no infrared camera, the service starts, finds no hardware and stops. If it does have that hardware and you use Hello, disabling this locks you out of biometric sign-in and you will need your PIN or password.",
+      "enableMeans": "Biometric sign-in works again.",
+      "disableMeans": "Disables biometrics. Fingerprint and face sign-in stop working; use your PIN.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WbioSrvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.bthserv",
+      "name": "Bluetooth support services",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "network"
+      ],
+      "restart": true,
+      "impact": "All Bluetooth functionality, including audio and input devices.",
+      "explain": "If the machine has no Bluetooth radio these services do nothing. If it does and you use a Bluetooth mouse, keyboard or headset, disabling them will disconnect those devices and you may lock yourself out of input. Be careful: check you have a wired keyboard and mouse before disabling this on a laptop.",
+      "enableMeans": "Bluetooth works again.",
+      "disableMeans": "Disables Bluetooth entirely. Bluetooth mice, keyboards and headsets stop working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "bthserv",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "BTAGService",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "BthAvctpSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.smbclient.browser",
+      "name": "Computer Browser and NetBIOS name service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "network",
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The legacy Windows network neighbourhood discovery protocols.",
+      "explain": "The Computer Browser service and NetBIOS name resolution date from the 1990s and are still a common lateral-movement and credential-relay vector on local networks. Modern file sharing uses SMB over TCP and WS-Discovery instead. Disabling these can stop very old NAS boxes appearing under Network; accessing them by name or IP address still works.",
+      "enableMeans": "The legacy browser and NetBIOS discovery services run again.",
+      "disableMeans": "Disables Computer Browser and the NetBIOS helper. Very old network devices may stop auto-discovering.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "Browser",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "lmhosts",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wmpnetworksvc",
+      "name": "Windows Media Player Network Sharing",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "network",
+        "core"
+      ],
+      "impact": "Shares your media library to other devices over UPnP and DLNA.",
+      "explain": "This service advertises your music and video library on the local network for DLNA clients such as smart TVs and games consoles. It listens on the network and is rarely used deliberately. Playing media on your own PC does not need it.",
+      "enableMeans": "Media library network sharing is available again.",
+      "disableMeans": "Disables DLNA media sharing from this PC.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WMPNetworkSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.parentalcontrols",
+      "name": "Parental Controls service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "impact": "Enforces Microsoft Family screen time and content restrictions.",
+      "explain": "Only relevant if a child account on this PC is managed through Microsoft Family. On a machine with a single adult account it does nothing. Do not disable it if you rely on family safety controls, because the restrictions stop being enforced.",
+      "enableMeans": "Parental controls are enforced again.",
+      "disableMeans": "Disables the parental controls service. Family safety restrictions stop being applied.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WpcMonSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.sensors",
+      "name": "Sensor monitoring and orientation services",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "sensors"
+      ],
+      "restart": true,
+      "impact": "Ambient light sensor, accelerometer and automatic screen rotation.",
+      "explain": "These services read hardware sensors for adaptive brightness and screen rotation. On a desktop or a laptop with no rotation sensor they find nothing. On a convertible or tablet, disabling them stops auto-rotation and adaptive brightness working.",
+      "enableMeans": "Sensor monitoring and auto-rotation work again.",
+      "disableMeans": "Disables sensor services. Auto-rotate and adaptive brightness stop working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "SensorService",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "SensrSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "SensorDataService",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wapush",
+      "name": "Device Management and enrolment services",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Mobile device management enrolment, used when a company manages your PC through Intune.",
+      "explain": "These services let an organisation enrol and manage the device, push policy and wipe it. On a personal machine that is not enrolled anywhere they are dormant. Do not disable them on a work laptop, because management policy will stop applying and IT will notice.",
+      "enableMeans": "Device management enrolment works again.",
+      "disableMeans": "Disables MDM enrolment services. Do not use this on a company-managed PC.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "dmwappushservice",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "DmEnrollmentSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.printnotify",
+      "name": "Printer Extensions and Notifications",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "impact": "Vendor printer dialogs and low-ink notifications.",
+      "explain": "PrintNotify shows printer manufacturer dialogs and toast notifications about jobs and consumables. Printing itself goes through the spooler and does not need this. Disabling it means you print normally but hear nothing about ink levels.",
+      "enableMeans": "Printer notifications and vendor dialogs work again.",
+      "disableMeans": "Disables printer notifications. Printing still works.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "PrintNotify",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wpnuser.tiles",
+      "name": "Payments and NFC service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "impact": "Near-field communication and tap-to-pay support.",
+      "explain": "SEMgrSvc manages secure elements for NFC payments. Almost no PC has the hardware, and Microsoft's payment platform on Windows was discontinued. Safe to disable on any desktop or standard laptop.",
+      "enableMeans": "The NFC payments service is available again.",
+      "disableMeans": "Disables the NFC and payments service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "SEMgrSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.autotimezone",
+      "name": "Automatic time zone updater",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "sensors"
+      ],
+      "impact": "Changes your time zone automatically based on your location.",
+      "explain": "The tzautoupdate service needs location services to work, so if you disabled location it is already inert. On a desktop that never moves it has nothing to do. On a laptop you travel with, disabling it means setting your time zone by hand after a flight.",
+      "enableMeans": "The time zone updates automatically from your location.",
+      "disableMeans": "Disables automatic time zone changes. Set the zone manually when you travel.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "tzautoupdate",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.defrag",
+      "name": "Optimise drives service",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "perf"
+      ],
+      "impact": "Scheduled defragmentation on hard disks and TRIM on solid state drives.",
+      "explain": "On an SSD this service issues periodic TRIM commands, which genuinely helps the drive maintain performance and lifespan. On a hard disk it defragments. Disabling it is a common piece of bad advice: you lose scheduled TRIM. Listed for completeness, with a recommendation to leave it enabled.",
+      "enableMeans": "Scheduled drive optimisation and TRIM run again.",
+      "disableMeans": "Disables drive optimisation. Your SSD stops receiving scheduled TRIM, which is not recommended.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "defragsvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.superfetch.prefetch",
+      "name": "Prefetch and boot trace collection",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The .pf trace files Windows writes to speed up application and boot start-up.",
+      "explain": "Prefetch records which pages an application touches on start-up so the next launch can read them in one pass. On an SSD the gain is modest but real; the cost is a small directory of trace files and some write activity. Setting these to zero disables both application and boot prefetching. Leave enabled unless you are chasing write amplification on a small SSD.",
+      "enableMeans": "Application and boot prefetching are enabled, the Windows default.",
+      "disableMeans": "Turns off prefetch trace collection for both applications and boot.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters",
+          "name": "EnablePrefetcher",
+          "type": "DWord",
+          "enable": 3,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management\\PrefetchParameters",
+          "name": "EnableSuperfetch",
+          "type": "DWord",
+          "enable": 3,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "svc.winrm",
+      "name": "Windows Remote Management (WinRM)",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "remote",
+        "security",
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Accepts remote PowerShell and management commands over the network.",
+      "explain": "WinRM is the transport for PowerShell remoting and much of the remote-management tooling. It is not started by default on a home machine, but where it is running it is a genuine remote code execution surface, and it is a favourite lateral-movement path once an attacker is already on your network. Disable it unless you actually run commands against this PC from somewhere else.",
+      "enableMeans": "WinRM can accept remote management connections again.",
+      "disableMeans": "Disables WinRM so remote PowerShell sessions to this PC are refused.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WinRM",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.trkwks",
+      "name": "Distributed Link Tracking Client",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "legacy",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Keeps shortcuts working after you move the file they point at, on NTFS volumes.",
+      "explain": "This service maintains a database so a shortcut can find its target again after the file moves or is renamed. It was designed for domain file servers and almost nothing on a desktop relies on it, while it writes to disk in the background. Shortcuts you create still work normally; they simply will not self-heal if you move the target.",
+      "enableMeans": "Link tracking runs again and shortcuts can self-heal.",
+      "disableMeans": "Disables link tracking. Shortcuts stop following files that are moved.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "TrkWks",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.alg",
+      "name": "Application Layer Gateway Service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "legacy",
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Protocol plug-ins for the old Internet Connection Sharing firewall.",
+      "explain": "This service exists so that third-party protocol plug-ins can work with Internet Connection Sharing. Windows ships no plug-ins for it and almost nothing installs any. It is one of the safest services in this list to switch off.",
+      "enableMeans": "The Application Layer Gateway service is available again.",
+      "disableMeans": "Disables the Application Layer Gateway service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "ALG",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.ajrouter",
+      "name": "AllJoyn Router Service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "legacy",
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "A retired Internet-of-Things messaging protocol.",
+      "explain": "AllJoyn was an IoT device protocol Microsoft supported briefly and then abandoned. The service is still present and still watches for AllJoyn devices that essentially do not exist any more. Nothing current uses it.",
+      "enableMeans": "The AllJoyn router service is available again.",
+      "disableMeans": "Disables the AllJoyn router service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "AJRouter",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.peerdist",
+      "name": "BranchCache",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Caches content from a corporate WAN link so a branch office downloads it once.",
+      "explain": "BranchCache is an enterprise bandwidth feature that a domain administrator configures. On an unmanaged machine it is never turned on and has nothing to cache.",
+      "enableMeans": "BranchCache is available again.",
+      "disableMeans": "Disables the BranchCache service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "PeerDistSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.qwave",
+      "name": "Quality Windows Audio Video Experience",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "network",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "Prioritises streaming media traffic on the local network.",
+      "explain": "QWAVE tags audio and video packets so that a home router can prioritise them, which needs router support that is rarely configured. Streaming from the internet does not use it. Disabling it makes no difference to playback quality on any normal setup.",
+      "enableMeans": "QWAVE traffic prioritisation is available again.",
+      "disableMeans": "Disables the QWAVE service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "QWAVE",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.snmptrap",
+      "name": "SNMP Trap",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "legacy",
+        "network",
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Listens on the network for monitoring traps from SNMP agents.",
+      "explain": "SNMP is a network-management protocol from an era before authentication was taken seriously. The trap receiver listens for messages from monitoring agents. Nothing on a desktop needs it, and a listening service you do not use is worth closing.",
+      "enableMeans": "The SNMP trap receiver is available again.",
+      "disableMeans": "Disables the SNMP trap service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "SNMPTRAP",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wbengine",
+      "name": "Block Level Backup Engine",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The engine behind the old Windows Backup and system image feature.",
+      "explain": "This performs block-level backups for the deprecated Windows 7 style backup and the system image tool. If you use Windows own image backup, leave it alone. If you back up with a third-party tool, or not at all, it sits idle.",
+      "enableMeans": "The block level backup engine is available again.",
+      "disableMeans": "Disables the backup engine. Windows own system image backup will stop working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "wbengine",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.tiering",
+      "name": "Storage Tiers Management",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Moves data between fast and slow tiers of a tiered Storage Spaces pool.",
+      "explain": "This only does anything on a machine with a tiered Storage Spaces pool, which is a deliberate multi-disk configuration you would have set up yourself. On a single-drive PC it starts, finds no tiers, and stops.",
+      "enableMeans": "Storage tier optimisation is available again.",
+      "disableMeans": "Disables the storage tiers management service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "TieringEngineService",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.smartcard",
+      "name": "Smart Card services",
+      "risk": "moderate",
+      "tags": [
+        "service",
+        "security",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Support for smart card readers, certificate propagation and virtual smart cards.",
+      "explain": "Three services cover card enumeration, certificate propagation and the card removal policy. Corporate and government machines authenticate with these; a home PC usually has no reader at all. Do not disable them if you sign in with a physical card, or if a VPN here authenticates with a virtual smart card.",
+      "enableMeans": "Smart card support is available again.",
+      "disableMeans": "Disables smart card support. Card sign-in and certificate propagation stop working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "SCardSvr",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "ScDeviceEnum",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "SCPolicySvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wfds",
+      "name": "Wi-Fi Direct services",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Peer-to-peer Wi-Fi for wireless displays and direct device pairing.",
+      "explain": "Wi-Fi Direct backs Miracast wireless display and direct printing to some devices. If you never cast to a TV or a dongle and have no Wi-Fi Direct printer, these find nothing to do. On a desktop with no wireless adapter they are inert.",
+      "enableMeans": "Wi-Fi Direct services are available again.",
+      "disableMeans": "Disables Wi-Fi Direct. Miracast wireless display casting stops working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WFDSConMgrSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.spectrum",
+      "name": "Perception and Mixed Reality services",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "legacy",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Spatial tracking for Windows Mixed Reality and holographic devices.",
+      "explain": "Windows Mixed Reality has been removed from Windows entirely, but the perception service, the OpenXR runtime service and the shared reality service remain. PC VR through SteamVR or an Oculus runtime does not use them.",
+      "enableMeans": "The perception and mixed reality services are available again.",
+      "disableMeans": "Disables the Windows perception and mixed reality services.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "spectrum",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "MixedRealityOpenXRSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        },
+        {
+          "kind": "service",
+          "name": "SharedRealitySvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wercplsupport",
+      "name": "Problem Reports control panel support",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "telemetry",
+        "legacy"
+      ],
+      "restart": true,
+      "impact": "Backs the old Problem Reports and Solutions control panel page.",
+      "explain": "This supports a control panel page that was superseded years ago by Reliability Monitor and the Settings troubleshooters. It pairs with Windows Error Reporting, so if you have already disabled that, this has nothing left to display.",
+      "enableMeans": "The problem reports control panel support service is available again.",
+      "disableMeans": "Disables the problem reports control panel support service.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "wercplsupport",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    },
+    {
+      "id": "svc.wwan",
+      "name": "Mobile broadband (WWAN) service",
+      "risk": "safe",
+      "tags": [
+        "service",
+        "network",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Manages cellular modems and SIM-based data connections.",
+      "explain": "This handles built-in 4G and 5G modems. If the machine has no cellular hardware and no eSIM, the service starts and finds no adapter. On a laptop with a SIM you actually use, leave it alone.",
+      "enableMeans": "Mobile broadband support is available again.",
+      "disableMeans": "Disables the mobile broadband service. Cellular data connections stop working.",
+      "actions": [
+        {
+          "kind": "service",
+          "name": "WwanSvc",
+          "enable": "Manual",
+          "disable": "Disabled"
+        }
+      ]
+    }
+  ]
+}

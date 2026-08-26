@@ -1,0 +1,774 @@
+{
+  "category": {
+    "key": "perf",
+    "name": "Performance & Gaming",
+    "glyph": "",
+    "order": 90,
+    "blurb": "Settings that trade features, safety margins or disk space for speed and latency. Be sceptical of anything promising large gains here: most of these are worth single-digit percentages at best, and a couple of them, clearly marked, weaken security in exchange. The honest wins are the visual effects, the power plan and the game recording capture."
+  },
+  "tweaks": [
+    {
+      "id": "perf.gamedvr",
+      "name": "Game DVR background recording",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "gaming",
+        "core"
+      ],
+      "restart": true,
+      "impact": "Continuous background capture so you can save the last thirty seconds of gameplay.",
+      "explain": "Game DVR keeps an encoder running while any game is in the foreground so the 'record that' shortcut can reach backwards in time. It costs GPU encoder capacity, memory and a steady stream of disk writes, and it is one of the few genuinely measurable performance settings in Windows. Turning it off does not remove screenshot capture, which is a separate mechanism.",
+      "enableMeans": "Background game recording is available again.",
+      "disableMeans": "Turns off background game recording and the Game DVR capture pipeline entirely.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "System\\GameConfigStore",
+          "name": "GameDVR_Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "System\\GameConfigStore",
+          "name": "GameDVR_FSEBehaviorMode",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\GameDVR",
+          "name": "AllowGameDVR",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+          "name": "AppCaptureEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.gamebar",
+      "name": "Xbox Game Bar overlay",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "gaming",
+        "xbox",
+        "core"
+      ],
+      "impact": "The Win+G overlay with widgets for performance, audio and captures.",
+      "explain": "Game Bar injects an overlay into games, which occasionally causes stutter or conflicts with other overlays such as Steam's or Discord's. Disabling it stops the injection and the Win+G shortcut. Its performance monitor and screenshot features go with it, so keep it if you use those.",
+      "enableMeans": "Game Bar and its Win+G overlay work again.",
+      "disableMeans": "Disables the Game Bar overlay and stops it being injected into games.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+          "name": "AppCaptureEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\GameBar",
+          "name": "UseNexusForGameBarEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR",
+          "name": "HistoricalCaptureEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.gamemode",
+      "name": "Game Mode",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "gaming"
+      ],
+      "impact": "Prioritises the foreground game and holds back background activity such as Windows Update.",
+      "explain": "Game Mode raises the priority of the game and defers driver installs and update work while you play. It is a small win on most systems and occasionally a small loss on machines with many cores where the scheduler changes hurt. It is on by default; leave it unless you are chasing a specific stutter.",
+      "enableMeans": "Game Mode is on, the Windows default.",
+      "disableMeans": "Turns Game Mode off so no special scheduling is applied to games.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\GameBar",
+          "name": "AllowAutoGameMode",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\GameBar",
+          "name": "AutoGameModeEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.hags",
+      "name": "Hardware-accelerated GPU scheduling",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "gaming"
+      ],
+      "restart": true,
+      "impact": "Lets the GPU manage its own work queue instead of the operating system doing it.",
+      "explain": "HAGS moves scheduling of GPU work onto the graphics card. It is required for some features such as DirectStorage and frame generation on certain drivers, and it can reduce latency slightly. It has also been responsible for stutter and crashes on particular driver versions. There is no universally correct answer: test it both ways with whatever you actually run. Needs a restart either way.",
+      "enableMeans": "Turns hardware-accelerated GPU scheduling on.",
+      "disableMeans": "Turns hardware-accelerated GPU scheduling off so the OS schedules GPU work.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers",
+          "name": "HwSchMode",
+          "type": "DWord",
+          "enable": 2,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "perf.fso",
+      "name": "Fullscreen optimisations",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "gaming"
+      ],
+      "impact": "Whether exclusive fullscreen games are quietly converted to borderless windows.",
+      "explain": "Windows converts many exclusive fullscreen games into a flip-model borderless window so that overlays and Alt+Tab work smoothly. On most systems this is invisible and beneficial. On some it adds a frame of latency or breaks variable refresh rate. Disabling it globally restores true exclusive fullscreen where the game asks for it.",
+      "enableMeans": "Fullscreen optimisations are on, the Windows default.",
+      "disableMeans": "Disables fullscreen optimisations so games get true exclusive fullscreen.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "System\\GameConfigStore",
+          "name": "GameDVR_FSEBehavior",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 2
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "System\\GameConfigStore",
+          "name": "GameDVR_HonorUserFSEBehaviorMode",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "System\\GameConfigStore",
+          "name": "GameDVR_DXGIHonorFSEWindowsCompatible",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "perf.powerplan.ultimate",
+      "name": "Ultimate Performance power plan",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "core"
+      ],
+      "impact": "Adds and activates the hidden power plan that removes almost every power-saving delay.",
+      "explain": "Ultimate Performance is a hidden scheme that disables core parking, keeps the CPU at a high minimum state and removes latency from device power transitions. It measurably reduces micro-stutter on a desktop and measurably reduces battery life on a laptop, where it should not be used. Enabling this creates the plan if it is missing and makes it active; disabling restores the Balanced plan.",
+      "enableMeans": "Creates the Ultimate Performance plan if needed and switches to it.",
+      "disableMeans": "Switches back to the Balanced power plan.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$a = (powercfg /getactivescheme) -join ' '; if ($a -match 'e9a42b02-d5df-448d-aa00-03f14749eb61') { 'Enabled' } else { 'Disabled' }",
+          "enable": "powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 2>$null; powercfg /setactive e9a42b02-d5df-448d-aa00-03f14749eb61",
+          "disable": "powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e"
+        }
+      ]
+    },
+    {
+      "id": "perf.hibernate",
+      "name": "Hibernation and Fast Startup",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The hiberfil.sys file, which is several gigabytes, plus hybrid shutdown.",
+      "explain": "Hibernation writes memory to disk so the machine can resume from a full power-off. The same file backs Fast Startup, which makes shutdown a partial hibernate. Fast Startup is a common cause of oddities: drivers and kernel state are not truly reset, so a shutdown does not fix problems that a restart does, and it can corrupt a dual-boot Linux install's view of the Windows filesystem. Turning hibernation off frees the file and makes shutdown a real shutdown, at the cost of losing hibernate and slightly slower cold boots.",
+      "enableMeans": "Turns hibernation and Fast Startup back on and recreates hiberfil.sys.",
+      "disableMeans": "Turns hibernation off, deletes hiberfil.sys and disables Fast Startup.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$v = (Get-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Power' -Name HibernateEnabled -ErrorAction SilentlyContinue).HibernateEnabled; if ($v -eq 1) { 'Enabled' } elseif ($null -eq $v) { 'Unknown' } else { 'Disabled' }",
+          "enable": "powercfg /hibernate on",
+          "disable": "powercfg /hibernate off"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Power",
+          "name": "HiberbootEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.lastaccess",
+      "name": "NTFS last access timestamp updates",
+      "risk": "safe",
+      "tags": [
+        "perf"
+      ],
+      "restart": true,
+      "impact": "Whether reading a file causes a metadata write to record when it was read.",
+      "explain": "By default NTFS updates a last-accessed timestamp on read, turning reads into small writes. Disabling it reduces write amplification and speeds up operations that touch thousands of files, such as builds and virus scans. The cost is that any tool relying on last-access time, including some backup and archiving software, loses that information.",
+      "enableMeans": "NTFS records last access times, the Windows default.",
+      "disableMeans": "Stops NTFS updating last access timestamps on read.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$o = (fsutil behavior query disablelastaccess) -join ' '; if ($o -match '=\\s*[13]') { 'Disabled' } elseif ($o -match '=\\s*[02]') { 'Enabled' } else { 'Unknown' }",
+          "enable": "fsutil behavior set disablelastaccess 2",
+          "disable": "fsutil behavior set disablelastaccess 1"
+        }
+      ]
+    },
+    {
+      "id": "perf.nagle",
+      "name": "Nagle's algorithm on network adapters",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "gaming",
+        "network"
+      ],
+      "restart": true,
+      "impact": "Batches small outbound TCP packets together, adding a few milliseconds of latency.",
+      "explain": "Nagle's algorithm improves throughput efficiency by combining small sends, which is why it exists, but for latency-sensitive traffic such as a game's input packets that batching is pure delay. Disabling it writes TcpAckFrequency and TCPNoDelay on every network interface. The trade is slightly more packet overhead on the wire. On a modern connection the overhead is irrelevant, which is why this is a fairly popular change among competitive players.",
+      "enableMeans": "Removes the overrides so Nagle's algorithm applies again.",
+      "disableMeans": "Sets TcpAckFrequency and TCPNoDelay on all interfaces to remove packet batching.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$ifs = Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces'; $n = 0; foreach ($i in $ifs) { if ((Get-ItemProperty $i.PSPath -Name TCPNoDelay -ErrorAction SilentlyContinue).TCPNoDelay -eq 1) { $n++ } }; if ($n -gt 0) { 'Disabled' } else { 'Enabled' }",
+          "enable": "Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces' | ForEach-Object { Remove-ItemProperty $_.PSPath -Name TCPNoDelay -ErrorAction SilentlyContinue; Remove-ItemProperty $_.PSPath -Name TcpAckFrequency -ErrorAction SilentlyContinue }",
+          "disable": "Get-ChildItem 'HKLM:\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces' | ForEach-Object { New-ItemProperty $_.PSPath -Name TCPNoDelay -Value 1 -PropertyType DWord -Force | Out-Null; New-ItemProperty $_.PSPath -Name TcpAckFrequency -Value 1 -PropertyType DWord -Force | Out-Null }"
+        }
+      ]
+    },
+    {
+      "id": "perf.netthrottle",
+      "name": "Network throttling and multimedia scheduling reserve",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "gaming",
+        "network"
+      ],
+      "restart": true,
+      "impact": "Windows caps non-multimedia network packets to ten thousand per second and reserves twenty percent of CPU for multimedia.",
+      "explain": "The multimedia class scheduler throttles network processing so audio and video playback cannot be starved, and reserves a slice of CPU for the same reason. On a machine with a fast connection the packet cap can become the bottleneck, and the CPU reservation is unnecessary on modern hardware. Setting the throttling index to its maximum removes the cap and setting system responsiveness to zero releases the reservation. If you hear audio crackle after this, put it back.",
+      "enableMeans": "Restores the default network throttling and the twenty percent multimedia CPU reserve.",
+      "disableMeans": "Removes the network packet cap and the multimedia CPU reservation.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile",
+          "name": "NetworkThrottlingIndex",
+          "type": "DWord",
+          "enable": 10,
+          "disable": 4294967295
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile",
+          "name": "SystemResponsiveness",
+          "type": "DWord",
+          "enable": 20,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.gamespriority",
+      "name": "Games task priority in the multimedia scheduler",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "gaming"
+      ],
+      "restart": true,
+      "impact": "The scheduling and GPU priority the multimedia class scheduler gives to processes tagged as games.",
+      "explain": "Windows has a Games profile under the multimedia class scheduler with its own CPU and GPU priority values. Raising them tells the scheduler to favour game threads over other work. The effect is modest and only visible when the machine is genuinely contended, but it costs nothing and is completely reversible.",
+      "enableMeans": "Restores the default Games scheduling priorities.",
+      "disableMeans": "Raises the CPU and GPU priority of processes in the Games scheduling category.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games",
+          "name": "Priority",
+          "type": "DWord",
+          "enable": 2,
+          "disable": 6
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Games",
+          "name": "Scheduling Category",
+          "type": "String",
+          "enable": "Medium",
+          "disable": "High"
+        }
+      ]
+    },
+    {
+      "id": "perf.memorycompression",
+      "name": "Memory compression",
+      "risk": "moderate",
+      "tags": [
+        "perf"
+      ],
+      "restart": true,
+      "impact": "Compresses inactive memory pages instead of paging them to disk.",
+      "explain": "Memory compression trades CPU cycles for fewer disk reads and writes, which on a machine with limited memory is a clear win and on a machine with plenty of memory is mostly wasted CPU inside the System process. If you have 32 GB or more and see the System process using noticeable CPU, turning it off can help. On 8 or 16 GB, leave it on.",
+      "enableMeans": "Turns memory compression on, the Windows default.",
+      "disableMeans": "Turns memory compression off. Only sensible on machines with a lot of spare memory.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "if ((Get-MMAgent).MemoryCompression) { 'Enabled' } else { 'Disabled' }",
+          "enable": "Enable-MMAgent -MemoryCompression",
+          "disable": "Disable-MMAgent -MemoryCompression"
+        }
+      ]
+    },
+    {
+      "id": "perf.startupdelay",
+      "name": "Start-up program delay",
+      "risk": "safe",
+      "tags": [
+        "perf"
+      ],
+      "impact": "The artificial pause Windows inserts before running your start-up programs.",
+      "explain": "Windows waits about ten seconds after the desktop appears before launching start-up items, so the shell feels responsive first. If you would rather everything started immediately, setting the delay to zero does that. The desktop may feel busier for the first few seconds after sign-in.",
+      "enableMeans": "Restores the default start-up delay.",
+      "disableMeans": "Removes the start-up delay so start-up programs launch immediately.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Serialize",
+          "name": "StartupDelayInMSec",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.menudelay",
+      "name": "Menu and hover show delays",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "ui"
+      ],
+      "signout": true,
+      "impact": "The pause before submenus and taskbar previews appear.",
+      "explain": "Windows waits 400 milliseconds before opening a submenu and about the same before showing a taskbar thumbnail. Reducing these to near zero makes the interface feel dramatically faster without changing anything functional. The only downside is that submenus can flash open while you move the pointer past them.",
+      "enableMeans": "Restores the default menu and hover delays.",
+      "disableMeans": "Reduces the menu and taskbar hover delays to almost nothing.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Desktop",
+          "name": "MenuShowDelay",
+          "type": "String",
+          "enable": "400",
+          "disable": "20"
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ExtendedUIHoverTime",
+          "type": "DWord",
+          "enable": 400,
+          "disable": 100
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "Control Panel\\Mouse",
+          "name": "MouseHoverTime",
+          "type": "String",
+          "enable": "400",
+          "disable": "100"
+        }
+      ]
+    },
+    {
+      "id": "perf.longpaths",
+      "name": "Long file path support",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "dev"
+      ],
+      "restart": true,
+      "impact": "Lifts the 260 character limit on file paths for applications that opt in.",
+      "explain": "The old MAX_PATH limit breaks deeply nested directories, which anyone using npm, Python virtual environments or a Java build tree runs into regularly. Enabling long paths lets modern applications use paths up to about 32,000 characters. Some older programs do not handle long paths and will show confusing errors if they encounter one, which is the only real risk.",
+      "enableMeans": "Enables long path support system-wide.",
+      "disableMeans": "Restores the 260 character path limit, the Windows default.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\FileSystem",
+          "name": "LongPathsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.storagesense",
+      "name": "Storage Sense automatic cleanup",
+      "risk": "safe",
+      "tags": [
+        "perf"
+      ],
+      "impact": "Automatically deletes temporary files and empties the Recycle Bin after 30 days.",
+      "explain": "Storage Sense frees space by removing temporary files, old downloads and Recycle Bin contents on a schedule. The Downloads folder cleanup catches people out because it deletes files you deliberately kept. Enabling it here turns on cleanup of temporary files and the Recycle Bin but deliberately leaves your Downloads folder alone.",
+      "enableMeans": "Turns Storage Sense on for temporary files and the Recycle Bin, leaving Downloads untouched.",
+      "disableMeans": "Turns Storage Sense off so nothing is deleted automatically.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
+          "name": "01",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
+          "name": "08",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\StorageSense\\Parameters\\StoragePolicy",
+          "name": "32",
+          "type": "DWord",
+          "enable": 30,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.usbselectivesuspend",
+      "name": "USB selective suspend power saving",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "gaming"
+      ],
+      "restart": true,
+      "impact": "Lets Windows power down idle USB ports, which can cause input devices to drop out.",
+      "explain": "USB selective suspend saves power by suspending idle devices. It is a known cause of mice waking late, audio interfaces clicking and controllers disconnecting. Disabling it costs a small amount of idle power and removes a class of intermittent device problems. On a laptop on battery, the power cost is real.",
+      "enableMeans": "Allows USB selective suspend, the Windows default.",
+      "disableMeans": "Stops Windows suspending idle USB devices.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Services\\USB",
+          "name": "DisableSelectiveSuspend",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "command",
+          "probe": "'Unknown'",
+          "enable": "Get-CimInstance Win32_USBHub | ForEach-Object { $p = Get-CimInstance -Namespace root\\wmi -ClassName MSPower_DeviceEnable -ErrorAction SilentlyContinue }; Write-Output 'USB hub power management left to Windows'",
+          "disable": "Get-CimInstance -Namespace root\\wmi -ClassName MSPower_DeviceEnable -ErrorAction SilentlyContinue | ForEach-Object { try { Set-CimInstance -InputObject $_ -Property @{ Enable = $false } } catch { } }; Write-Output 'USB device power management turned off'"
+        }
+      ]
+    },
+    {
+      "id": "perf.corepark",
+      "name": "CPU core parking",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "gaming"
+      ],
+      "impact": "Whether Windows powers down idle CPU cores and has to wake them when load arrives.",
+      "explain": "Core parking saves power by idling cores completely. Waking a parked core takes a moment, which shows up as inconsistent frame pacing in games and stutter in audio work. This sets the minimum parked-core percentage to one hundred, meaning no cores are parked, for the active power plan. On a laptop this measurably reduces battery life.",
+      "enableMeans": "Restores default core parking behaviour for the active power plan.",
+      "disableMeans": "Prevents Windows parking any CPU cores.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$g = (powercfg /q SCHEME_CURRENT SUB_PROCESSOR CPMINCORES) -join \"`n\"; if ($g -match 'Current AC Power Setting Index:\\s*0x00000064') { 'Disabled' } elseif ($g -match 'Current AC Power Setting Index:') { 'Enabled' } else { 'Unknown' }",
+          "enable": "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR CPMINCORES 10; powercfg /setactive SCHEME_CURRENT",
+          "disable": "powercfg /setacvalueindex SCHEME_CURRENT SUB_PROCESSOR CPMINCORES 100; powercfg /setdcvalueindex SCHEME_CURRENT SUB_PROCESSOR CPMINCORES 100; powercfg /setactive SCHEME_CURRENT"
+        }
+      ]
+    },
+    {
+      "id": "perf.pcielinkstate",
+      "name": "PCI Express link state power management",
+      "risk": "moderate",
+      "tags": [
+        "perf",
+        "gaming"
+      ],
+      "impact": "Lets PCIe devices drop into low-power link states between bursts of activity.",
+      "explain": "ASPM saves power by reducing PCIe link speed when idle, which adds latency when work arrives. It is a known contributor to stutter with some NVMe drives and network cards. Turning it off keeps links at full speed. This costs a few watts at idle, which matters on a laptop and not on a desktop.",
+      "enableMeans": "Restores moderate PCIe link state power saving.",
+      "disableMeans": "Turns off PCIe link state power management for the active power plan.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$g = (powercfg /q SCHEME_CURRENT SUB_PCIEXPRESS ASPM) -join \"`n\"; if ($g -match 'Current AC Power Setting Index:\\s*0x00000000') { 'Disabled' } elseif ($g -match 'Current AC Power Setting Index:') { 'Enabled' } else { 'Unknown' }",
+          "enable": "powercfg /setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 1; powercfg /setactive SCHEME_CURRENT",
+          "disable": "powercfg /setacvalueindex SCHEME_CURRENT SUB_PCIEXPRESS ASPM 0; powercfg /setactive SCHEME_CURRENT"
+        }
+      ]
+    },
+    {
+      "id": "perf.pagefile.systemmanaged",
+      "name": "System-managed page file",
+      "risk": "aggressive",
+      "tags": [
+        "perf"
+      ],
+      "restart": true,
+      "impact": "Whether Windows sizes the page file itself, or you pin it, or it is switched off.",
+      "explain": "Advice to disable the page file is one of the most persistent pieces of bad tuning on the internet. Windows uses it for memory that is committed but not resident, and for crash dumps; some applications refuse to start without one regardless of how much RAM you have. Disabling it here sets a fixed 4096 MB page file rather than removing it, which is the defensible version of this change: predictable size, no growth pauses, still present. Enable restores full system management.",
+      "enableMeans": "Lets Windows manage the page file size automatically.",
+      "disableMeans": "Sets a fixed 4096 MB page file on the system drive instead of a system-managed one.",
+      "actions": [
+        {
+          "kind": "command",
+          "probe": "$c = Get-CimInstance Win32_ComputerSystem; if ($c.AutomaticManagedPagefile) { 'Enabled' } else { 'Disabled' }",
+          "enable": "$c = Get-CimInstance Win32_ComputerSystem; Set-CimInstance -InputObject $c -Property @{ AutomaticManagedPagefile = $true }",
+          "disable": "$c = Get-CimInstance Win32_ComputerSystem; Set-CimInstance -InputObject $c -Property @{ AutomaticManagedPagefile = $false }; $p = Get-CimInstance Win32_PageFileSetting -ErrorAction SilentlyContinue; if ($p) { Set-CimInstance -InputObject $p -Property @{ InitialSize = 4096; MaximumSize = 4096 } } else { New-CimInstance -ClassName Win32_PageFileSetting -Property @{ Name = ($env:SystemDrive + '\\pagefile.sys'); InitialSize = 4096; MaximumSize = 4096 } }"
+        }
+      ]
+    },
+    {
+      "id": "perf.mitigations",
+      "name": "Spectre, Meltdown and Retbleed CPU mitigations",
+      "risk": "aggressive",
+      "tags": [
+        "perf",
+        "security"
+      ],
+      "restart": true,
+      "impact": "The kernel workarounds for speculative execution vulnerabilities, which cost real performance.",
+      "explain": "These mitigations defend against a family of side-channel attacks that let one process read another's memory. On older processors they cost between five and thirty percent on syscall-heavy workloads. Disabling them recovers that performance and genuinely does make the machine vulnerable to attacks that have working public exploits, including from JavaScript in a browser tab. This is only defensible on an isolated machine that runs no untrusted code, which almost certainly does not describe a PC with a web browser on it.",
+      "enableMeans": "Restores the CPU vulnerability mitigations, the safe default.",
+      "disableMeans": "Turns off Spectre and Meltdown class mitigations. This makes the machine exploitable by untrusted code, including web pages.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management",
+          "name": "FeatureSettingsOverride",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 3
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Memory Management",
+          "name": "FeatureSettingsOverrideMask",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 3
+        }
+      ]
+    },
+    {
+      "id": "perf.vbs",
+      "name": "Virtualisation-based security and memory integrity",
+      "risk": "aggressive",
+      "tags": [
+        "perf",
+        "security",
+        "gaming"
+      ],
+      "restart": true,
+      "impact": "Hypervisor-enforced code integrity, which costs a few percent in games and blocks unsigned drivers.",
+      "explain": "VBS runs part of the kernel inside a hypervisor so that even a kernel exploit cannot modify code pages. It is a substantial security improvement and it costs performance, typically low single digits but occasionally more in CPU-bound games. It also refuses to load unsigned or badly behaved drivers, which is why some older hardware stops working. Disabling it recovers the performance and removes a major defence against kernel-level malware. Some multiplayer anti-cheat systems now require it, and will refuse to run without it.",
+      "enableMeans": "Turns virtualisation-based security and memory integrity back on.",
+      "disableMeans": "Disables VBS and memory integrity. This removes a significant protection against kernel-level attacks.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\DeviceGuard",
+          "name": "EnableVirtualizationBasedSecurity",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SYSTEM\\CurrentControlSet\\Control\\DeviceGuard",
+          "name": "HypervisorEnforcedCodeIntegrity",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "perf.mmcss.audio",
+      "name": "Audio service priority and exclusive mode latency",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "audio"
+      ],
+      "restart": true,
+      "impact": "How much scheduling priority the Windows audio engine gets.",
+      "explain": "The audio service runs at raised priority so playback does not glitch under load. On a machine used for recording or low-latency monitoring, raising it further reduces dropouts. This is a small, safe tuning change with no security implications; if you hear no difference, leave it alone.",
+      "enableMeans": "Restores the default audio service priority.",
+      "disableMeans": "Raises the audio service scheduling priority to reduce dropouts under load.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Audio",
+          "name": "Priority",
+          "type": "DWord",
+          "enable": 6,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile\\Tasks\\Audio",
+          "name": "Scheduling Category",
+          "type": "String",
+          "enable": "Medium",
+          "disable": "High"
+        }
+      ]
+    },
+    {
+      "id": "perf.searchindex.scope",
+      "name": "Indexing of file contents rather than just names",
+      "risk": "safe",
+      "tags": [
+        "perf",
+        "search"
+      ],
+      "impact": "Whether the search indexer opens every document to index its text, or only records file names.",
+      "explain": "Content indexing is what makes searching inside documents work, and it is also where most of the indexer's disk and CPU cost lives. Turning it off keeps fast file name search while removing the expensive part. A good middle ground if the indexer is bothering you but you do not want to disable search entirely.",
+      "enableMeans": "The indexer reads document contents again.",
+      "disableMeans": "Limits the index to file names and properties, not contents.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "PreventIndexingLowDiskSpaceMB",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 5000
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "DisableBackoff",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "PreventIndexingCertainPaths",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    }
+  ]
+}

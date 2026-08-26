@@ -1,0 +1,1045 @@
+{
+  "category": {
+    "key": "ads",
+    "name": "Ads, Tips & Suggestions",
+    "glyph": "",
+    "order": 20,
+    "blurb": "Windows 11 promotes things at you in about a dozen separate places, each with its own switch: the Start menu, the lock screen, File Explorer, Settings, the notification centre and the search box. This category collects every one of them. All of it is advertising or upsell; none of it is functionality, so this is the safest category to switch off wholesale."
+  },
+  "tweaks": [
+    {
+      "id": "ads.cdm.master",
+      "name": "Content Delivery Manager suggestions",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "core",
+        "explorer"
+      ],
+      "signout": true,
+      "impact": "The engine behind almost every suggestion, tip and promoted app in the Windows shell.",
+      "explain": "Content Delivery Manager is the single component that fetches promotional payloads and injects them into Start, the lock screen, notifications and Settings. This option turns off its whole family of per-surface switches at once: pre-installed app suggestions, silent app installs, subscribed content on the lock screen and in Start, soft-landing tips, and the rotating 'suggested content' entries. If you only pick one thing from this category, pick this.",
+      "enableMeans": "All the suggestion surfaces are switched back on and Windows will start fetching promoted content again.",
+      "disableMeans": "Switches off every Content Delivery Manager surface, so no suggested apps, tips or promoted content are fetched or shown.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "ContentDeliveryAllowed",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SilentInstalledAppsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "PreInstalledAppsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "OemPreInstalledAppsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "PreInstalledAppsEverEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SoftLandingEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SystemPaneSuggestionsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContentEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "RotatingLockScreenEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "RotatingLockScreenOverlayEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.cdm.subscribed",
+      "name": "Promoted content slots in Start and Settings",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "core"
+      ],
+      "signout": true,
+      "impact": "The numbered content slots Microsoft uses to place specific promotions, such as Game Pass or Microsoft 365 trials.",
+      "explain": "Beneath the master switch, each promotion campaign gets a numbered slot key like SubscribedContent-338388Enabled. Microsoft adds new numbers over time, which is why turning off the parent switch sometimes is not enough on an upgraded install. This option zeroes the known slots: Start suggestions, Settings suggested content, the lock screen spotlight, the welcome experience and the tips slot.",
+      "enableMeans": "The individual promotion slots are switched back on.",
+      "disableMeans": "Zeroes each known promotion slot so nothing is rendered even if the parent switch is later re-enabled.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-338387Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-338388Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-338389Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-338393Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-353694Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-353696Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-353698Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-310093Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-314559Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-314563Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-88000044Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-88000045Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-88000105Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-88000106Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-88000161Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-88000163Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.cloudcontent.policy",
+      "name": "Cloud-delivered consumer content (machine policy)",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The machine-wide policy version of the suggestion switches, which covers every account on the PC including new ones.",
+      "explain": "The per-user Content Delivery Manager keys only affect the account they live in. These policies sit in HKLM and apply to everybody, present and future. They are the same policies an organisation would push through Group Policy: no consumer features, no Windows Spotlight, no third-party suggestions, no cloud-optimised content. This is the durable version of the fix.",
+      "enableMeans": "Removes the restricting policies so Windows may deliver consumer content again.",
+      "disableMeans": "Sets the CloudContent policies that block consumer features, Spotlight and third-party suggestions for all users.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableWindowsConsumerFeatures",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableConsumerAccountStateContent",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableCloudOptimizedContent",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableThirdPartySuggestions",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableWindowsSpotlightFeatures",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ads.lockscreen.spotlight",
+      "name": "Windows Spotlight on the lock screen",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "core"
+      ],
+      "impact": "The rotating lock screen photos, which also carry 'fun facts', tips and app promotions.",
+      "explain": "Spotlight downloads a daily image and often overlays a promotion or a link to Bing. Switching it off leaves you with a static lock screen picture of your choosing, which also means one fewer network call at every wake. Some people keep the images and only want the overlay text gone; the two lower actions here separate those.",
+      "enableMeans": "Spotlight images and their overlay text and tips return.",
+      "disableMeans": "Stops the rotating imagery and the promotional overlays on the lock screen.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableWindowsSpotlightFeatures",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableWindowsSpotlightOnActionCenter",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableWindowsSpotlightWindowsWelcomeExperience",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "IncludeEnterpriseSpotlight",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.lockscreen.desktopspotlight",
+      "name": "Spotlight desktop wallpaper and its icon",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "explorer"
+      ],
+      "impact": "The 'Learn more about this picture' icon that Spotlight puts on your desktop.",
+      "explain": "If the desktop background is set to Windows Spotlight, Windows adds a permanent desktop icon linking to Bing search for the photo. It cannot be deleted through the normal desktop icon settings. This option removes it by clearing the shell icon registration and by switching the wallpaper feed off.",
+      "enableMeans": "The Spotlight desktop icon and rotating wallpaper are allowed back.",
+      "disableMeans": "Hides the 'Learn more about this picture' desktop icon and stops the rotating desktop feed.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\NewStartPanel",
+          "name": "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\HideDesktopIcons\\ClassicStartMenu",
+          "name": "{2cc5ca98-6485-489a-920e-b3e88a6ccce3}",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "LandscapeContentEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.settings.suggested",
+      "name": "Suggested content in the Settings app",
+      "risk": "safe",
+      "tags": [
+        "ads"
+      ],
+      "impact": "The promotional cards Settings shows on its home page and inside pages.",
+      "explain": "Settings has its own suggestion surface, separate from Start. It advertises Microsoft 365, OneDrive, Game Pass and account upsells, and it appears at the top of the Settings home page. Two of the numbered content slots specifically drive it; the wider suggestion switch here covers the rest.",
+      "enableMeans": "Settings shows suggested content cards again.",
+      "disableMeans": "Removes the suggested content cards from the Settings app.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-338393Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-353694Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-353696Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\UserProfileEngagement",
+          "name": "ScoobeSystemSettingEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.oobe.experience",
+      "name": "'Let's finish setting up your device' prompts",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "core"
+      ],
+      "impact": "The full-screen page after updates that pushes OneDrive, Microsoft 365 and Edge.",
+      "explain": "SCOOBE, the second-chance out-of-box experience, hijacks your first sign-in after some updates with a multi-page wizard selling Microsoft services. There is no way to permanently dismiss it from the wizard itself. This option switches off the trigger and the associated welcome experience.",
+      "enableMeans": "Windows may show the finish-setup wizard after updates.",
+      "disableMeans": "Stops the finish-setup wizard and the post-update welcome experience appearing.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\UserProfileEngagement",
+          "name": "ScoobeSystemSettingEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\OOBE",
+          "name": "DisablePrivacyExperience",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-310093Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.tips",
+      "name": "Windows tips, tricks and suggestion notifications",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "core"
+      ],
+      "impact": "The toast notifications suggesting features you have not used yet.",
+      "explain": "Windows periodically pops a notification recommending a feature, a Microsoft app or a browser change. It is controlled by the 'Get tips and suggestions' notification setting plus a soft-landing switch. Turning it off has no effect on notifications from your actual apps.",
+      "enableMeans": "Windows may show tips and feature suggestions as notifications.",
+      "disableMeans": "Switches off tip notifications and the soft-landing suggestion channel.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SoftLandingEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings\\Windows.SystemToast.Suggested",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableSoftLanding",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ads.explorer.syncprovider",
+      "name": "Sync provider notifications in File Explorer",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "explorer",
+        "onedrive",
+        "core"
+      ],
+      "impact": "The OneDrive and Microsoft 365 adverts that appear as a banner inside File Explorer.",
+      "explain": "Microsoft classifies the promotional banners in File Explorer as 'sync provider notifications', which is why the setting is buried in Folder Options rather than anywhere sensible. Turning it off removes the ads but also removes genuine OneDrive sync messages, such as a warning that your storage is full.",
+      "enableMeans": "File Explorer shows sync provider notifications, including OneDrive and Microsoft 365 promotions.",
+      "disableMeans": "Removes the advertising banners from File Explorer.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ShowSyncProviderNotifications",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.search.highlights",
+      "name": "Search highlights in the taskbar and search box",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "search",
+        "core"
+      ],
+      "impact": "The rotating illustrations, 'today in history' entries and trending searches in the search panel.",
+      "explain": "Search highlights fill the empty search panel with Bing content, holiday artwork and trending topics, and they trigger a network request every time you open search. Turning it off gives you a plain search box that only searches your PC. This also removes the animated icon in the taskbar search area.",
+      "enableMeans": "Search highlights and their web content come back.",
+      "disableMeans": "Switches off the dynamic content in the search box, per user and by machine policy.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\SearchSettings",
+          "name": "IsDynamicSearchBoxEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "EnableDynamicContentInWSB",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Dsh",
+          "name": "AllowNewsAndInterests",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.search.web",
+      "name": "Bing and web results in Windows Search",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "search",
+        "core"
+      ],
+      "impact": "Whether typing in Start searches the web as well as your PC.",
+      "explain": "By default the Start menu sends what you type to Bing and shows web results and sponsored suggestions above your local files. Disabling it makes Start search only your apps, settings and indexed files, which is both faster and quieter. Web links in search stop working; you use your browser for that instead.",
+      "enableMeans": "Start and the search box query Bing and show web results again.",
+      "disableMeans": "Blocks web search, connected search and Bing suggestions from the Windows search experience.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search",
+          "name": "BingSearchEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Search",
+          "name": "CortanaConsent",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "DisableWebSearch",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "ConnectedSearchUseWeb",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search",
+          "name": "AllowSearchToUseLocation",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.start.recommended",
+      "name": "Recommended section in the Start menu",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "explorer",
+        "core"
+      ],
+      "signout": true,
+      "impact": "The lower half of Start that shows recent files and suggests apps from the Store.",
+      "explain": "The Recommended area mixes three things: files you opened recently, apps you installed recently, and app suggestions from the Store. The policies here remove the Store suggestions and the recently-added entries, leaving a much quieter Start. On Windows 11 builds with the layout selector you can also push Start towards 'More pins' from Settings afterwards.",
+      "enableMeans": "Start shows recommendations, recently added apps and recent files again.",
+      "disableMeans": "Removes recommendations, recently added apps and recently opened items from Start.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer",
+          "name": "HideRecommendedSection",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "Start_IrisRecommendations",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "Start_TrackDocs",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ShowRecentList",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "ShowFrequentList",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.start.accountnotify",
+      "name": "Account-related notifications in Start",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "explorer"
+      ],
+      "impact": "The badge and prompt on your Start menu avatar nagging you to finish setting up your Microsoft account.",
+      "explain": "Windows 11 puts a coloured dot on your profile picture in Start and shows a card asking you to back up with OneDrive or add account recovery details. It reappears periodically even after being dismissed. This option switches the surface off entirely.",
+      "enableMeans": "Account notifications and badges appear in Start again.",
+      "disableMeans": "Removes the account prompt cards and badge from the Start menu.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "Start_AccountNotifications",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer",
+          "name": "DisableAccountNotifications",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ads.lockscreen.tips",
+      "name": "Tips and app notifications on the lock screen",
+      "risk": "safe",
+      "tags": [
+        "ads"
+      ],
+      "impact": "Fun facts, tips and app status shown over the lock screen image.",
+      "explain": "Separate from Spotlight imagery, Windows can render text tips and app detail on the lock screen. Some of it is legitimate app status, such as calendar appointments; the rest is promotional. This switches off both the tips channel and the notification surface on the lock screen.",
+      "enableMeans": "The lock screen shows tips, facts and app detail again.",
+      "disableMeans": "Clears the lock screen of tips and status text.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "RotatingLockScreenOverlayEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-338387Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Personalization",
+          "name": "NoLockScreenSlideshow",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        }
+      ]
+    },
+    {
+      "id": "ads.widgets.feed",
+      "name": "Widgets board and the MSN news feed",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "explorer",
+        "widgets",
+        "core"
+      ],
+      "restart": true,
+      "impact": "The panel that slides in from the left with weather, MSN headlines and sponsored stories.",
+      "explain": "The Widgets board is an Edge WebView surface that runs in the background, refreshes on a timer and shows MSN content including sponsored articles. It also owns the weather button that sits on the left of the taskbar. Turning it off by policy removes the button, stops the background refresh and prevents the process being started at sign-in. The Widgets app itself can be removed separately in the apps category.",
+      "enableMeans": "The Widgets board, its taskbar button and the MSN feed all come back.",
+      "disableMeans": "Blocks the Widgets board by policy and removes its taskbar button.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Dsh",
+          "name": "AllowNewsAndInterests",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+          "name": "TaskbarDa",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Feeds",
+          "name": "EnableFeeds",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.store.autoupdate.notify",
+      "name": "Microsoft Store promotional notifications",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "store"
+      ],
+      "impact": "Store notifications about app deals, games and 'you might also like' recommendations.",
+      "explain": "The Store sends toast notifications for sales and recommendations, which is separate from telling you an app was updated. This option silences the Store's notification channel. Automatic app updates still happen; you just stop hearing about the marketing.",
+      "enableMeans": "The Microsoft Store may send notifications again.",
+      "disableMeans": "Silences the Store's notification channel.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Notifications\\Settings\\Microsoft.WindowsStore_8wekyb3d8bbwe!App",
+          "name": "Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-314559Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.edge.firstrun",
+      "name": "Edge first-run experience and default-browser nags",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "edge",
+        "core"
+      ],
+      "impact": "The Edge welcome tour, import wizard and the repeated prompts to make Edge your default.",
+      "explain": "Edge shows a multi-page tour on first run and, separately, Windows prompts you to switch back to Edge when you change your default browser or click certain links. These policies suppress the tour, the import prompt, the 'browser essentials' surface and the default-browser campaign. Edge continues to work normally as a browser.",
+      "enableMeans": "Edge shows its first-run tour and default-browser prompts again.",
+      "disableMeans": "Suppresses the Edge tour, import prompt and default-browser nagging.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "HideFirstRunExperience",
+          "type": "DWord",
+          "enable": 0,
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "DefaultBrowserSettingEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "PromotionalTabsEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "EdgeShoppingAssistantEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKLM",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Edge",
+          "name": "WalletDonationEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.gamebar.tips",
+      "name": "Game Bar and Game Pass promotions",
+      "risk": "safe",
+      "tags": [
+        "ads",
+        "gaming"
+      ],
+      "impact": "The Game Pass upsells and Game Bar tips that appear when you launch a game.",
+      "explain": "Xbox Game Bar shows a Game Pass advertisement panel and periodic tips overlaid on games. This option turns off the promotional surfaces while leaving Game Bar itself functional, in case you use its screenshot or performance overlay. To remove Game Bar entirely, use the Performance & Gaming category.",
+      "enableMeans": "Game Bar shows tips and Game Pass promotions again.",
+      "disableMeans": "Switches off the Game Bar tip and Game Pass promotional surfaces.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\GameBar",
+          "name": "ShowStartupPanel",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\GameBar",
+          "name": "UseNexusForGameBarEnabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-88000045Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    },
+    {
+      "id": "ads.notificationcenter.suggestions",
+      "name": "Suggestions inside the notification centre",
+      "risk": "safe",
+      "tags": [
+        "ads"
+      ],
+      "impact": "Promotional cards that appear in the calendar and notification flyout.",
+      "explain": "The notification centre can host Spotlight cards and suggestion tiles alongside your real notifications. This option removes them via the Action Center Spotlight policy. Your app notifications, focus assist and calendar all continue as normal.",
+      "enableMeans": "Spotlight suggestion cards may appear in the notification centre.",
+      "disableMeans": "Blocks Spotlight content in the notification centre.",
+      "actions": [
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent",
+          "name": "DisableWindowsSpotlightOnActionCenter",
+          "type": "DWord",
+          "enable": "@delete",
+          "disable": 1
+        },
+        {
+          "kind": "reg",
+          "hive": "HKCU",
+          "path": "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ContentDeliveryManager",
+          "name": "SubscribedContent-353698Enabled",
+          "type": "DWord",
+          "enable": 1,
+          "disable": 0
+        }
+      ]
+    }
+  ]
+}
