@@ -62,8 +62,8 @@ split by what each part needs:
 
 | Location | Holds | Why there |
 |---|---|---|
-| `%ProgramData%\WindowsDebloatStudio\` | `journal.jsonl`, `license.json`, `presets\` | Machine-wide. The app always runs elevated, and if the signed-in user is not an administrator, elevation switches profile — a per-user journal would land under whichever admin approved the prompt, and a later unelevated run would report nothing to undo while the changes were still in force. Locked to administrators for writing, readable by everyone. |
-| `%LOCALAPPDATA%\WindowsDebloatStudio\` | `bin\`, `logs\` | Per-user, and writable without elevation. The compiled assembly especially: it is loaded into an elevated process, and ProgramData is writable by any ordinary user by default, so caching executable code there would let a standard user hand code to an administrator. |
+| `%ProgramData%\WindowsDebloatStudio\` | `journal.jsonl`, `license.json` | Machine-wide. The app always runs elevated, and if the signed-in user is not an administrator, elevation switches profile — a per-user journal would land under whichever admin approved the prompt, and a later unelevated run would report nothing to undo while the changes were still in force. Locked to administrators for writing, readable by everyone. |
+| `%LOCALAPPDATA%\WindowsDebloatStudio\` | `bin\`, `logs\`, `presets\` | Per-user, and writable without elevation. Presets live here, not with the machine state: a folder hardened against non-admin writes would make saving a preset require elevation, which is absurd for something the user typed, and there is nothing to protect — a preset can only hold option ids and the words Enable, Disable or Revert. The compiled assembly especially: it is loaded into an elevated process, and ProgramData is writable by any ordinary user by default, so caching executable code there would let a standard user hand code to an administrator. |
 
 A pre-1.0 install that kept state inside the app folder is migrated on first run,
 copying before it moves anything aside.
@@ -396,6 +396,7 @@ powershell      -ExecutionPolicy Bypass -File tools\Test-Engine.ps1    # capture
 powershell      -ExecutionPolicy Bypass -File tools\Test-License.ps1   # entitlement, offline grace, gating
 powershell      -ExecutionPolicy Bypass -File tools\Audit-Catalog.ps1  # every identifier vs this machine
 powershell -STA -ExecutionPolicy Bypass -File tools\Test-Package.ps1   # what is actually inside the exe
+powershell      -ExecutionPolicy Bypass -File tools\Diagnose.ps1       # when it will not start: says why
 powershell -STA -ExecutionPolicy Bypass -File tools\Export-Screens.ps1 # renders every screen to tools\screens\
 python3 tools\Validate-Catalog.py                                      # catalogue integrity
 ```
@@ -428,19 +429,47 @@ which the app would recompile its view-models on every single launch.
 
 There is no free code-signing certificate that Windows trusts. A self-signed one
 does nothing for SmartScreen; it only helps if every user installs the root,
-which nobody should do. The realistic routes:
+which nobody should do.
 
-| Route | Cost | Catch |
-|---|---|---|
-| SignPath Foundation | free | open-source projects only |
-| Certum open source | ~€25/year | also open source only |
-| Azure Trusted Signing | ~$10/month | needs a verified legal entity |
-| OV certificate | ~£200/year | SmartScreen reputation still builds slowly |
-| EV certificate | ~£300+/year | trusted by SmartScreen immediately |
+Going open source opens the free route, but it is **not** a solved problem for
+this project. [SignPath Foundation's conditions](https://signpath.org/terms.html)
+say, verbatim:
 
-Fill in `Invoke-SignExe` in `Build-Exe.ps1` and pass `-Sign`. Timestamping is not
-optional: without it every signature stops validating the day the certificate
-expires, including on copies already downloaded.
+- *"The project must use an OSI-approved Open Source license without commercial
+  dual-licensing for all components."*
+- *"The project may not contain any proprietary, non open-source component."*
+- *"The project must already be released in the form that should be signed."*
+- *"The project must not contain malware or potentially unwanted programs."*
+- *"The code signing certificate is issued to SignPath Foundation. This means
+  that SignPath Foundation is the publisher of the OSS project."*
+
+Four consequences worth being clear-eyed about:
+
+1. **A public release has to exist first.** This is not something to apply for
+   before shipping.
+2. **The publisher shown to users would be SignPath Foundation, not WndTech.**
+   For a product with a brand attached, that is a genuine cost.
+3. **A paid, server-delivered catalogue may disqualify the project**, because it
+   is arguably the "proprietary, non open-source component" that clause excludes.
+   The open-source route and the sell-the-catalogue model may not be compatible;
+   selling convenience features inside the GPL code is the safer reading.
+4. **A debloater invites scrutiny under the PUP clause**, since the catalogue can
+   disable SmartScreen and Defender. It is a human review, not a checkbox.
+
+The paid alternatives, for comparison:
+
+| Route | Cost | Publisher shown | Catch |
+|---|---|---|---|
+| SignPath Foundation | free | SignPath Foundation | conditions above; needs an existing release |
+| Certum open source | ~€25/year | you | open source only |
+| Azure Trusted Signing | ~$10/month | you | needs a verified legal entity |
+| OV certificate | ~£200/year | you | SmartScreen reputation still builds slowly |
+| EV certificate | ~£300+/year | you | trusted by SmartScreen immediately |
+
+Whichever is used, fill in `Invoke-SignExe` in `Build-Exe.ps1` and pass `-Sign`,
+or wire the CI step. Timestamping is not optional: without it every signature
+stops validating the day the certificate expires, including on copies already
+downloaded.
 
 Worth knowing regardless of signing: a PowerShell payload inside an exe that then
 rewrites the registry and stops services is, to a heuristic scanner, the profile
@@ -646,11 +675,7 @@ Given that, closed source bought nothing and cost a great deal:
 
 - **It cost the trust argument.** "Read what it does before you run it as
   administrator" is the strongest thing this tool can say for itself.
-- **It cost the signature.** [SignPath Foundation](https://signpath.org/) provides
-  free, EV-backed code signing to open-source projects. That removes the
-  SmartScreen *"Windows protected your PC"* wall, which otherwise needs a
-  certificate costing more per year than the app is likely to make in its first
-  one.
+- **It opened a route to a signature** — though not a clear one, see below.
 - **It cost the contributions.** Catalogue accuracy is the hard part of this
   project and it improves with more machines and more Windows builds looking at
   it. See [CONTRIBUTING.md](CONTRIBUTING.md).

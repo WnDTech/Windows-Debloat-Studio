@@ -36,19 +36,28 @@ function Initialize-Paths {
     #
     # What it writes is split in two, by what each part actually needs.
     #
-    # Machine state, in ProgramData: the journal, the licence and saved presets.
-    # The journal has to be machine-wide, not per-user. This app always runs
-    # elevated, and on a PC where the signed-in user is not an administrator,
-    # elevation switches profile - so a per-user journal would land under
-    # whichever admin approved the prompt, and a later unelevated run would look
-    # somewhere else and report nothing to undo while the changes were still in
-    # force. This folder is locked down to administrators for writing, because
-    # the record of how to reverse a change should not be editable by someone
-    # who could not have made the change.
+    # Machine state, in ProgramData: the journal and the licence, and nothing
+    # else. The journal has to be machine-wide, not per-user. This app always
+    # runs elevated, and on a PC where the signed-in user is not an
+    # administrator, elevation switches profile - so a per-user journal would
+    # land under whichever admin approved the prompt, and a later unelevated run
+    # would look somewhere else and report nothing to undo while the changes
+    # were still in force. This folder is locked down to administrators for
+    # writing, because the record of how to reverse a change should not be
+    # editable by someone who could not have made the change.
     #
-    # Per-user state, in LocalAppData: the compiled view-models and the session
-    # logs. Neither needs to be shared, and both must be writable without
-    # elevation. Keeping the compiled assembly here is the important half: it is
+    # Per-user state, in LocalAppData: the compiled view-models, the session
+    # logs, and the user's own saved presets. All three must be writable without
+    # elevation.
+    #
+    # Presets belong here rather than with the machine state, which is where
+    # they started out. Putting them in a folder hardened against non-admin
+    # writes meant saving a preset needed elevation, which is absurd for
+    # something the user typed - and there is nothing to protect: a preset can
+    # only hold option ids and the words Enable, Disable or Revert, never a
+    # path or a command.
+    #
+    # The compiled assembly living here is the security-relevant half: it is
     # loaded into an elevated process, and ProgramData is writable by any
     # ordinary user by default, so caching executable code there would let a
     # standard user hand code to an administrator.
@@ -64,7 +73,7 @@ function Initialize-Paths {
         Catalog  = Join-Path $Root 'data\catalog'
         State    = $machine
         UserState = $user
-        Presets  = Join-Path $machine 'presets'
+        Presets  = Join-Path $user 'presets'
         Bin      = Join-Path $user 'bin'
         Logs     = Join-Path $user 'logs'
     }
@@ -78,7 +87,7 @@ function Initialize-Paths {
     # exactly the intent - the app is elevated whenever it actually writes here.
     $needsHardening = -not (Test-Path -LiteralPath $machine)
 
-    foreach ($k in @('State','UserState','Presets','Bin','Logs')) {
+    foreach ($k in @('State','UserState','Bin','Logs','Presets')) {
         if (-not (Test-Path $script:Paths[$k])) {
             New-Item -ItemType Directory -Path $script:Paths[$k] -Force | Out-Null
         }
@@ -168,6 +177,7 @@ function Move-LegacyState {
     param([string]$Root)
 
     $notes = New-Object Collections.Generic.List[string]
+    $machineState = $script:Paths.State
 
     $oldJournal = Join-Path $Root 'logs\journal.jsonl'
     if ((Test-Path -LiteralPath $oldJournal) -and -not (Test-Path -LiteralPath $script:Paths.Journal)) {
@@ -176,6 +186,23 @@ function Move-LegacyState {
             $notes.Add("moved the journal out of the app folder into $($script:Paths.State)")
         } catch {
             $notes.Add("could not move the old journal: $($_.Exception.Message)")
+        }
+    }
+
+    # Two earlier homes: inside the app folder, and briefly in the machine
+    # state folder before presets moved to the user's own.
+    foreach ($stray in @(Join-Path $machineState 'presets')) {
+        if (-not (Test-Path -LiteralPath $stray)) { continue }
+        if ($stray -eq $script:Paths.Presets) { continue }
+        foreach ($f in @(Get-ChildItem -LiteralPath $stray -Filter '*.json' -ErrorAction SilentlyContinue)) {
+            $dest = Join-Path $script:Paths.Presets $f.Name
+            if (Test-Path -LiteralPath $dest) { continue }
+            try {
+                Copy-Item -LiteralPath $f.FullName -Destination $dest -Force
+                $notes.Add("moved preset $($f.Name) out of the machine folder into $($script:Paths.Presets)")
+            } catch {
+                $notes.Add("could not move preset $($f.Name): $($_.Exception.Message)")
+            }
         }
     }
 

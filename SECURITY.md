@@ -64,7 +64,7 @@ not try to.
 cleanup deletes data. A removed app package can only be reinstalled locally while
 its files are still on disk; after that it needs the Store.
 
-**Unsigned builds.** Until code signing is in place, SmartScreen will warn on
-first run. Verify the SHA-256 published with the release against the file you
+**Unsigned builds.** Code signing is not in place yet and is not a solved
+problem for this project, so SmartScreen will warn on first run. Verify the SHA-256 published with the release against the file you
 downloaded before running it. If the two do not match, do not run it, and please
 report it.
