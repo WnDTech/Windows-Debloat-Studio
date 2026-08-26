@@ -24,7 +24,7 @@ $script:AppVersion = '1.0.0'
 # program to be able to tell people where to get it. Fill this in when the
 # repository goes public; until then the panel says the link is not set rather
 # than opening something wrong.
-$script:SourceUrl = ''
+$script:SourceUrl = 'https://windowsdebloat.wndtech.tips'
 
 function Initialize-Paths {
     param([string]$Root)

@@ -6,63 +6,9 @@
 
 <style>
   /* ============================================================ tokens
-     Light is the base palette on purpose: the app is dark, so a pale ground
-     makes the app itself the only dark object on the page. Dark is redefined
-     at token level for both the OS setting and an explicit theme stamp. */
+     Dark is the base palette to match the app's own chrome. Light is
+     available as an explicit override via data-theme="light". */
   :root {
-    color-scheme: light;
-    --paper:      #edf0f4;
-    --paper-2:    #e4e8ef;
-    --surface:    #ffffff;
-    --ink:        #0e1218;
-    --ink-2:      #495365;
-    --ink-3:      #6f7a8c;
-    --accent:     #1f5fc4;
-    --accent-ink: #ffffff;
-    --accent-wash:#dfe8f8;
-    --rule:       #d3d9e2;
-    --rule-soft:  #e2e7ee;
-    --risk-safe:  #0a7a0a;
-    --risk-mod:   #96650a;
-    --risk-agg:   #bd2f2f;
-    --shadow:     0 1px 2px rgba(14,18,24,.05), 0 14px 40px -12px rgba(14,18,24,.22);
-    --shadow-sm:  0 1px 2px rgba(14,18,24,.06), 0 6px 18px -8px rgba(14,18,24,.16);
-    /* the app's own dark chrome, used verbatim inside the live demo */
-    --app-bg:     #0a0d13;
-    --app-card:   #141926;
-    --app-card-2: #171e2d;
-    --app-panel:  #0e121b;
-    --app-rule:   #222a39;
-    --app-ink:    #e8ecf4;
-    --app-ink-2:  #98a2b6;
-    --app-ink-3:  #6b7488;
-    --app-blue:   #3987e5;
-    --app-safe:   #0ca30c;
-    --app-mod:    #fab219;
-    --app-agg:    #d03b3b;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      color-scheme: dark;
-      --paper:      #080b10;
-      --paper-2:    #0d121a;
-      --surface:    #131824;
-      --ink:        #e8ecf4;
-      --ink-2:      #9aa4b7;
-      --ink-3:      #78839a;
-      --accent:     #6ca8ff;
-      --accent-ink: #071018;
-      --accent-wash:#16233a;
-      --rule:       #232a39;
-      --rule-soft:  #1b2230;
-      --risk-safe:  #3dd68c;
-      --risk-mod:   #f7b74a;
-      --risk-agg:   #ff8189;
-      --shadow:     0 1px 2px rgba(0,0,0,.5), 0 18px 50px -14px rgba(0,0,0,.7);
-      --shadow-sm:  0 1px 2px rgba(0,0,0,.4), 0 8px 22px -10px rgba(0,0,0,.6);
-    }
-  }
-  :root[data-theme="dark"] {
     color-scheme: dark;
     --paper:      #080b10;
     --paper-2:    #0d121a;
@@ -80,6 +26,38 @@
     --risk-agg:   #ff8189;
     --shadow:     0 1px 2px rgba(0,0,0,.5), 0 18px 50px -14px rgba(0,0,0,.7);
     --shadow-sm:  0 1px 2px rgba(0,0,0,.4), 0 8px 22px -10px rgba(0,0,0,.6);
+    /* the app's own dark chrome, used verbatim inside the live demo */
+    --app-bg:     #0a0d13;
+    --app-card:   #141926;
+    --app-card-2: #171e2d;
+    --app-panel:  #0e121b;
+    --app-rule:   #222a39;
+    --app-ink:    #e8ecf4;
+    --app-ink-2:  #98a2b6;
+    --app-ink-3:  #6b7488;
+    --app-blue:   #3987e5;
+    --app-safe:   #0ca30c;
+    --app-mod:    #fab219;
+    --app-agg:    #d03b3b;
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --paper:      #edf0f4;
+    --paper-2:    #e4e8ef;
+    --surface:    #ffffff;
+    --ink:        #0e1218;
+    --ink-2:      #495365;
+    --ink-3:      #6f7a8c;
+    --accent:     #1f5fc4;
+    --accent-ink: #ffffff;
+    --accent-wash:#dfe8f8;
+    --rule:       #d3d9e2;
+    --rule-soft:  #e2e7ee;
+    --risk-safe:  #0a7a0a;
+    --risk-mod:   #96650a;
+    --risk-agg:   #bd2f2f;
+    --shadow:     0 1px 2px rgba(14,18,24,.05), 0 14px 40px -12px rgba(14,18,24,.22);
+    --shadow-sm:  0 1px 2px rgba(14,18,24,.06), 0 6px 18px -8px rgba(14,18,24,.16);
   }
 
   /* ============================================================ base */
@@ -705,7 +683,7 @@
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Apply per-user options to <strong>every account</strong> and the default profile</span></li>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Reinstall removed Store apps through winget</span></li>
           </ul>
-          <a class="btn btn-primary" href="#checkout">Buy Pro &mdash; &pound;12</a>
+          <a class="btn btn-primary" href="https://buy.polar.sh/polar_cl_YLNee2PJwOEJ6bCO3utIPceq0IeEzwzaQHYQ31posJC">Buy Pro &mdash; &pound;12</a>
         </div>
 
         <div class="tier">
@@ -718,7 +696,7 @@
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Unlimited machines, including client work</span></li>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Commercial use licence</span></li>
           </ul>
-          <a class="btn btn-ghost" href="#checkout">Buy Technician</a>
+          <a class="btn btn-ghost" href="https://buy.polar.sh/polar_cl_k2Gv77HpgxYaUWiLnNWjijwQhlOqdkSdfzzuQ2WwZQ5">Buy Technician</a>
         </div>
       </div>
 
@@ -765,15 +743,12 @@
       </div>
 
       <div class="note" id="checkout">
-        <strong>Three things left to wire up.</strong> Licensing is implemented
-        against Polar's license-key API &mdash; activation, validation, machine
-        slots and deactivation all work. It still needs the
-        <code class="mono">organizationId</code> and the checkout links, both in
-        <code class="mono">data/licensing.json</code>, and a public URL to host
-        the exe. Until those are set the app stays on Free and makes no network
-        calls, and every button here &mdash; buy and download alike &mdash;
-        points at <code class="mono">#checkout</code> rather than a real basket
-        or a real file.
+        <strong>One thing left to wire up.</strong> Licensing runs against Polar's
+        license-key API &mdash; activation, validation, machine slots and
+        deactivation all work, and both buy buttons above now point at real
+        checkouts. Still missing is a public URL to host the exe: until that
+        exists, the download button here points at this note rather than a real
+        file, and the app's licence-tier mapping is unverified.
       </div>
     </div>
   </section>

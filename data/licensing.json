@@ -16,11 +16,11 @@
     "would silently get Pro. Fill Technician's in, or fill both."
   ],
   "provider": "polar",
-  "organizationId": "",
+  "organizationId": "6c436f63-1ce5-4039-a586-37c09462770b",
   "apiBase": "https://api.polar.sh",
   "checkout": {
-    "pro": "",
-    "technician": "",
+    "pro": "https://buy.polar.sh/polar_cl_YLNee2PJwOEJ6bCO3utIPceq0IeEzwzaQHYQ31posJC",
+    "technician": "https://buy.polar.sh/polar_cl_k2Gv77HpgxYaUWiLnNWjijwQhlOqdkSdfzzuQ2WwZQ5",
     "portal": "https://polar.sh/purchases"
   },
   "tiers": [
@@ -30,7 +30,7 @@
       "rank": 1,
       "machines": "Three PCs, movable between them.",
       "blurb": "For your own machines.",
-      "benefitIds": [],
+      "benefitIds": ["83723b77-02b2-4a2e-8bd2-513b331b3ef6"],
       "features": [
         "presets.advanced",
         "presets.save",
@@ -44,7 +44,7 @@
       "rank": 2,
       "machines": "Unlimited machines, including ones you are paid to work on.",
       "blurb": "For machines that are not yours.",
-      "benefitIds": [],
+      "benefitIds": ["e063de82-b109-4f07-b527-5d3cc249a5a5"],
       "features": [
         "presets.advanced",
         "presets.save",

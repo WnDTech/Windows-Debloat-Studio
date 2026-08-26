@@ -194,13 +194,21 @@ function Register-License {
 
     $label = Get-MachineLabel
     $act = Invoke-PolarCall -Action 'activate' -Body @{ key = $key; label = $label }
-    if (-not $act.Ok) {
-        Write-AppLog "license activate failed: $($act.Kind) $($act.Message)" 'warn'
-        return [pscustomobject]@{ Ok = $false; Message = $act.Message }
+    $activationId = $null
+    $lk = $null
+    if ($act.Ok) {
+        $activationId = "$($act.Data.id)"
+        $lk = $act.Data.license_key
+    } else {
+        Write-AppLog "license activate returned $($act.Kind); falling back to validate" 'info'
+        $val = Invoke-PolarCall -Action 'validate' -Body @{ key = $key }
+        if (-not $val.Ok) {
+            Write-AppLog "license activate and validate both failed: $($act.Kind) $($act.Message)" 'warn'
+            return [pscustomobject]@{ Ok = $false; Message = $act.Message }
+        }
+        $lk = $val.Data.license_key
     }
 
-    $activationId = "$($act.Data.id)"
-    $lk = $act.Data.license_key
     $benefitId = "$($lk.benefit_id)"
     $tier = Resolve-LicenseTier $benefitId
     if ($null -eq $tier) {
