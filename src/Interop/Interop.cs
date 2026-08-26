@@ -18,12 +18,43 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
 namespace Debloat
 {
+    // Windows works out which taskbar button a window belongs to from the
+    // process's Application User Model ID, and when none is set it falls back to
+    // the executable path. This app's window is created by powershell.exe, so
+    // without an explicit id the taskbar shows PowerShell's icon and groups the
+    // window with any other PowerShell window - no matter what icon the exe the
+    // user double-clicked carries, and no matter what Window.Icon is set to.
+    // Window.Icon fixes Alt-Tab and the title bar; only this fixes the taskbar.
+    public static class Shell
+    {
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
+        private static extern void SetCurrentProcessExplicitAppUserModelID(
+            [MarshalAs(UnmanagedType.LPWStr)] string AppID);
+
+        // Must be called before the first window is created. Failing is not
+        // worth stopping startup for: the app still runs, it just borrows the
+        // host's taskbar identity.
+        public static bool SetAppId(string id)
+        {
+            try
+            {
+                SetCurrentProcessExplicitAppUserModelID(id);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+    }
+
     // Base class giving change notification without repeating boilerplate.
     public class Observable : INotifyPropertyChanged
     {

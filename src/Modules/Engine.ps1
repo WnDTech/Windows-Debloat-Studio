@@ -133,15 +133,34 @@ function Get-CapabilityCache {
 }
 
 # Whether a category needs the slow DISM queries before its states mean anything.
+# True when a category holds anything whose state is skipped at launch: a DISM
+# feature or capability query, or a command probe.
+#
+# This used to read $t.Actions. TweakVM has no such property - it is always
+# $null - so the test always returned false and the deferral it guards never ran
+# a single time. The DISM queries were therefore happening during the launch
+# scan all along, while the app told the user in its own log that they were
+# deferred. Unelevated they fail fast and return nothing, which is why it went
+# unnoticed; elevated, they are slow and the user waits for them.
+#
+# The action kinds live on the catalogue definition, not the view-model.
+$script:SlowKinds = @('feature', 'capability', 'command')
+
 function Test-NeedsSlowScan {
     param($Tweaks)
     foreach ($t in $Tweaks) {
-        foreach ($a in $t.Actions) {
-            if ($a.kind -eq 'feature' -or $a.kind -eq 'capability') { return $true }
+        $def = Get-TweakDef $t.Id
+        if (-not $def) { continue }
+        foreach ($a in @($def.actions)) {
+            if ($script:SlowKinds -contains "$($a.kind)") { return $true }
         }
     }
     return $false
 }
+
+# Set while the startup scan runs, so the slow probes are skipped and read on
+# demand when their category is opened. Everything else is read normally.
+$script:DeferSlowProbes = $false
 
 # --------------------------------------------------------------- registry
 
@@ -561,6 +580,7 @@ function Get-ActionState {
             }
 
             'feature' {
+                if ($script:DeferSlowProbes) { return 'Unknown' }
                 $c = Get-FeatureCache
                 $k = "$($Action.name)".ToLower()
                 if (-not $c.ContainsKey($k)) { return 'Unknown' }
@@ -569,6 +589,7 @@ function Get-ActionState {
             }
 
             'capability' {
+                if ($script:DeferSlowProbes) { return 'Unknown' }
                 $c = Get-CapabilityCache
                 $k = "$($Action.name)".ToLower()
                 if (-not $c.ContainsKey($k)) { return 'Unknown' }
@@ -578,6 +599,16 @@ function Get-ActionState {
 
             'command' {
                 if (-not $Action.probe) { return 'Unknown' }
+
+                # A command probe means actually running something - usually a
+                # CIM or WMI query like Get-NetFirewallProfile or Get-MpPreference.
+                # Measured across the catalogue these cost about 63ms each,
+                # against 12ms for a registry read, so 26 options were taking
+                # 40 per cent of the whole startup scan. They are deferred the
+                # same way Windows features already are: read when the category
+                # is first opened, rather than making everyone wait at launch.
+                if ($script:DeferSlowProbes) { return 'Unknown' }
+
                 $res = & ([scriptblock]::Create($Action.probe))
                 $s = "$res"
                 if ($s -eq 'Enabled' -or $s -eq 'Disabled' -or $s -eq 'Mixed') { return $s }

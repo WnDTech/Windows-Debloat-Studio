@@ -373,6 +373,64 @@ Check 'a Store link is built for a known package' `
     ((Get-AppxStoreLink -Action $linkA -Package 'Microsoft.BingNews') -like 'ms-windows-store://pdp/?productid=*')
 Check 'an unknown package has no Store id' ($null -eq (Get-AppxStoreId -Action $linkA -Package 'Not.A.Package'))
 
+# ---------------------------------------------------------------- deferred probes
+#
+# The slow state reads - DISM features and capabilities, and the command probes -
+# are skipped at launch and read when their category is first opened. That is
+# only acceptable if the predicate deciding which categories still need reading
+# actually works.
+#
+# It did not. Test-NeedsSlowScan iterated $tweak.Actions, and TweakVM has no such
+# property, so it returned false for everything and the deferral never ran once.
+# Nothing failed visibly: the caches were simply built during the launch scan
+# instead, while the app's log told the user they had been deferred. These checks
+# exist so that cannot happen quietly again.
+Write-Host ''
+Write-Host 'deferred state reads' -ForegroundColor Cyan
+
+$slowKinds = @('feature', 'capability', 'command')
+$slowTweaks = @($script:AllTweaks | Where-Object {
+        $d = Get-TweakDef $_.Id
+        $d -and @($d.actions | Where-Object { $slowKinds -contains "$($_.kind)" }).Count -gt 0
+    })
+Check 'the catalogue has options with slow probes to defer' ($slowTweaks.Count -gt 0) `
+    ("found " + $slowTweaks.Count)
+Check 'the predicate spots a category that needs the slow read' (Test-NeedsSlowScan $slowTweaks)
+
+$fastOnly = @($script:AllTweaks | Where-Object {
+        $d = Get-TweakDef $_.Id
+        $d -and @($d.actions | Where-Object { $slowKinds -contains "$($_.kind)" }).Count -eq 0
+    })
+Check 'and leaves registry-only categories alone' (-not (Test-NeedsSlowScan $fastOnly))
+
+# Deferring must change when a state is read, never what it reads.
+$script:DeferSlowProbes = $false
+Update-TweakStates $script:AllTweaks
+$baseline = @{}
+foreach ($t in $script:AllTweaks) { $baseline[$t.Id] = "$($t.CurrentState)" }
+
+# Only options where *every* action is slow can be expected to read Unknown.
+# perf.hibernate, for one, pairs a command probe with a registry value: the
+# registry read still resolves it, which is right - the option is not unknown
+# just because one of the ways of looking at it was skipped.
+$allSlow = @($slowTweaks | Where-Object {
+        $d = Get-TweakDef $_.Id
+        @($d.actions | Where-Object { $slowKinds -notcontains "$($_.kind)" }).Count -eq 0
+    })
+Check 'some options are made up entirely of slow probes' ($allSlow.Count -gt 0) ("found " + $allSlow.Count)
+
+$script:DeferSlowProbes = $true
+Update-TweakStates $slowTweaks
+$readAnyway = @($allSlow | Where-Object { "$($_.CurrentState)" -ne 'Unknown' })
+Check 'the launch pass skips every one of them' ($readAnyway.Count -eq 0) `
+    (($readAnyway | ForEach-Object { $_.Id }) -join ', ')
+
+$script:DeferSlowProbes = $false
+Update-TweakStates $slowTweaks
+$changed = @($slowTweaks | Where-Object { "$($_.CurrentState)" -ne $baseline[$_.Id] })
+Check 'and reading them later gives the same answer as reading them at launch' `
+    ($changed.Count -eq 0) (($changed | ForEach-Object { $_.Id }) -join ', ')
+
 if (Test-Path $script:Paths.Journal) { Remove-Item $script:Paths.Journal -Force }
 
 Write-Host ''

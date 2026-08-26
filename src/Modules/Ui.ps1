@@ -24,7 +24,7 @@ $script:Shell = $null
 $script:LogItems = $null
 $script:ActiveCategory = $null
 $script:View = 'options'
-$script:SlowScanDone = $false
+$script:SlowScanned = @{}
 $script:Cancel = $false
 
 # --------------------------------------------------------------- bootstrap
@@ -228,13 +228,22 @@ function Select-Category {
     $script:Shell.SectionBlurb = $cat.Blurb
     Set-View 'options'
 
-    # DISM-backed categories need the slow query before their states mean anything.
-    if (-not $script:SlowScanDone -and (Test-NeedsSlowScan $cat.Tweaks)) {
-        $script:Shell.Status = 'Reading Windows features, this takes a moment...'
+    # Anything skipped at launch - the DISM feature and capability queries, and
+    # the command probes - is read the first time its category is opened.
+    #
+    # Tracked per category, not with a single flag. The feature and capability
+    # caches are global, so one flag was survivable while those were the only
+    # deferred things: the first slow category built the caches and later ones
+    # read from them. Command probes are per option and run right here, so a
+    # single flag would have left every category after the first showing Unknown
+    # for ever.
+    if ($null -eq $script:SlowScanned) { $script:SlowScanned = @{} }
+    if (-not $script:SlowScanned.ContainsKey($cat.Key) -and (Test-NeedsSlowScan $cat.Tweaks)) {
+        $script:Shell.Status = 'Reading the slower settings for this section...'
         Sync-Ui
         Get-FeatureCache | Out-Null
         Get-CapabilityCache | Out-Null
-        $script:SlowScanDone = $true
+        $script:SlowScanned[$cat.Key] = $true
         Update-TweakStates $cat.Tweaks
         Update-Coverage
         $script:Shell.Status = 'Ready'
@@ -1220,7 +1229,7 @@ function Invoke-Rescan {
     Add-UiLog 'Clearing cached state...' 'head'
     Sync-Ui
     Reset-EngineCache -IncludeSlow
-    $script:SlowScanDone = $false
+    $script:SlowScanned = @{}
 
     Add-UiLog 'Reading services, apps and scheduled tasks...' 'head'
     Sync-Ui
@@ -1231,13 +1240,27 @@ function Invoke-Rescan {
 
     Add-UiLog 'Checking each option...' 'head'
     Sync-Ui
+    # Pumping the dispatcher forces a full layout and render pass over the whole
+    # visual tree, which on this window costs far more than the option probe it
+    # is reporting on. Measured: the same Update-TweakStates loop takes about
+    # 2.7 seconds with no UI attached and around 11 with a pump every twelfth
+    # option - the progress display was four times the cost of the actual work.
+    #
+    # Repainting about five times a second is more than enough for a progress
+    # bar, so the properties update every time and only the repaint is throttled.
+    $script:LastPump = [Diagnostics.Stopwatch]::StartNew()
     $prog = {
         param($i, $n)
         $script:Shell.Progress = [math]::Round(($i / $n) * 100, 1)
         $script:Shell.BusyDetail = "Checked $i of $n options."
-        Sync-Ui
+        if ($script:LastPump.ElapsedMilliseconds -ge 200) {
+            Sync-Ui
+            $script:LastPump.Restart()
+        }
     }
-    Update-TweakStates $script:AllTweaks $prog
+    $script:DeferSlowProbes = $true
+    try { Update-TweakStates $script:AllTweaks $prog }
+    finally { $script:DeferSlowProbes = $false }
     Update-Coverage
 
     $script:Shell.JournalCount = Get-JournalTweakCount
@@ -1286,7 +1309,7 @@ function Invoke-GlobalUndo {
     }
 
     Reset-EngineCache -IncludeSlow
-    $script:SlowScanDone = $false
+    $script:SlowScanned = @{}
 
     Add-UiLog ''
     if ($stopped) {
@@ -1699,6 +1722,14 @@ function Start-DebloatUi {
 
     Initialize-Interop
 
+    # Claim a taskbar identity of our own, before any window exists. Without
+    # this the taskbar button inherits the host process - powershell.exe - and
+    # shows PowerShell's icon and groups with PowerShell windows, whatever icon
+    # the window itself carries.
+    if (-not [Debloat.Shell]::SetAppId('WndTech.WindowsDebloatStudio')) {
+        Write-AppLog 'could not set the taskbar identity; the window may show the host icon' 'warn'
+    }
+
     $app = [Windows.Application]::Current
     if ($null -eq $app) { $app = New-Object Windows.Application }
     $app.ShutdownMode = 'OnMainWindowClose'
@@ -1747,8 +1778,34 @@ function Start-DebloatUi {
     Refresh-PresetList
     Sync-LicenseUi
 
-    # first state read, with the slow DISM queries deferred
+    # Show the busy panel now so it is already on screen the moment the window
+    # paints, rather than appearing a beat later.
     Open-BusyPanel 'Reading your current configuration' "Checking the live state of $($script:AllTweaks.Count) options: registry values, services, installed apps and scheduled tasks."
+    (Get-El 'RailTop').SelectedIndex = 0
+
+    # The state scan reads every service, package and scheduled task on the
+    # machine and then probes all 355 options. That takes ten seconds or more,
+    # and it used to run here - before Application.Run had shown the window. So
+    # the user double-clicked and watched nothing at all for the whole scan,
+    # while the busy panel and progress bar it faithfully updated were being
+    # drawn to a window that was not on screen yet.
+    #
+    # ContentRendered fires once the window has actually painted, so the scan
+    # now runs behind a visible progress bar. It can fire again on later
+    # re-renders, hence the guard.
+    $script:StartupScanDone = $false
+    $win.Add_ContentRendered({
+            if ($script:StartupScanDone) { return }
+            $script:StartupScanDone = $true
+            Start-InitialScan
+        })
+
+    $app.Run($win) | Out-Null
+}
+
+# The first read of the live machine state. Split out of Start-DebloatUi so it
+# can be run after the window is visible.
+function Start-InitialScan {
     Add-UiLog 'Reading services...' 'head'
     Sync-Ui
     Get-ServiceCache | Out-Null
@@ -1772,12 +1829,9 @@ function Start-DebloatUi {
 
     $script:Shell.JournalCount = Get-JournalTweakCount
     Add-UiLog "Ready. $($script:AllTweaks.Count) options loaded across $($script:Categories.Count) categories." 'ok'
-    Add-UiLog 'Windows features and optional capabilities are read when you first open that category, because that query is slow.' 'info'
+    Add-UiLog 'Windows features, optional capabilities and the options that have to run a query are read when you first open their category, because those are slow.' 'info'
     Close-BusyPanel 'Nothing has been changed. Nothing is selected.'
     (Get-El 'OvBusy').Visibility = 'Collapsed'
 
     Build-Overview
-    (Get-El 'RailTop').SelectedIndex = 0
-
-    $app.Run($win) | Out-Null
 }
