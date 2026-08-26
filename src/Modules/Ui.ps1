@@ -815,11 +815,32 @@ function Sync-LicenseUi {
 
     (Get-El 'TxtLicDetail').Text = $e.Detail
 
-    $names = @()
-    foreach ($f in @('presets.advanced', 'presets.save', 'allusers', 'winget')) {
-        $names += ([char]0x2022 + ' ' + (Get-FeatureDescription $f))
+    # What this licence already includes. Read from the entitlement, not a
+    # hard-coded list, so it is true for whichever tier was actually bought.
+    $have = @($e.Features)
+    (Get-El 'LicHaveBlock').Visibility = if ($have.Count -gt 0) { 'Visible' } else { 'Collapsed' }
+    if ($have.Count -gt 0) {
+        $lines = @($have | ForEach-Object { [char]0x2022 + ' ' + (Get-FeatureDescription $_) })
+        (Get-El 'TxtLicHaveHead').Text = ("INCLUDED WITH " + "$($e.TierName)".ToUpper())
+        (Get-El 'TxtLicHave').Text = [string]::Join("`n", $lines)
     }
-    (Get-El 'TxtLicFeatures').Text = [string]::Join("`n", $names)
+
+    # And what the next tier up would add. Nothing shown once the top tier is
+    # held - an upsell block for something already owned is just confusing.
+    $next = Get-UpgradeOffer
+    (Get-El 'LicNextBlock').Visibility = if ($next) { 'Visible' } else { 'Collapsed' }
+    if ($next) {
+        (Get-El 'TxtLicNextHead').Text = ("WHAT " + "$($next.TierName)".ToUpper() + " ADDS")
+        $adds = @($next.Adds | ForEach-Object { [char]0x2022 + ' ' + (Get-FeatureDescription $_) })
+        (Get-El 'TxtLicFeatures').Text = [string]::Join("`n", $adds)
+        (Get-El 'TxtLicNextWho').Text = "$($next.Blurb) $($next.Machines) Every option and the whole safety net stay free either way."
+    }
+
+    # The two buy buttons only make sense while there is something to buy.
+    $bp = Get-El 'BtnLicBuy'
+    if ($bp) { $bp.Visibility = if ($e.TierId -eq 'free') { 'Visible' } else { 'Collapsed' } }
+    $bt = Get-El 'BtnLicBuyTech'
+    if ($bt) { $bt.Visibility = if ($e.TierId -eq 'technician') { 'Collapsed' } else { 'Visible' } }
 
     $st = Get-LicenseState
     $hasKey = ($null -ne $st -and $st.key)
@@ -830,21 +851,46 @@ function Sync-LicenseUi {
         (Get-El 'TxtLicKey').Text = "$($st.key)"
     }
 
-    # A locked preset still shows everything it would do; only the action changes.
-    $allowed = Test-Feature 'presets.advanced'
+    # A locked preset still shows everything it would do; only the action
+    # changes. Each preset is judged against the feature its own tier needs,
+    # rather than everything non-free being compared against the literal string
+    # 'pro' - which meant a technician preset could never lock, and a locked one
+    # told the buyer to buy Pro even when Pro was what they already had.
     foreach ($pv in @($script:Presets)) {
-        $pv.IsLocked = (-not $allowed) -and ("$($pv.Tier)" -eq 'pro')
+        $pv.IsLocked = -not (Test-PresetAllowed $pv.Tier)
+        $name = Get-PresetTierName $pv.Tier
+        if ($name) { $pv.LockTierName = $name }
     }
 
-    # Pro-only controls explain themselves rather than vanishing.
+    # Paid controls explain themselves rather than vanishing, and name the tier
+    # they belong to so the message is actionable.
     $save = Test-Feature 'presets.save'
+    $saveTier = Get-TierForFeature 'presets.save'
+    $saveName = if ($saveTier) { "$($saveTier.name)" } else { 'Pro' }
     foreach ($n in @('BtnPresetSaveCurrent', 'BtnSavePreset', 'BtnPresetImport')) {
         $b = Get-El $n
         if ($b) {
             $b.IsEnabled = $save
-            if (-not $save) { $b.ToolTip = 'Included with Pro. Free covers every option and the whole safety net.' }
+            if (-not $save) {
+                $b.ToolTip = "Included with $saveName. Free covers every option and the whole safety net."
+            }
         }
     }
+
+    # The hand-over report is Technician only.
+    $rep = Test-Feature 'report'
+    $repTier = Get-TierForFeature 'report'
+    $repName = if ($repTier) { "$($repTier.name)" } else { 'Technician' }
+    $rb = Get-El 'BtnReport'
+    if ($rb) {
+        $rb.IsEnabled = $rep
+        if (-not $rep) {
+            $rb.ToolTip = "Included with $repName, for handing a machine back to someone else."
+        } else {
+            $rb.ToolTip = 'Save a report of every change made to this PC, and how to reverse it.'
+        }
+    }
+
     Update-Filter
 }
 
@@ -863,8 +909,10 @@ function Show-LicensePanel {
 function Deny-Feature {
     param([string]$Feature)
     $what = Get-FeatureDescription $Feature
-    Show-Toast "$what is included with Pro." 'warn'
-    Show-LicensePanel -Because "You reached for $($what.ToLower())."
+    $tier = Get-TierForFeature $Feature
+    $name = if ($tier) { "$($tier.name)" } else { 'Pro' }
+    Show-Toast "$what is included with $name." 'warn'
+    Show-LicensePanel -Because "You reached for $($what.ToLower()), which is part of $name."
 }
 
 function Open-Url {
@@ -1609,6 +1657,30 @@ function Register-Handlers {
             }
         })
     (Get-El 'BtnOpenLogs').Add_Click({ Start-Process explorer.exe $script:Paths.Logs })
+
+    # The hand-over report. Technician: it exists for giving a machine back to
+    # somebody else, which is not something you do to your own PC.
+    (Get-El 'BtnReport').Add_Click({
+            if (-not (Test-Feature 'report')) {
+                Deny-Feature 'report'
+                return
+            }
+            $dlg = New-Object Microsoft.Win32.SaveFileDialog
+            $dlg.Title = 'Save the hand-over report'
+            $dlg.Filter = 'Web page (*.html)|*.html'
+            $dlg.FileName = ('Changes to ' + $env:COMPUTERNAME + ' ' + (Get-Date -Format 'yyyy-MM-dd') + '.html')
+            $dlg.InitialDirectory = [Environment]::GetFolderPath('MyDocuments')
+            if (-not $dlg.ShowDialog()) { return }
+            try {
+                $r = Export-ChangeReport -Path $dlg.FileName
+                Add-UiLog "hand-over report written to $($r.Path) covering $($r.Count) changed option(s)" 'ok'
+                Show-Toast ("Report saved. $($r.Count) changed option(s).") 'ok'
+                Start-Process $r.Path
+            } catch {
+                Add-UiLog "the report could not be written: $($_.Exception.Message)" 'error'
+                Show-Toast 'The report could not be written. See the log.' 'warn'
+            }
+        })
 
     # --- licence
     (Get-El 'BtnTier').Add_Click({ Show-LicensePanel })

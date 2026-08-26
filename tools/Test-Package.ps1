@@ -109,7 +109,7 @@ $r.Dispose(); $buf.Dispose()
 Write-Host ("   $count files unpacked from the exe") -ForegroundColor DarkGray
 
 Check 'the entry script is there' ($files.Contains('Debloat.ps1'))
-Check 'all seven modules are there' (@($files.Keys | Where-Object { $_ -like 'src\Modules\*.ps1' }).Count -eq 7) `
+Check 'all nine modules are there' (@($files.Keys | Where-Object { $_ -like 'src\Modules\*.ps1' }).Count -eq 9) `
     ("found " + @($files.Keys | Where-Object { $_ -like 'src\Modules\*.ps1' }).Count)
 Check 'both XAML files are there' (@($files.Keys | Where-Object { $_ -like 'src\Gui\*.xaml' }).Count -eq 2)
 Check 'the view-model source is there' ($files.Contains('src\Interop\Interop.cs'))

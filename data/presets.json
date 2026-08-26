@@ -841,6 +841,168 @@
       "tier": "pro"
     },
     {
+      "id": "builtin.corporate",
+      "name": "Corporate Build",
+      "glyph": "",
+      "risk": "moderate",
+      "tier": "technician",
+      "summary": "A lean managed-desktop build: consumer clutter and telemetry out, nothing touched that a domain or Intune policy is likely to own.",
+      "detail": "• Everything safe in Privacy & Telemetry, Ads and Copilot/AI\n• Removes the consumer preinstalled apps but keeps Photos, Paint, Notepad, Snipping Tool, Calculator, Terminal and the Store\n• Turns off the consumer experience surfaces: Spotlight, tips, suggested content, the Explorer advertising banner and OneDrive personal onboarding\n• Disables the telemetry scheduled tasks and the services that do nothing on a managed desktop: Fax, Retail Demo, Remote Registry, Downloaded Maps, Wallet and the Xbox background services\n• Deliberately leaves Windows Update, Defender, the firewall, UAC and BitLocker alone - those belong to whoever manages the fleet, not to this tool",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy",
+            "ads",
+            "ai"
+          ],
+          "risk": [
+            "safe"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "apps"
+          ],
+          "risk": [
+            "safe"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "tasks"
+          ],
+          "risk": [
+            "safe"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "services"
+          ],
+          "risk": [
+            "safe"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "explorer"
+          ],
+          "risk": [
+            "safe"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "builtin.kiosk",
+      "name": "Kiosk & Shared Terminal",
+      "glyph": "",
+      "risk": "aggressive",
+      "tier": "technician",
+      "summary": "For a machine a stranger sits at: every consumer surface, suggestion and personalisation route closed, applied to every account on the PC.",
+      "detail": "• Everything the Corporate Build does, plus the aggressive privacy and interface options\n• Removes every removable preinstalled app, including the ones a normal desktop would keep\n• Closes the personalisation and sync surfaces so one user cannot leave settings behind for the next\n• Turns off Widgets, Copilot, Recall, the lock screen, Spotlight and every tip and suggestion channel\n• Leaves Defender, the firewall and Windows Update ON - a shared terminal is the last place to weaken those",
+      "warning": "Aimed at shared machines. Applied to every account, and some of it removes apps a normal user would expect to find. Not what you want on a personal PC.",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy",
+            "ads",
+            "ai"
+          ],
+          "risk": [
+            "safe",
+            "moderate",
+            "aggressive"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "apps"
+          ],
+          "risk": [
+            "safe",
+            "moderate"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "explorer"
+          ],
+          "risk": [
+            "safe",
+            "moderate"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "tasks",
+            "services"
+          ],
+          "risk": [
+            "safe",
+            "moderate"
+          ]
+        },
+        {
+          "action": "Enable",
+          "categories": [
+            "security"
+          ],
+          "risk": [
+            "safe"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "builtin.handoff",
+      "name": "Client Hand-off",
+      "glyph": "",
+      "risk": "safe",
+      "tier": "technician",
+      "summary": "The conservative pass for a machine you are giving back: the clutter and telemetry a client will thank you for, and nothing they could ring you about.",
+      "detail": "• Everything safe in Privacy & Telemetry and Ads\n• Removes only the app packages marked Safe, which are the ones that reinstall from the Store if the client ever wants them back\n• Left-aligns the taskbar, shows file extensions and turns off the Explorer advertising banner\n• Changes nothing about Defender, the firewall, Windows Update, networking, performance or power - so nothing can be blamed on it later\n• Pair it with --report to hand over a document listing every change and how to reverse it",
+      "rules": [
+        {
+          "action": "Disable",
+          "categories": [
+            "privacy",
+            "ads"
+          ],
+          "risk": [
+            "safe"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "apps"
+          ],
+          "risk": [
+            "safe"
+          ]
+        },
+        {
+          "action": "Disable",
+          "categories": [
+            "explorer"
+          ],
+          "risk": [
+            "safe"
+          ]
+        }
+      ]
+    },
+    {
       "id": "builtin.revert-all",
       "name": "Put Everything Back",
       "glyph": "",

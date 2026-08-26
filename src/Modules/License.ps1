@@ -363,6 +363,85 @@ function Get-FeatureDescription {
     return 'This feature'
 }
 
+# --------------------------------------------------------------- tiers
+#
+# The tiers are ordered by rank and each one's features are a superset of the
+# one below. That is what lets the app answer two questions honestly: what did
+# this person pay for, and what would the next tier add. Before this, Pro and
+# Technician had identical feature lists - so a Technician key unlocked exactly
+# what a Pro key did, and the more expensive tier bought nothing the app could
+# point at.
+
+function Get-Tiers {
+    if ($null -eq $script:LicCfg) { Import-LicenseConfig | Out-Null }
+    return @($script:LicCfg.tiers | Sort-Object { [int]$_.rank })
+}
+
+function Get-Tier {
+    param([string]$Id)
+    foreach ($t in (Get-Tiers)) { if ("$($t.id)" -eq "$Id") { return $t } }
+    return $null
+}
+
+# The cheapest tier that grants a given feature - so a locked control can say
+# which product it belongs to rather than just "this is paid".
+function Get-TierForFeature {
+    param([Parameter(Mandatory)][string]$Feature)
+    foreach ($t in (Get-Tiers)) {
+        if (@($t.features) -contains $Feature) { return $t }
+    }
+    return $null
+}
+
+# What the current licence does not yet include, and which tier would add it.
+# Returns $null when the top tier is already held.
+function Get-UpgradeOffer {
+    $e = Get-Entitlement
+    $have = @($e.Features)
+    foreach ($t in (Get-Tiers)) {
+        $missing = @($t.features | Where-Object { $have -notcontains $_ })
+        if ($missing.Count -gt 0) {
+            return [pscustomobject]@{
+                TierId = "$($t.id)"; TierName = "$($t.name)"
+                Machines = "$($t.machines)"; Blurb = "$($t.blurb)"
+                Adds = $missing
+            }
+        }
+    }
+    return $null
+}
+
+# Which feature, if any, a preset of this tier needs. Kept in config so adding
+# a tier does not mean editing a comparison in three files - the old code tested
+# the preset's tier against the literal string 'pro', which meant a preset
+# marked 'technician' could never lock at all.
+function Get-PresetFeature {
+    param([string]$Tier)
+    if ($null -eq $script:LicCfg) { Import-LicenseConfig | Out-Null }
+    $key = if ([string]::IsNullOrWhiteSpace($Tier)) { 'free' } else { "$Tier".ToLower() }
+    $p = $script:LicCfg.presetTierFeature.PSObject.Properties | Where-Object { $_.Name -eq $key }
+    if ($p -and -not [string]::IsNullOrWhiteSpace("$($p.Value)")) { return "$($p.Value)" }
+    return $null
+}
+
+# True when a preset of this tier is usable on the current licence.
+function Test-PresetAllowed {
+    param([string]$Tier)
+    $f = Get-PresetFeature $Tier
+    if ($null -eq $f) { return $true }        # free presets are always allowed
+    return (Test-Feature $f)
+}
+
+# The name of the product a preset of this tier belongs to, for the button.
+function Get-PresetTierName {
+    param([string]$Tier)
+    $f = Get-PresetFeature $Tier
+    if ($null -eq $f) { return $null }
+    $t = Get-TierForFeature $f
+    if ($t) { return "$($t.name)" }
+    return 'Pro'
+}
+
 function Get-CheckoutUrl {
     param([ValidateSet('pro', 'technician', 'portal')][string]$Which = 'pro')
     if ($null -eq $script:LicCfg) { Import-LicenseConfig | Out-Null }

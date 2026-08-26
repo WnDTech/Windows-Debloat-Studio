@@ -601,6 +601,8 @@
                                 </Button>
                                 <Button x:Name="BtnOpenLogs" AutomationProperties.Name="Open the log folder" Style="{StaticResource BtnQuiet}" Margin="0,3,0,0"
                                         HorizontalContentAlignment="Left" Content="Open log folder" />
+                                <Button x:Name="BtnReport" AutomationProperties.Name="Save a hand-over report" Style="{StaticResource BtnQuiet}" Margin="0,3,0,0"
+                                        HorizontalContentAlignment="Left" Content="Save hand-over report&#8230;" />
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -1061,12 +1063,34 @@
                                 </StackPanel>
                             </Border>
 
-                            <Border Background="#FF141B2A" CornerRadius="9" Padding="15,13" Margin="0,10,0,0"
-                                    BorderThickness="1" BorderBrush="#FF25344B">
+                            <!--
+                                Two blocks, filled from the licence at runtime:
+                                what this key already includes, and what the next
+                                tier up would add. The heading used to read
+                                "WHAT PRO ADDS" and list the same four features
+                                whatever you had bought, which told a Technician
+                                customer nothing and a Pro customer nothing true.
+                            -->
+                            <Border x:Name="LicHaveBlock" Background="#FF13202A" CornerRadius="9" Padding="15,13"
+                                    Margin="0,10,0,0" BorderThickness="1" BorderBrush="#FF204257"
+                                    Visibility="Collapsed">
                                 <StackPanel>
-                                    <TextBlock Text="WHAT PRO ADDS" Style="{StaticResource Overline}"
-                                               Margin="0,0,0,7" Foreground="#FF6CB8FF" />
+                                    <TextBlock x:Name="TxtLicHaveHead" Text="INCLUDED WITH YOUR LICENCE"
+                                               Style="{StaticResource Overline}" Margin="0,0,0,7"
+                                               Foreground="{StaticResource Green}" />
+                                    <TextBlock x:Name="TxtLicHave" Style="{StaticResource Body}" FontSize="12.5" />
+                                </StackPanel>
+                            </Border>
+
+                            <Border x:Name="LicNextBlock" Background="#FF141B2A" CornerRadius="9" Padding="15,13"
+                                    Margin="0,10,0,0" BorderThickness="1" BorderBrush="#FF25344B">
+                                <StackPanel>
+                                    <TextBlock x:Name="TxtLicNextHead" Text="WHAT PRO ADDS"
+                                               Style="{StaticResource Overline}" Margin="0,0,0,7"
+                                               Foreground="#FF6CB8FF" />
                                     <TextBlock x:Name="TxtLicFeatures" Style="{StaticResource Body}" FontSize="12.5" />
+                                    <TextBlock x:Name="TxtLicNextWho" Style="{StaticResource Caption}"
+                                               Margin="0,8,0,0" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
 

@@ -17,6 +17,9 @@ PGLYPH = {
  'builtin.security': chr(0xEA18), 'builtin.developer': chr(0xE943),
  'builtin.shared': chr(0xE716), 'builtin.maximum': chr(0xE7BA),
  'builtin.revert-all': chr(0xE777),
+ # Technician: builds for machines that are not yours.
+ 'builtin.corporate': chr(0xE821), 'builtin.kiosk': chr(0xE977),
+ 'builtin.handoff': chr(0xE8AB),
 }
 
 errors, warns = [], []

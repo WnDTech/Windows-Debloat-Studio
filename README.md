@@ -42,10 +42,48 @@ powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File "Debloat.ps1"
 
 Useful switches:
 
-| Switch | What it does |
-|---|---|
-| `-NoElevate` | Skip the elevation prompt. Per-user options still work. |
-| `-Validate` | Print the catalogue and preset summary to the console and exit. No window, no changes. |
+| Switch | What it does | Tier |
+|---|---|---|
+| `--help` | Print the switches and exit. | free |
+| `--validate` | Print the catalogue and preset summary and exit. No window, no changes. | free |
+| `--noelevate` | Skip the elevation prompt. Per-user options still work. | free |
+| `--apply <preset.json>` | Apply a preset with no window, then exit. | Technician |
+| `--dry-run` | With `--apply`: walk the preset and report, changing nothing. | Technician |
+| `--report <out.html>` | Write a hand-over report of every change made to this PC. | Technician |
+
+Exit codes: `0` done, `2` not licensed for that, `3` bad input, `4` something failed.
+
+### Scripting the unattended mode
+
+The exe is a **windowed** program, so a shell does not wait for it and will not
+hand back its exit code. That is a property of the Windows subsystem field, not
+something the app can decide — a single executable is either console or windowed,
+and a console one would flash a black window at every GUI user. So wait for it
+explicitly:
+
+```powershell
+$p = Start-Process .\WindowsDebloatStudio.exe -Wait -PassThru -NoNewWindow `
+        -ArgumentList '--apply', 'build.json'
+$p.ExitCode
+```
+
+Add `-RedirectStandardOutput log.txt` to capture what it did. From `cmd`:
+
+```
+start /wait "" WindowsDebloatStudio.exe --apply build.json
+```
+
+Two things worth knowing. **Run it from an already-elevated context** — a
+deployment script, or SYSTEM during imaging. The manifest requests administrator,
+so from an unelevated prompt it raises a UAC dialog, which is not what you want
+on thirty machines. And **`--dry-run` first**: it resolves the preset, walks every
+action and reports exactly what a real run would do, without writing anything or
+journalling anything.
+
+A path containing `;` `|` `&` `` ` `` or a quote is refused rather than passed
+through, and refusing exits `3` without launching anything — an earlier version
+dropped the bad value instead, which meant the app quietly opened a window and a
+deployment script reported success having applied nothing.
 
 **Requirements:** Windows 11 (the catalogue targets it; options that do not apply
 show as *Unknown*), Windows PowerShell 5.1, and .NET Framework 4.x — all present
@@ -396,6 +434,7 @@ powershell      -ExecutionPolicy Bypass -File tools\Test-Engine.ps1    # capture
 powershell      -ExecutionPolicy Bypass -File tools\Test-License.ps1   # entitlement, offline grace, gating
 powershell      -ExecutionPolicy Bypass -File tools\Audit-Catalog.ps1  # every identifier vs this machine
 powershell -STA -ExecutionPolicy Bypass -File tools\Test-Package.ps1   # what is actually inside the exe
+powershell -STA -ExecutionPolicy Bypass -File tools\Test-Tiers.ps1     # tier separation, unattended apply, report
 powershell      -ExecutionPolicy Bypass -File tools\Diagnose.ps1       # when it will not start: says why
 powershell -STA -ExecutionPolicy Bypass -File tools\Export-Screens.ps1 # renders every screen to tools\screens\
 python3 tools\Validate-Catalog.py                                      # catalogue integrity
@@ -542,6 +581,29 @@ key for the organisation grants Pro.
 
 **Until `organizationId` is set the app stays on Free and makes no network call
 at all** — which is also true of every free install, permanently.
+
+### The three tiers
+
+| | Free | Pro | Technician |
+|---|---|---|---|
+| All 355 options, all 15 categories | yes | yes | yes |
+| Journal, Revert, Undo everything, dry run, restore point | yes | yes | yes |
+| Starter presets | 3 | 3 | 3 |
+| The 8 advanced curated presets | &mdash; | yes | yes |
+| Save / export / import your own presets | &mdash; | yes | yes |
+| Apply per-user options to every account | &mdash; | yes | yes |
+| Reinstall removed Store apps through winget | &mdash; | yes | yes |
+| Unattended apply from the command line | &mdash; | &mdash; | yes |
+| Client hand-over report | &mdash; | &mdash; | yes |
+| The 3 deployment presets | &mdash; | &mdash; | yes |
+| Machines per licence | no licence | 3 | unlimited |
+| Commercial use | &mdash; | &mdash; | yes |
+
+Pro is for your own machines; Technician is for machines that are not yours. The
+tiers are defined in `data\licensing.json`, and Technician's feature list is a
+strict superset of Pro's &mdash; `tools\Test-Tiers.ps1` asserts that, because for
+a while both tiers granted exactly the same four features and a Technician key
+unlocked nothing a Pro key did not.
 
 ### What is gated, and what can never be
 

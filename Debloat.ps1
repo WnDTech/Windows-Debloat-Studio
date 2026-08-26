@@ -31,7 +31,17 @@ param(
     # Skip the automatic elevation prompt. Machine-wide options will fail.
     [switch]$NoElevate,
     # Report what the catalogue contains and exit, without opening a window.
-    [switch]$Validate
+    [switch]$Validate,
+    # Apply a preset file with no window and no prompts, then exit. Technician.
+    [string]$Apply,
+    # Write a hand-over report of everything changed on this PC, then exit.
+    [string]$Report,
+    # With -Apply: walk the preset and report, changing nothing at all.
+    [switch]$DryRun,
+    # With -Apply: do not ask, do not summarise interactively. Implied.
+    [switch]$Silent,
+    # Print the switches and exit.
+    [switch]$Help
 )
 
 $ErrorActionPreference = 'Stop'
@@ -47,7 +57,42 @@ function Test-Elevated {
         [Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-if (-not $Validate -and -not $NoElevate -and -not (Test-Elevated)) {
+$headless = $Validate -or $Apply -or $Report -or $Help
+
+if ($Help) {
+    # A here-string, because the earlier version concatenated with + inside
+    # Write-Host, which PowerShell reads as extra positional arguments and
+    # prints them space-separated in the wrong order.
+    @'
+
+  Windows Debloat Studio
+
+  Run it with no arguments to open the window.
+
+    --validate             list the catalogue and presets, change nothing
+    --apply <preset.json>  apply a preset with no window        [Technician]
+    --dry-run              with --apply: report, change nothing
+    --report <out.html>    write a hand-over report             [Technician]
+    --noelevate            skip the elevation prompt
+    --help                 this
+
+  Exit codes:  0 done    2 not licensed    3 bad input    4 something failed
+
+  Scripting it. This is a windowed program, so a shell does not wait for it
+  and will not hand you the exit code. Wait for it explicitly:
+
+    $p = Start-Process .\WindowsDebloatStudio.exe -Wait -PassThru -NoNewWindow `
+            -ArgumentList '--apply', 'build.json'
+    $p.ExitCode
+
+  Add -RedirectStandardOutput log.txt to capture what it did. From cmd:
+
+    start /wait "" WindowsDebloatStudio.exe --apply build.json
+
+'@ | Write-Host
+    exit 0
+}
+if (-not $headless -and -not $NoElevate -and -not (Test-Elevated)) {
     Write-Host ''
     Write-Host '  Windows Debloat Studio needs administrator rights to read and change' -ForegroundColor Yellow
     Write-Host '  machine-wide settings. Asking for elevation...' -ForegroundColor Yellow
@@ -71,7 +116,7 @@ if (-not $Validate -and -not $NoElevate -and -not (Test-Elevated)) {
 
 # WPF needs a single-threaded apartment. Windows PowerShell is STA by default
 # only when launched with -STA, so re-launch ourselves if we are not.
-if (-not $Validate -and [Threading.Thread]::CurrentThread.GetApartmentState() -ne 'STA') {
+if (-not $headless -and [Threading.Thread]::CurrentThread.GetApartmentState() -ne 'STA') {
     Write-Host '  Restarting in a single-threaded apartment for WPF...' -ForegroundColor DarkGray
     $args2 = '-STA -NoProfile -ExecutionPolicy Bypass -File "{0}"' -f $MyInvocation.MyCommand.Path
     if ($NoElevate) { $args2 += ' -NoElevate' }
@@ -94,6 +139,8 @@ Initialize-Paths -Root $Root
 . (Join-Path $Root 'src\Modules\Catalog.ps1')
 . (Join-Path $Root 'src\Modules\Presets.ps1')
 . (Join-Path $Root 'src\Modules\License.ps1')
+. (Join-Path $Root 'src\Modules\Report.ps1')
+. (Join-Path $Root 'src\Modules\Unattended.ps1')
 . (Join-Path $Root 'src\Modules\Ui.ps1')
 
 Write-AppLog "session start, admin=$(Test-IsAdmin), pid=$PID" 'head'
@@ -121,6 +168,83 @@ if ($Validate) {
     }
     Write-Host ''
     exit 0
+}
+
+# ---------------------------------------------------------------- unattended
+#
+# Applying a preset with no window, and writing the hand-over report, are both
+# Technician features. Note what is *not* gated: the journal is still written,
+# so an unattended apply is exactly as reversible as one done by clicking, and
+# Undo everything works on it afterwards. The gate is on the convenience of
+# doing it without a person present, never on the safety net.
+#
+# Exit codes, because the whole point is being scriptable:
+#   0  applied, or nothing needed applying
+#   2  not licensed for this
+#   3  the preset file could not be read
+#   4  one or more actions failed
+
+if ($Apply -or $Report) {
+    Initialize-Interop
+    Import-Catalog | Out-Null
+    Import-Presets | Out-Null
+    $ent = Initialize-License
+
+    $needed = if ($Apply) { 'cli' } else { 'report' }
+    if (-not (Test-Feature $needed)) {
+        $tier = Get-TierForFeature $needed
+        $tierName = if ($tier) { "$($tier.name)" } else { 'Technician' }
+        Write-Host ''
+        Write-Host ("  " + (Get-FeatureDescription $needed) + " is part of $tierName.") -ForegroundColor Yellow
+        Write-Host ("  This install is on $($ent.TierName). Everything else is unaffected:") -ForegroundColor DarkGray
+        Write-Host '  every option, the journal, Revert and Undo everything are free.' -ForegroundColor DarkGray
+        Write-Host ''
+        Write-AppLog "unattended $needed refused: tier=$($ent.TierId)" 'warn'
+        exit 2
+    }
+
+    if ($Report) {
+        try {
+            $r = Export-ChangeReport -Path ([IO.Path]::GetFullPath($Report))
+            Write-Host ''
+            Write-Host ("  Report written to $($r.Path)") -ForegroundColor Green
+            Write-Host ("  $($r.Count) option(s) changed on this PC.") -ForegroundColor DarkGray
+            Write-Host ''
+            Write-AppLog "report written to $($r.Path), $($r.Count) options" 'ok'
+            exit 0
+        } catch {
+            Write-Host ("  The report could not be written: $($_.Exception.Message)") -ForegroundColor Red
+            Write-AppLog "report failed: $($_.Exception.Message)" 'error'
+            exit 3
+        }
+    }
+
+    # ---- unattended apply
+    Write-Host ''
+    Write-Host ("  Windows Debloat Studio $script:AppVersion  -  unattended") -ForegroundColor Cyan
+    Write-Host ("  licence $($ent.TierName), administrator=$(Test-IsAdmin)") -ForegroundColor DarkGray
+
+    $emit = { param($text, $colour) Write-Host $text -ForegroundColor $colour }
+    $res = Invoke-UnattendedApply -PresetPath $Apply -DryRun:$DryRun -OnLine $emit
+
+    Write-Host ''
+    if ($res.Total -gt 0) {
+        $tail = ''
+        if ($res.Skipped) { $tail += ", $($res.Skipped) skipped" }
+        if ($res.Restart) { $tail += ', a restart is needed' }
+        $verb = if ($DryRun) { 'would be applied' } else { 'applied' }
+        Write-Host ("  $($res.Applied) $verb, $($res.Failed) failed$tail") `
+            -ForegroundColor $(if ($res.Failed) { 'Yellow' } else { 'Green' })
+        if ($DryRun) {
+            Write-Host '  Nothing was changed and nothing was journalled.' -ForegroundColor DarkGray
+        } else {
+            Write-Host ("  Every change is in $($script:Paths.Journal) and can be undone.") -ForegroundColor DarkGray
+        }
+    }
+    Write-Host ''
+    Write-AppLog ("unattended apply$(if ($DryRun) { ' (dry run)' }): $($res.Applied) applied, $($res.Failed) failed, restart=$($res.Restart)") `
+        $(if ($res.Failed) { 'warn' } else { 'ok' })
+    exit $res.Code
 }
 
 # ---------------------------------------------------------------- run

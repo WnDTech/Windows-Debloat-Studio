@@ -33,6 +33,7 @@ Add-Type -AssemblyName PresentationFramework
 . (Join-Path $Root 'src\Modules\Catalog.ps1')
 . (Join-Path $Root 'src\Modules\Presets.ps1')
 . (Join-Path $Root 'src\Modules\License.ps1')
+. (Join-Path $Root 'src\Modules\Report.ps1')
 
 $pass = 0; $fail = 0
 function Check {
@@ -49,9 +50,31 @@ Import-LicenseConfig | Out-Null
 Write-Host ''
 Write-Host 'A) configuration' -ForegroundColor Cyan
 Check 'licensing.json loads' ($null -ne $script:LicCfg)
-Check 'four gated features are described' (@($script:LicCfg.features.PSObject.Properties).Count -eq 4) `
+Check 'every gated feature is described' (@($script:LicCfg.features.PSObject.Properties).Count -eq 7) `
     ("count=" + @($script:LicCfg.features.PSObject.Properties).Count)
 Check 'two paid tiers exist' (@($script:LicCfg.tiers).Count -eq 2)
+
+# The whole point of having two paid tiers. Before this, both granted the same
+# four features, so a Technician key unlocked precisely what a Pro key did and
+# the dearer tier bought nothing the app could point at.
+$pro = Get-Tier 'pro'
+$tech = Get-Tier 'technician'
+Check 'Pro and Technician are not the same thing' `
+    (@($pro.features).Count -ne @($tech.features).Count) `
+    ("pro=" + @($pro.features).Count + " technician=" + @($tech.features).Count)
+$notInTech = @($pro.features | Where-Object { @($tech.features) -notcontains $_ })
+Check 'Technician includes everything Pro has' ($notInTech.Count -eq 0) ($notInTech -join ', ')
+$techOnly = @($tech.features | Where-Object { @($pro.features) -notcontains $_ })
+Check 'and adds features of its own' ($techOnly.Count -gt 0) ("adds: " + ($techOnly -join ', '))
+foreach ($f in $techOnly) {
+    $t = Get-TierForFeature $f
+    Check "  $f resolves to Technician" ($t -and "$($t.id)" -eq 'technician') ("got " + $(if ($t) { $t.id } else { 'nothing' }))
+}
+Check 'every feature named by a tier has a description' `
+    (@(@($pro.features) + @($tech.features) | Sort-Object -Unique |
+        Where-Object { (Get-FeatureDescription $_) -eq 'This feature' }).Count -eq 0)
+Check 'tiers are ranked so the upgrade path is ordered' `
+    ([int]$pro.rank -lt [int]$tech.rank) ("pro=" + $pro.rank + " technician=" + $tech.rank)
 $configured = Test-LicenseConfigured
 Write-Host ("   organisation id set: $configured") -ForegroundColor DarkGray
 
@@ -108,8 +131,33 @@ Check 'marked paid' ($e.IsPaid)
 Check 'status is active' ($e.Status -eq 'active') $e.Status
 $unlocked = @('presets.advanced', 'presets.save', 'allusers', 'winget') |
 Where-Object { Test-Feature $_ }
-Check 'all four features unlocked' (@($unlocked).Count -eq 4) ("unlocked=" + @($unlocked).Count)
+Check 'all four Pro features unlocked' (@($unlocked).Count -eq 4) ("unlocked=" + @($unlocked).Count)
 Check 'an unknown feature name is still denied' (-not (Test-Feature 'something.else'))
+
+# A Pro key must not unlock the Technician features.
+foreach ($f in @('cli', 'report', 'presets.technician')) {
+    Check "Pro does not get $f" (-not (Test-Feature $f))
+}
+Check 'a Pro licence is offered the Technician upgrade' `
+    ((Get-UpgradeOffer) -and (Get-UpgradeOffer).TierId -eq 'technician')
+Check 'technician presets stay locked on Pro' (-not (Test-PresetAllowed 'technician'))
+Check 'pro presets are allowed on Pro' (Test-PresetAllowed 'pro')
+Check 'free presets are allowed on Pro' (Test-PresetAllowed 'free')
+
+# And a Technician key must unlock everything, with nothing left to upsell.
+$techState = (Copy-State $fresh); $techState.tierId = 'technician'; $techState.tierName = 'Technician'
+Save-LicenseState $techState
+$te = Get-Entitlement -Refresh
+Check 'a Technician key reports the Technician tier' ($te.TierId -eq 'technician') $te.TierId
+foreach ($f in @('cli', 'report', 'presets.technician', 'presets.advanced', 'allusers', 'winget')) {
+    Check "Technician gets $f" (Test-Feature $f)
+}
+Check 'nothing left to upgrade to on Technician' ($null -eq (Get-UpgradeOffer))
+Check 'technician presets are allowed on Technician' (Test-PresetAllowed 'technician')
+
+# Back to Pro for the checks that follow.
+Save-LicenseState $fresh
+Get-Entitlement -Refresh | Out-Null
 
 # ---------------------------------------------------------------- offline
 Write-Host ''
@@ -154,13 +202,33 @@ Write-Host 'F) the preset split' -ForegroundColor Cyan
 $doc = Read-JsonFile (Join-Path $Root 'data\presets.json')
 $free = @($doc.presets | Where-Object { $_.tier -eq 'free' })
 $pro = @($doc.presets | Where-Object { $_.tier -eq 'pro' })
-Check 'every preset declares a tier' ((@($free).Count + @($pro).Count) -eq @($doc.presets).Count)
+$tech = @($doc.presets | Where-Object { $_.tier -eq 'technician' })
+
+# Counted against the tiers the config actually defines, plus free, rather than
+# a hard-coded pair - adding the technician tier broke the old version of this
+# check, which is the sort of thing that gets a preset shipped with no tier and
+# therefore silently free.
+$known = @('free') + @((Get-Tiers) | ForEach-Object { "$($_.id)" })
+$untiered = @($doc.presets | Where-Object { $known -notcontains "$($_.tier)" })
+Check 'every preset declares a tier the config knows' ($untiered.Count -eq 0) `
+    (($untiered | ForEach-Object { "$($_.id)=$($_.tier)" }) -join ', ')
 Check 'three presets are free' (@($free).Count -eq 3) ("free=" + @($free).Count)
+Check 'eight are Pro' (@($pro).Count -eq 8) ("pro=" + @($pro).Count)
+Check 'three are Technician' (@($tech).Count -eq 3) ("technician=" + @($tech).Count)
+
+# Each paid preset must be reachable by the tier it claims.
+foreach ($p in @($doc.presets)) {
+    $f = Get-PresetFeature "$($p.tier)"
+    if ($null -eq $f) { continue }
+    $t = Get-TierForFeature $f
+    if ($null -eq $t) { Check "preset $($p.id) maps to a real tier" $false "tier=$($p.tier)" }
+}
 Check 'the safety escape hatch is free' `
     (@($free | Where-Object { $_.id -eq 'builtin.revert-all' }).Count -eq 1)
 Check 'the starter privacy preset is free' `
     (@($free | Where-Object { $_.id -eq 'builtin.privacy-essentials' }).Count -eq 1)
-Write-Host ("   free: " + (($free | ForEach-Object { $_.name }) -join ', ')) -ForegroundColor DarkGray
+Write-Host ("   free:       " + (($free | ForEach-Object { $_.name }) -join ', ')) -ForegroundColor DarkGray
+Write-Host ("   technician: " + (($tech | ForEach-Object { $_.name }) -join ', ')) -ForegroundColor DarkGray
 
 # ---------------------------------------------------------------- machine label
 Write-Host ''

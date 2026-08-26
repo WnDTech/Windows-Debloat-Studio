@@ -150,6 +150,8 @@ $include = @(
     'src\Modules\Catalog.ps1'
     'src\Modules\Presets.ps1'
     'src\Modules\License.ps1'
+    'src\Modules\Report.ps1'
+    'src\Modules\Unattended.ps1'
     'src\Modules\Ui.ps1'
     'src\Gui\MainWindow.xaml'
     'src\Gui\Theme.xaml'

@@ -78,6 +78,13 @@ namespace WindowsDebloatStudio
                     return 2;
                 }
 
+                // Started from a prompt with -apply, -validate or -report, this
+                // behaves like a console program: it writes to the console that
+                // launched it and reports through the exit code, rather than
+                // showing a dialog nobody is watching.
+                bool console = WantsConsole(args);
+                if (console) { try { AttachConsole(ATTACH_PARENT_PROCESS); } catch { } }
+
                 work = Path.Combine(Path.GetTempPath(),
                     "WindowsDebloatStudio-" + Guid.NewGuid().ToString("N").Substring(0, 12));
                 Directory.CreateDirectory(work);
@@ -93,7 +100,19 @@ namespace WindowsDebloatStudio
                     return 3;
                 }
 
-                return Run(ps, script, work, args);
+                string forwarded = Forward(args);
+                if (RejectedValue != null)
+                {
+                    string msg = "-" + RejectedValue + " needs a file path, and the one "
+                               + "given cannot be used. Nothing was changed."
+                               + "\n\nA path containing ; | & ` or a quote is refused "
+                               + "rather than passed on to PowerShell.";
+                    if (console) { Console.Error.WriteLine("  " + msg.Replace("\n\n", " ")); }
+                    else { Fail(msg); }
+                    return 3;
+                }
+
+                return Run(ps, script, work, forwarded, console);
             }
             catch (Exception ex)
             {
@@ -179,14 +198,20 @@ namespace WindowsDebloatStudio
         }
 
         // ------------------------------------------------------------ launch
-        private static int Run(string powershell, string script, string work, string[] args)
+        private static int Run(string powershell, string script, string work, string forwarded, bool console)
         {
             var psi = new ProcessStartInfo(powershell);
             psi.Arguments = "-STA -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\""
-                          + Forward(args);
+                          + forwarded;
             psi.WorkingDirectory = work;
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
+            // Always redirected. In console mode each line is echoed straight to
+            // our own stdout as it arrives, which is what makes "> log.txt" and
+            // piping work. Letting the child inherit the handles instead looked
+            // simpler and produced no output at all: AttachConsole attaches the
+            // process to a console but does not rebind its standard handles, so
+            // the child was writing into nothing.
             psi.RedirectStandardOutput = true;
             psi.RedirectStandardError = true;
 
@@ -194,14 +219,25 @@ namespace WindowsDebloatStudio
             using (Process p = new Process())
             {
                 p.StartInfo = psi;
-                p.OutputDataReceived += (s, e) => { if (e.Data != null) lock (log) log.AppendLine(e.Data); };
-                p.ErrorDataReceived += (s, e) => { if (e.Data != null) lock (log) log.AppendLine(e.Data); };
+                p.OutputDataReceived += (s, e) =>
+                {
+                    if (e.Data == null) return;
+                    if (console) { Console.Out.WriteLine(e.Data); }
+                    else { lock (log) log.AppendLine(e.Data); }
+                };
+                p.ErrorDataReceived += (s, e) =>
+                {
+                    if (e.Data == null) return;
+                    if (console) { Console.Error.WriteLine(e.Data); }
+                    else { lock (log) log.AppendLine(e.Data); }
+                };
                 p.Start();
                 p.BeginOutputReadLine();
                 p.BeginErrorReadLine();
                 p.WaitForExit();
+                if (console) { try { Console.Out.Flush(); } catch { } }
 
-                if (p.ExitCode != 0)
+                if (p.ExitCode != 0 && !console)
                 {
                     string tail;
                     lock (log) tail = Tail(log.ToString(), 18);
@@ -212,27 +248,95 @@ namespace WindowsDebloatStudio
             }
         }
 
+        // The switches the app understands, and whether each takes a value.
+        // An allow-list rather than a pattern: everything reaching this point is
+        // being pasted into a PowerShell command line, so the safe design is to
+        // know every switch by name and refuse the rest outright.
+        private static readonly string[] FlagSwitches =
+            { "noelevate", "validate", "silent", "help", "dryrun" };
+        private static readonly string[] ValueSwitches = { "apply", "report" };
+
+        // Set by Forward when a switch that needs a path was given something
+        // unusable, and checked before anything is launched.
+        private static string RejectedValue;
+
         private static string Forward(string[] args)
         {
             if (args == null || args.Length == 0) return string.Empty;
             var sb = new StringBuilder();
-            foreach (string a in args)
+
+            for (int i = 0; i < args.Length; i++)
             {
-                // Only the app's own switches are passed through. Anything that
-                // is not a plain switch is dropped rather than being handed to
-                // PowerShell, so a crafted shortcut cannot smuggle in arguments.
-                if (a != null && a.Length > 1 && (a[0] == '-' || a[0] == '/') && IsWordy(a.Substring(1)))
+                string a = args[i];
+                if (a == null || a.Length < 2) continue;
+                if (a[0] != '-' && a[0] != '/') continue;
+
+                string name = a.TrimStart('-', '/').ToLowerInvariant().Replace("-", string.Empty);
+                if (!IsWordy(name)) continue;
+
+                if (Contains(FlagSwitches, name))
                 {
-                    sb.Append(" -").Append(a.Substring(1));
+                    sb.Append(" -").Append(name);
+                    continue;
+                }
+
+                // -apply and -report take a path. It is quoted, and any quote
+                // characters inside it are dropped rather than escaped, so a
+                // value can never close the quoting and append a command.
+                if (Contains(ValueSwitches, name))
+                {
+                    string val = (i + 1 < args.Length) ? args[++i] : null;
+                    bool usable = !string.IsNullOrEmpty(val)
+                        && val.IndexOf(';') < 0 && val.IndexOf('|') < 0
+                        && val.IndexOf('&') < 0 && val.IndexOf('`') < 0
+                        && val.IndexOf('\"') < 0;
+
+                    if (!usable)
+                    {
+                        // Refused rather than dropped. Dropping it meant the
+                        // app fell through to opening a window, so a
+                        // deployment script would report success having
+                        // applied nothing at all.
+                        RejectedValue = name;
+                        return string.Empty;
+                    }
+                    sb.Append(" -").Append(name).Append(" \"").Append(val).Append('\"');
                 }
             }
             return sb.ToString();
+        }
+
+        private static bool Contains(string[] set, string value)
+        {
+            foreach (string s in set) if (s == value) return true;
+            return false;
         }
 
         private static bool IsWordy(string s)
         {
             foreach (char c in s) if (!char.IsLetter(c)) return false;
             return s.Length > 0;
+        }
+
+        // An unattended run has no window to report into, so its output has to
+        // reach the console that launched it. Attaching to the parent's console
+        // makes a windowed executable behave like a console one when, and only
+        // when, it was started from a prompt.
+        [DllImport("kernel32.dll")]
+        private static extern bool AttachConsole(int processId);
+        private const int ATTACH_PARENT_PROCESS = -1;
+
+        private static bool WantsConsole(string[] args)
+        {
+            if (args == null) return false;
+            foreach (string a in args)
+            {
+                if (a == null) continue;
+                string n = a.TrimStart('-', '/').ToLowerInvariant();
+                n = n.Replace("-", string.Empty);
+                if (n == "apply" || n == "validate" || n == "report" || n == "help") return true;
+            }
+            return false;
         }
 
         // ------------------------------------------------------------ helpers

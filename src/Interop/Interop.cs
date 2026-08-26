@@ -306,12 +306,32 @@ namespace Debloat
 
         public bool IsUnlocked { get { return !_locked; } }
 
-        public string StageLabel { get { return _locked ? "Unlock with Pro" : "Stage selections"; } }
+        // Which product this preset belongs to. Set from the licence config
+        // rather than baked in: the label used to read "Unlock with Pro" for
+        // everything, so a Technician preset would have told the buyer to buy
+        // the tier they already had.
+        private string _lockTier = "Pro";
+
+        public string LockTierName
+        {
+            get { return string.IsNullOrEmpty(_lockTier) ? "Pro" : _lockTier; }
+            set
+            {
+                if (_lockTier == value) return;
+                _lockTier = value;
+                Raise("LockTierName"); Raise("StageLabel");
+            }
+        }
+
+        public string StageLabel
+        {
+            get { return _locked ? "Unlock with " + LockTierName : "Stage selections"; }
+        }
 
         public override string ToString()
         {
             string s = Name + ", " + RiskLabel + " risk. " + CountSummary;
-            if (_locked) s += " Requires Pro.";
+            if (_locked) s += " Requires " + LockTierName + ".";
             return s;
         }
     }

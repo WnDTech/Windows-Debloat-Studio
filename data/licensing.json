@@ -1,48 +1,75 @@
 {
   "_comment": [
-    "Licensing configuration. Two values must be filled in before selling:",
+    "Licensing configuration. Three values must be filled in before selling:",
     "  organizationId  - Polar dashboard > Settings > General > Organization ID.",
     "                    This is not a secret; the validate/activate endpoints are",
     "                    public and it identifies which organisation a key belongs to.",
-    "  checkout        - the Polar checkout link for each product.",
+    "  checkout.pro    - the Polar checkout link for the Pro product.",
+    "  checkout.technician - the same for Technician.",
     "Then map each product's License Keys benefit id onto a tier below, so the app",
     "can tell a Pro key from a Technician key. Benefit ids appear in the Polar",
     "dashboard under the benefit, and in the validate response as 'benefit_id'.",
-    "If benefitIds is left empty, any valid key for the organisation grants Pro."
+    "",
+    "IMPORTANT: leave benefitIds empty on ONE tier at most. A tier with no",
+    "benefit ids is the fallback for any valid key, so if both are empty every",
+    "key resolves to whichever comes first - which is how Technician customers",
+    "would silently get Pro. Fill Technician's in, or fill both."
   ],
-
   "provider": "polar",
   "organizationId": "",
   "apiBase": "https://api.polar.sh",
-
   "checkout": {
     "pro": "",
     "technician": "",
     "portal": "https://polar.sh/purchases"
   },
-
   "tiers": [
     {
       "id": "pro",
       "name": "Pro",
+      "rank": 1,
+      "machines": "Three PCs, movable between them.",
+      "blurb": "For your own machines.",
       "benefitIds": [],
-      "features": ["presets.advanced", "presets.save", "allusers", "winget"]
+      "features": [
+        "presets.advanced",
+        "presets.save",
+        "allusers",
+        "winget"
+      ]
     },
     {
       "id": "technician",
       "name": "Technician",
+      "rank": 2,
+      "machines": "Unlimited machines, including ones you are paid to work on.",
+      "blurb": "For machines that are not yours.",
       "benefitIds": [],
-      "features": ["presets.advanced", "presets.save", "allusers", "winget"]
+      "features": [
+        "presets.advanced",
+        "presets.save",
+        "allusers",
+        "winget",
+        "presets.technician",
+        "cli",
+        "report"
+      ]
     }
   ],
-
   "features": {
     "presets.advanced": "The eight advanced curated presets",
     "presets.save": "Saving, exporting and importing your own presets",
     "allusers": "Applying per-user options to every account on the PC",
-    "winget": "Reinstalling removed Store apps through winget"
+    "winget": "Reinstalling removed Store apps through winget",
+    "presets.technician": "The deployment presets: corporate build, kiosk lockdown and client hand-off",
+    "cli": "Applying a preset unattended from the command line",
+    "report": "Exporting a hand-over report of every change made to a PC"
   },
-
+  "presetTierFeature": {
+    "free": "",
+    "pro": "presets.advanced",
+    "technician": "presets.technician"
+  },
   "revalidateAfterDays": 14,
   "offlineGraceDays": 60,
   "requestTimeoutSeconds": 8

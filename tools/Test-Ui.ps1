@@ -30,6 +30,7 @@ Initialize-Paths -Root $Root
 . (Join-Path $Root 'src\Modules\Catalog.ps1')
 . (Join-Path $Root 'src\Modules\Presets.ps1')
 . (Join-Path $Root 'src\Modules\License.ps1')
+. (Join-Path $Root 'src\Modules\Report.ps1')
 . (Join-Path $Root 'src\Modules\Ui.ps1')
 
 function Say { param($m, $c = 'Gray') Write-Host ("  " + $m) -ForegroundColor $c }
@@ -68,7 +69,8 @@ $names = @(
     'BtnTier', 'OvLicense', 'TxtLicDetail', 'TxtLicFeatures', 'TxtLicKey', 'TxtLicMachine',
     'LicKeyBlock', 'LicActiveBlock', 'BtnLicActivate', 'BtnLicRecheck', 'BtnLicRemove',
     'BtnLicBuy', 'BtnLicBuyTech', 'BtnLicPortal', 'BtnLicClose',
-    'BtnLicSource', 'BtnLicTerms',
+    'BtnLicSource', 'BtnLicTerms', 'LicHaveBlock', 'TxtLicHaveHead', 'TxtLicHave',
+    'LicNextBlock', 'TxtLicNextHead', 'TxtLicNextWho', 'BtnReport',
     'OvBusy', 'PbProgress', 'LogScroll', 'LstLog', 'TxtBusyFoot', 'BtnBusySaveLog', 'BtnBusyClose',
     'OvSave', 'TxtSaveSummary', 'TxtPresetName', 'TxtPresetSummary', 'TxtPresetDetail',
     'BtnSaveCancel', 'BtnSaveOk',
@@ -158,10 +160,27 @@ if ($ent.IsPaid) {
     Say 'this machine has a licence, so lock state is not asserted' 'Yellow'
 } else {
     if ($locked.Count -ne 8) { Say "expected 8 pro presets, found $($locked.Count)" 'Red'; $fail++ }
-    foreach ($f in @('presets.advanced','presets.save','allusers','winget')) {
+    $tech = @($p2 | Where-Object { $_.Tier -eq 'technician' })
+    Say ("presets marked technician: " + $tech.Count) 'Green'
+    if ($tech.Count -ne 3) { Say "expected 3 technician presets, found $($tech.Count)" 'Red'; $fail++ }
+
+    # Every gated feature, not just the original four.
+    $all = @($script:LicCfg.features.PSObject.Properties.Name)
+    foreach ($f in $all) {
         if (Test-Feature $f) { Say "feature $f should be locked on free" 'Red'; $fail++ }
     }
-    Say 'all four paid features correctly locked' 'Green'
+    Say ("all $($all.Count) paid features correctly locked") 'Green'
+
+    # A locked preset must point at the tier that actually unlocks it.
+    Sync-LicenseUi
+    foreach ($pv in $p2) {
+        if (-not $pv.IsLocked) { continue }
+        $want = if ($pv.Tier -eq 'technician') { 'Technician' } else { 'Pro' }
+        if ($pv.LockTierName -ne $want) {
+            Say "preset '$($pv.Name)' is $($pv.Tier) but offers $($pv.LockTierName)" 'Red'; $fail++
+        }
+    }
+    Say 'every locked preset names the tier that unlocks it' 'Green'
 }
 
 Say 'clearing selections...' 'Cyan'

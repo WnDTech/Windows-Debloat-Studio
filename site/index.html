@@ -678,9 +678,10 @@
         category, and the whole safety net are free forever &mdash; because a tool
         that can change your system but not change it back is not a tool worth
         having. What costs money is <em>leverage</em>: doing it repeatedly, at
-        scale, or for other people. There are exactly four paid features, and the
-        code that enforces them cannot reach the journal, Revert, Undo or the dry
-        run &mdash; a test asserts it.
+        scale, or for other people. Pro is for your own machines; Technician is
+        for machines that are not yours. Seven features are paid in total, and
+        the code that enforces them cannot reach the journal, Revert, Undo or the
+        dry run &mdash; a test asserts it.
       </p>
 
       <div class="tiers">
@@ -699,7 +700,7 @@
           <div><p class="tier-tag">Pro &mdash; most people</p><p class="price">&pound;12<small> one-time, 3 PCs</small></p></div>
           <ul>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Everything in Free</span></li>
-            <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>All <strong>11 curated presets</strong> &mdash; Recommended Desktop, Gaming Rig, Laptop &amp; Battery, Security Hardening, Developer, Family PC, Quiet Machine, Maximum Debloat</span></li>
+            <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>All <strong>8 advanced presets</strong> &mdash; Recommended Desktop, Gaming Rig, Laptop &amp; Battery, Security Hardening, Developer, Family PC, Quiet Machine, Maximum Debloat</span></li>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Save, export and import</strong> your own presets</span></li>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Apply per-user options to <strong>every account</strong> and the default profile</span></li>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Reinstall removed Store apps through winget</span></li>
@@ -711,9 +712,11 @@
           <div><p class="tier-tag">Technician</p><p class="price">&pound;39<small> one-time, unlimited</small></p></div>
           <ul>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Everything in Pro</span></li>
+            <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Unattended apply from the command line</strong> &mdash; <code class="mono">--apply build.json</code>, no window, exit code says what happened. Add <code class="mono">--dry-run</code> to rehearse it first.</span></li>
+            <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Client hand-over reports</strong> &mdash; one HTML file listing every change, the previous value of each, and how to reverse it</span></li>
+            <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span><strong>Three deployment presets</strong>: Corporate Build, Kiosk &amp; Shared Terminal, Client Hand-off</span></li>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Unlimited machines, including client work</span></li>
             <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Commercial use licence</span></li>
-            <li><svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 7.5l3.2 3.2L12 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Catalogue updates as Windows changes</span></li>
           </ul>
           <a class="btn btn-ghost" href="#checkout">Buy Technician</a>
         </div>
@@ -722,17 +725,22 @@
       <h3 style="margin-top:2.8rem;font-size:1.02rem">What is deliberately <em>not</em> behind the paywall</h3>
       <div class="tablewrap">
         <table>
-          <thead><tr><th>Capability</th><th class="c">Free</th><th class="c">Pro</th></tr></thead>
+          <thead><tr><th>Capability</th><th class="c">Free</th><th class="c">Pro</th><th class="c">Technician</th></tr></thead>
           <tbody>
-            <tr><td><strong>All 355 options, all 15 categories</strong><span>Nothing is locked with a padlock icon</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
-            <tr><td><strong>Undo everything</strong><span>A tool that can change your PC must be able to change it back</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
-            <tr><td><strong>Revert a single option</strong><span>Back to its pre-app value</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
-            <tr><td><strong>Dry run</strong><span>Rehearse anything, change nothing</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
-            <tr><td><strong>System Restore point</strong><span>One click, any time</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
-            <tr><td><strong>Aggressive options</strong><span>Never sold as an upgrade &mdash; profiting from risk would be indefensible</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
-            <tr><td>The 8 advanced curated presets<span>Their contents are all reachable free by ticking the same options</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td></tr>
-            <tr><td>Save / export / import your own presets<span>The feature that pays for itself across several machines</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td></tr>
-            <tr><td>Apply to all user accounts<span>A professional and multi-user feature</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td><strong>All 355 options, all 15 categories</strong><span>Nothing is locked with a padlock icon</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td><strong>Undo everything</strong><span>A tool that can change your PC must be able to change it back</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td><strong>Revert a single option</strong><span>Back to its pre-app value</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td><strong>Dry run</strong><span>Rehearse anything, change nothing</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td><strong>System Restore point</strong><span>One click, any time</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td><strong>Aggressive options</strong><span>Never sold as an upgrade &mdash; profiting from risk would be indefensible</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td>The 8 advanced curated presets<span>Their contents are all reachable free by ticking the same options</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td>Save / export / import your own presets<span>The feature that pays for itself across several machines</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td>Apply to all user accounts<span>A professional and multi-user feature</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td>Unattended apply from the command line<span>One machine or thirty, from a deployment script. <code class="mono">--dry-run</code> rehearses it first</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td>Client hand-over report<span>Every change, its previous value, and how to reverse it, in one HTML file</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td>The three deployment presets<span>Corporate Build, Kiosk &amp; Shared Terminal, Client Hand-off</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td></tr>
+            <tr><td>Machines<span>Free has no licence and no activation, so no limit either. The count applies to paid keys</span></td><td class="c"><span class="yes">Any</span></td><td class="c"><span class="yes">3</span></td><td class="c"><span class="yes">Unlimited</span></td></tr>
+            <tr><td>Commercial use<span>Paid work on machines that are not yours</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="no">&mdash;</span></td><td class="c"><span class="yes">Yes</span></td></tr>
           </tbody>
         </table>
       </div>
@@ -778,7 +786,7 @@
       <div class="dl reveal">
         <div class="dl-main">
           <p class="dl-name">WindowsDebloatStudio.exe</p>
-          <p class="dl-meta">230&nbsp;KB &middot; Windows 11 &middot; version 1.0.0</p>
+          <p class="dl-meta">241&nbsp;KB &middot; Windows 11 &middot; version 1.0.0</p>
         </div>
         <a class="btn btn-primary" href="#checkout">Download</a>
       </div>
@@ -796,12 +804,12 @@
         warning will not happen.</p>
         <p style="margin-top:.7rem">Verify it in PowerShell before running it:</p>
         <pre class="mono dl-hash"><code>Get-FileHash .\WindowsDebloatStudio.exe -Algorithm SHA256</code></pre>
-        <p class="dl-sha"><span>SHA-256</span><code>02b023e51887cf08d35c5c48876cc15834241f15c061ca086e0c05f455bf726d</code></p>
+        <p class="dl-sha"><span>SHA-256</span><code>c3e4e0adaa0d200c29f46ee200587415b5d72819bd1942a34501bb41d50e5bdc</code></p>
       </div>
 
       <div class="feature" style="align-items:start;margin-top:2.4rem">
         <div class="prose">
-          <span><strong>It is</strong> one file, about 230&nbsp;KB. No installer,
+          <span><strong>It is</strong> one file, about 241&nbsp;KB. No installer,
           no service, no account, no network calls of its own. It unpacks itself
           into a temporary folder, runs, and deletes that folder when you close
           it &mdash; using the PowerShell and .NET already on Windows 11. The only
