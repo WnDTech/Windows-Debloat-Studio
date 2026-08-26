@@ -1809,10 +1809,16 @@ function Show-CleanupOverlay {
     $items = New-Object Collections.ObjectModel.ObservableCollection[object]
     foreach ($tw in @($cleanupCat.Tweaks)) {
         $riskColor = switch ($tw.Risk) {
-            'safe'      { '#33DD68C' }
-            'moderate'  { '#33F7B74A' }
-            'aggressive'{ '#33FF8189' }
-            default     { '#33768094' }
+            'safe'      { '#FF16281D' }
+            'moderate'  { '#FF282010' }
+            'aggressive'{ '#FF2A1416' }
+            default     { '#FF1A1E28' }
+        }
+        $riskFg = switch ($tw.Risk) {
+            'safe'      { '#FF3DD68C' }
+            'moderate'  { '#FFF7B74A' }
+            'aggressive'{ '#FFFF8189' }
+            default     { '#FF768094' }
         }
         $warning = if ($tw.Risk -ne 'safe') { "This action permanently deletes data and cannot be undone." } else { '' }
         $obj = [pscustomobject]@{
@@ -1822,7 +1828,7 @@ function Show-CleanupOverlay {
             Warning = $warning
             RiskLabel = $tw.Risk.ToUpper()
             RiskBrush = [System.Windows.Media.BrushConverter]::new().ConvertFromString($riskColor)
-            RiskFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString(($tw.Risk))
+            RiskFg = [System.Windows.Media.BrushConverter]::new().ConvertFromString($riskFg)
             Tweak = $tw
         }
         $items.Add($obj)
