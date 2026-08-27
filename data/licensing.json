@@ -21,7 +21,7 @@
   "checkout": {
     "pro": "https://buy.polar.sh/polar_cl_YLNee2PJwOEJ6bCO3utIPceq0IeEzwzaQHYQ31posJC",
     "technician": "https://buy.polar.sh/polar_cl_k2Gv77HpgxYaUWiLnNWjijwQhlOqdkSdfzzuQ2WwZQ5",
-    "portal": "https://polar.sh/purchases"
+    "portal": "https://polar.sh/sigforge/portal"
   },
   "tiers": [
     {
